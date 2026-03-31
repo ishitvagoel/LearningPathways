@@ -10,7 +10,7 @@ Welcome to a curated collection of deep-dive learning paths for AI and Software 
 
 <div class="grid cards" markdown>
 
--   :material-language-python: __LangChain Deep Dive__
+-   :simple-python: __LangChain Deep Dive__
 
     ---
 
@@ -18,7 +18,7 @@ Welcome to a curated collection of deep-dive learning paths for AI and Software 
 
     [:octicons-arrow-right-24: Start Learning](ai-engineering/langchain-path.md)
 
--   :material-robot: __AI Developer Mastery__
+-   :simple-googlegemini: __AI Developer Mastery__
 
     ---
 
@@ -27,3 +27,12 @@ Welcome to a curated collection of deep-dive learning paths for AI and Software 
     [:octicons-arrow-right-24: Start Learning](ai-engineering/ai-mastery-plan.md)
 
 </div>
+
+## 📊 System Overview
+
+```mermaid
+graph LR
+  A[User] --> B[Gemini CLI]
+  B --> C[MkDocs Material]
+  C --> D[GitHub Pages]
+```
