@@ -34,7 +34,6 @@ theme:
     - search.highlight
     - content.code.copy
     - content.tooltips
-    - content.action.edit
     - content.action.view
 
 extra_css:
