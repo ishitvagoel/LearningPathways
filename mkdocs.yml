@@ -58,7 +58,8 @@ markdown_extensions:
 nav:
   - Home: index.md
   - AI Engineering:
-      - ai-engineering/
+    - LangChain Path: ai-engineering/langchain-path.md
+    - AI Mastery Plan: ai-engineering/ai-mastery-plan.md
 
 repo_url: https://github.com/ishitvagoel/LeaningPathways
 repo_name: ishitvagoel/LeaningPathways
