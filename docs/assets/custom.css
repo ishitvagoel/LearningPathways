@@ -34,6 +34,44 @@ h1, h2, h3, .md-nav__title {
   }
 }
 
+/* Custom Admonition Styles */
+.md-typeset .admonition.info.inline.end {
+  width: 300px;
+  margin-top: 0;
+}
+
+.md-typeset .admonition.info.inline.end ul {
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+}
+
+/* Button Enhancements */
+.md-typeset .md-button--primary {
+  background-color: var(--md-primary-fg-color);
+  color: #fff !important;
+  border-color: var(--md-primary-fg-color);
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+  transform: translateX(4px);
+}
+
+/* Clean Links */
+.md-typeset a {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--md-primary-fg-color);
+}
+
+.md-typeset a:hover {
+  color: var(--md-accent-fg-color);
+}
+
 .grid.cards > ul > li {
   position: relative;
   border-radius: 12px;

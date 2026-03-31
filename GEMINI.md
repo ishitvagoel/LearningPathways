@@ -49,6 +49,22 @@ When adding new Learning Paths (e.g., from Claude Opus), they MUST follow the es
 1.  **Instructions for the Teaching Model:** A set of rules for an LLM (like Gemini or Claude) to act as a mentor.
 2.  **Learner Profile:** Defines the target audience's background and knowledge gaps.
 3.  **Phase-based Curriculum:** A sequential, phased approach starting from "Phase 0: Environment & First Contact."
+    *   **Resource Format:** Each course or resource MUST follow this specific structure for consistent rendering:
+        ```markdown
+        ### Resource Title { #resource-anchor }
+
+        !!! info inline end "Quick Stats"
+            - **Platform:** Name
+            - **Cost:** $XX / Free
+            - **Duration:** Time
+
+        **Instructor(s):** Name(s)
+
+        **Description:**
+        Brief summary of what will be learned. Use bullet points for key takeaways.
+
+        [**Visit Resource :octicons-arrow-right-24:**](https://url-here){ .md-button .md-button--primary }
+        ```
 4.  **🔨 Checkpoint Projects:** Mandatory hands-on tasks at the end of each phase for empirical validation of knowledge.
 5.  **What NOT to Teach:** A list of deprecated patterns or outdated libraries to avoid.
 

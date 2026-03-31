@@ -10,40 +10,91 @@ description: Strategic roadmap for becoming a senior AI engineer.
 A key insight from multiple roadmaps (roadmap.sh, KDnuggets, DataUnboxed): AI engineering is *not* ML research. As Andrej Karpathy noted, "One can be quite successful in this role without ever training anything." This plan prioritizes building with LLMs first, then deepens into internals — the fastest path for a working developer.
 
 ---
-
 ## Phase 1: Foundation and prompt engineering (Weeks 1–3)
 
 You've already completed *AI for Everyone* and *Generative AI for Everyone*, and you're currently working through *ChatGPT Prompt Engineering for Developers*. This phase rounds out your foundation by extending prompt engineering to different models and building your first LLM-powered systems.
 
-**1. ChatGPT Prompt Engineering for Developers** ✅ (in progress)
-Platform: DeepLearning.ai | Instructors: Isa Fulford (OpenAI) & Andrew Ng | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/
+### 1. ChatGPT Prompt Engineering for Developers ✅ { #prompt-eng-dev }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructors:** Isa Fulford (OpenAI) & Andrew Ng
+
+**Description:**
 Covers two key principles of effective prompting, systematic prompt engineering, and building a custom chatbot with the OpenAI API. Finish this first — it's the gateway to everything else.
 
-**2. Building Systems with the ChatGPT API**
-Platform: DeepLearning.ai | Instructors: Isa Fulford & Andrew Ng | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/building-systems-with-chatgpt/
-*Rationale:* The natural next step after prompt engineering. Teaches you to chain multiple API calls into complex workflows — classifying queries, evaluating safety, multi-step reasoning. This is where your web development instincts kick in: you're building *systems*, not just writing prompts.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/){ .md-button .md-button--primary }
 
-**3. Prompt Engineering with Llama 2 & 3**
-Platform: DeepLearning.ai | Instructor: Amit Sangani (Meta) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/prompt-engineering-with-llama-2/
-*Rationale:* Extends your skills beyond OpenAI to open-source models. Covers few-shot, chain-of-thought, and Llama Guard for safe AI. Understanding both proprietary and open-source models is essential for cost-effective production work.
+### 2. Building Systems with the ChatGPT API { #building-systems }
 
-**4. Reasoning with o1**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: December 2024
-URL: https://www.deeplearning.ai/short-courses/reasoning-with-o1/
-*Rationale:* Covers OpenAI's reasoning models and how to leverage chain-of-thought capabilities — a newer paradigm that changes how you architect certain LLM applications.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**5. 3Blue1Brown: Neural networks and transformers series** (watch alongside other courses)
-Platform: YouTube | Creator: Grant Sanderson | Duration: ~3 hrs total | Cost: Free
-URL: https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
+**Instructors:** Isa Fulford & Andrew Ng
+
+**Description:**
+The natural next step after prompt engineering. Teaches you to chain multiple API calls into complex workflows — classifying queries, evaluating safety, multi-step reasoning. This is where your web development instincts kick in: you're building *systems*, not just writing prompts.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/building-systems-with-chatgpt/){ .md-button .md-button--primary }
+
+### 3. Prompt Engineering with Llama 2 & 3 { #prompt-eng-llama }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Amit Sangani (Meta)
+
+**Description:**
+Extends your skills beyond OpenAI to open-source models. Covers few-shot, chain-of-thought, and Llama Guard for safe AI. Understanding both proprietary and open-source models is essential for cost-effective production work.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/prompt-engineering-with-llama-2/){ .md-button .md-button--primary }
+
+### 4. Reasoning with o1 { #reasoning-o1 }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Covers OpenAI's reasoning models and how to leverage chain-of-thought capabilities — a newer paradigm that changes how you architect certain LLM applications.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/reasoning-with-o1/){ .md-button .md-button--primary }
+
+### 5. 3Blue1Brown: Neural networks and transformers series { #3b1b-neural }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** YouTube
+    - **Cost:** Free
+    - **Duration:** ~3 hrs total
+
+**Instructor:** Grant Sanderson
+
+**Description:**
 Watch "But what is a Neural Network?", "Gradient descent", "Backpropagation", then the newer transformer chapters: "Transformers, the tech behind LLMs" and "Attention in transformers, step-by-step." These stunning visual explanations build intuition that will pay dividends throughout the entire plan. No code required — pure conceptual understanding with beautiful animations.
 
-**6. Karpathy: "Deep Dive into LLMs like ChatGPT"** (watch early — sets the mental model for everything)
-Platform: YouTube | Creator: Andrej Karpathy | Duration: ~3.5 hrs | Cost: Free | Released: February 2025
-URL: https://www.youtube.com/watch?v=7xTGNNLPyMI
-*Rationale:* A comprehensive end-to-end overview of how LLMs work: pretraining, tokenization, transformer internals, supervised fine-tuning, hallucinations, tool use, RLHF, and DeepSeek-R1's reasoning breakthroughs. Designed for a general audience — no code required. This single video gives you the complete mental model of the LLM training pipeline that makes every subsequent course click faster. Watching this early (even before finishing Phase 1) is one of the highest-ROI things you can do.
+[**Watch Series :octicons-arrow-right-24:**](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi){ .md-button .md-button--primary }
+
+### 6. Karpathy: "Deep Dive into LLMs like ChatGPT" { #karpathy-deep-dive }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** YouTube
+    - **Cost:** Free
+    - **Duration:** ~3.5 hrs
+
+**Instructor:** Andrej Karpathy
+
+**Description:**
+A comprehensive end-to-end overview of how LLMs work: pretraining, tokenization, transformer internals, supervised fine-tuning, hallucinations, tool use, RLHF, and DeepSeek-R1's reasoning breakthroughs. Designed for a general audience — no code required.
+
+[**Watch Video :octicons-arrow-right-24:**](https://www.youtube.com/watch?v=7xTGNNLPyMI){ .md-button .md-button--primary }
 
 ---
 
@@ -51,40 +102,95 @@ URL: https://www.youtube.com/watch?v=7xTGNNLPyMI
 
 This is where your web development background becomes a superpower. You already know how to build APIs, handle requests, manage state, and deploy applications. Now you're adding LLMs as a new tool in your stack.
 
-**1. LangChain for LLM Application Development**
-Platform: DeepLearning.ai | Instructors: Harrison Chase (LangChain creator) & Andrew Ng | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/
-*Rationale:* LangChain is the most widely adopted framework for LLM applications. This course covers the fundamentals: models, prompts, parsers, memory, chains, and agents as reasoning engines. Harrison Chase, the framework's creator, explains *when and why* to use each component.
+### 1. LangChain for LLM Application Development { #langchain-app-dev }
 
-**2. Open Source Models with Hugging Face**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: March 2024
-URL: https://www.deeplearning.ai/short-courses/open-source-models-hugging-face/
-*Rationale:* Not every application needs GPT-4. This teaches you to find, select, and deploy open-source models from the Hugging Face ecosystem — critical for cost-sensitive or privacy-sensitive deployments.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**3. Getting Structured LLM Output**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: April 2025
-URL: https://www.deeplearning.ai/short-courses/getting-structured-llm-output/
-*Rationale:* Real applications need structured, reliable outputs (JSON, typed schemas). This course solves the #1 frustration developers hit when integrating LLMs into existing systems.
+**Instructors:** Harrison Chase (LangChain creator) & Andrew Ng
 
-**4. Improving Accuracy of LLM Applications**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: August 2024
-URL: https://www.deeplearning.ai/short-courses/improving-accuracy-of-llm-applications/
-*Rationale:* Covers techniques to improve reliability — the gap between "cool demo" and "production system" that your engineering background will appreciate.
+**Description:**
+LangChain is the most widely adopted framework for LLM applications. This course covers the fundamentals: models, prompts, parsers, memory, chains, and agents as reasoning engines. Harrison Chase explains *when and why* to use each component.
 
-**5. MCP: Build Rich-Context AI Apps with Anthropic**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: May 2025 | Partner: Anthropic
-URL: https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/
-*Rationale:* The **Model Context Protocol** has become an industry standard (adopted by OpenAI, Google, Microsoft, and Anthropic) for connecting LLMs to external tools and data. This is the modern way to build integrations — directly relevant to your web development background.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/){ .md-button .md-button--primary }
 
-**6. Hugging Face LLM Course** (self-paced companion)
-Platform: huggingface.co/learn | Cost: Free
-URL: https://huggingface.co/learn/llm-course
-*Rationale:* Comprehensive text-based course covering the Transformers library, tokenizers, datasets, and fine-tuning. Work through Chapters 1–4 alongside the DeepLearning.ai courses for deeper framework mastery. Includes Gradio for building quick demos.
+### 2. Open Source Models with Hugging Face { #os-models-hf }
 
-**7. Udemy: LLM Engineering — Master AI and Large Language Models** (optional, paid)
-Instructor: Ed Donner | Rating: **4.7/5 (18,000+ reviews)** | Duration: ~15 hrs | Cost: ~$10–15 on sale
-URL: https://www.udemy.com/course/llm-engineering-master-ai-and-large-language-models/
-*Rationale:* Consistently ranked the **#1 LLM engineering course on Udemy**. Includes 8 real-world projects: AI brochure generator, multimodal customer support agent, meeting minutes tool, Python-to-C++ code optimizer. Covers 20+ models, LangChain, HuggingFace, Gradio, RAG, QLoRA fine-tuning, and agents. Reviews describe it as a "masterpiece." For $10–15 on sale, this single course provides an exceptional end-to-end foundation that complements the free short courses.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Not every application needs GPT-4. This teaches you to find, select, and deploy open-source models from the Hugging Face ecosystem — critical for cost-sensitive or privacy-sensitive deployments.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/open-source-models-hugging-face/){ .md-button .md-button--primary }
+
+### 3. Getting Structured LLM Output { #structured-output }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Real applications need structured, reliable outputs (JSON, typed schemas). This course solves the #1 frustration developers hit when integrating LLMs into existing systems.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/getting-structured-llm-output/){ .md-button .md-button--primary }
+
+### 4. Improving Accuracy of LLM Applications { #accuracy-llm }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Covers techniques to improve reliability — the gap between "cool demo" and "production system" that your engineering background will appreciate.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/improving-accuracy-of-llm-applications/){ .md-button .md-button--primary }
+
+### 5. MCP: Build Rich-Context AI Apps with Anthropic { #mcp-anthropic }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Anthropic Partner
+
+**Description:**
+The **Model Context Protocol** has become an industry standard (adopted by OpenAI, Google, Microsoft, and Anthropic) for connecting LLMs to external tools and data. This is the modern way to build integrations — directly relevant to your web development background.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/){ .md-button .md-button--primary }
+
+### 6. Hugging Face LLM Course { #hf-llm-course }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** huggingface.co/learn
+    - **Cost:** Free
+    - **Duration:** Self-paced
+
+**Description:**
+Comprehensive text-based course covering the Transformers library, tokenizers, datasets, and fine-tuning. Includes Gradio for building quick demos. Work through Chapters 1–4 alongside the DeepLearning.ai courses for deeper framework mastery.
+
+[**Visit Course :octicons-arrow-right-24:**](https://huggingface.co/learn/llm-course){ .md-button .md-button--primary }
+
+### 7. Udemy: LLM Engineering — Master AI and Large Language Models { #udemy-llm-eng }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Udemy
+    - **Cost:** ~$10–15 on sale
+    - **Duration:** ~15 hrs
+
+**Instructor:** Ed Donner
+
+**Description:**
+Consistently ranked the **#1 LLM engineering course on Udemy**. Includes 8 real-world projects: AI brochure generator, multimodal customer support agent, meeting minutes tool, Python-to-C++ code optimizer. Covers 20+ models, LangChain, HuggingFace, Gradio, RAG, QLoRA fine-tuning, and agents.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.udemy.com/course/llm-engineering-master-ai-and-large-language-models/){ .md-button .md-button--primary }
 
 ---
 
@@ -92,50 +198,131 @@ URL: https://www.udemy.com/course/llm-engineering-master-ai-and-large-language-m
 
 RAG is the **single most practical AI pattern for production applications** — it lets you ground LLMs in your own data without fine-tuning. This phase is where you build the applications that make up most real-world AI deployments today.
 
-**1. LangChain: Chat with Your Data**
-Platform: DeepLearning.ai | Instructor: Harrison Chase | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/langchain-chat-with-your-data/
-*Rationale:* The definitive introduction to RAG. Covers the full pipeline: document loading (80+ loaders), document splitting, vector stores, embeddings, and advanced retrieval. You'll build a chatbot that answers questions from your own documents. Start here.
+### 1. LangChain: Chat with Your Data { #langchain-rag }
 
-**2. Vector Databases: from Embeddings to Applications**
-Platform: DeepLearning.ai | Instructor: Zain Hassan (Weaviate) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/vector-databases-embeddings-applications/
-*Rationale:* Goes deeper into *how* vector databases work: embeddings, distance metrics, ANN algorithms (HNSW), sparse/dense/hybrid search. Understanding the internals helps you choose the right vector DB and tune performance.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**3. Building Applications with Vector Databases**
-Platform: DeepLearning.ai | Partner: Pinecone | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/building-applications-vector-databases/
-*Rationale:* Six practical applications beyond basic RAG: semantic search, recommendation systems, hybrid search (text+images), facial similarity, anomaly detection. Broadens your mental model of what vector databases can do.
+**Instructor:** Harrison Chase
 
-**4. Advanced Retrieval for AI with Chroma**
-Platform: DeepLearning.ai | Partner: Chroma | Duration: ~1 hr | Cost: Free | Released: January 2024
-URL: https://www.deeplearning.ai/short-courses/advanced-retrieval-for-ai/
-*Rationale:* Focuses on *improving* retrieval quality: using LLMs to improve queries, query expansion, cross-encoder re-ranking, and training embedding adapters with user feedback. This is where you learn to make RAG actually *good*.
+**Description:**
+The definitive introduction to RAG. Covers the full pipeline: document loading (80+ loaders), document splitting, vector stores, embeddings, and advanced retrieval. You'll build a chatbot that answers questions from your own documents.
 
-**5. Building and Evaluating Advanced RAG Applications**
-Platform: DeepLearning.ai | Partners: LlamaIndex & TruEra | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/
-*Rationale:* Introduces evaluation — the most underappreciated skill in AI engineering. You can't improve what you can't measure. Covers RAG evaluation techniques using TruEra tools.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/langchain-chat-with-your-data/){ .md-button .md-button--primary }
 
-**6. Preprocessing Unstructured Data for LLM Applications**
-Platform: DeepLearning.ai | Partner: Unstructured.io | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/preprocessing-unstructured-data-for-llm-applications/
-*Rationale:* Real-world data is messy: PDFs, Word docs, tables, images. This course teaches data extraction and preparation for RAG pipelines — the unglamorous but critical work that separates demos from production systems.
+### 2. Vector Databases: from Embeddings to Applications { #vector-db-apps }
 
-**7. Knowledge Graphs for RAG**
-Platform: DeepLearning.ai | Partner: Neo4j | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/knowledge-graphs-rag/
-*Rationale:* Graph-based retrieval is increasingly important for complex domains where relationships between entities matter. Combines Neo4j with RAG for more sophisticated knowledge retrieval.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**8. Generative AI with Large Language Models** (Coursera deep-dive)
-Platform: Coursera | Instructors: Chris Fregly, Antje Barth (AWS & DeepLearning.AI) | Duration: ~20 hrs | Rating: **4.8/5 (3,580+ reviews, 427K+ learners)** | Cost: Free to audit
-URL: https://www.coursera.org/learn/generative-ai-with-llms
-*Rationale:* This is the single most important longer course in the plan. Covers the **complete LLM lifecycle**: transformer architecture, training, fine-tuning, RLHF, scaling laws, and deployment. It bridges Phases 3 and 4, providing the theoretical backbone that makes everything else click. Audit it free and take 2–3 weeks alongside the short courses.
+**Instructor:** Zain Hassan (Weaviate)
 
-**Udemy option: LangChain — Develop AI Agents with LangChain & LangGraph** (optional, paid)
-Instructor: Eden Marco | Rating: **4.6/5 (28,000+ ratings)** | Students: 98,000+ | Duration: 21 hrs | Cost: ~$10–15 on sale
-URL: https://www.udemy.com/course/langchain/
-*Rationale:* The **most popular LangChain course on Udemy**, re-recorded for LangChain V1.0+. Builds three full projects: Ice Breaker agent, Documentation Helper (RAG chatbot), and a ChatGPT Code Interpreter clone. Designed for experienced software engineers — explains *when and why*, not just *how*. If you pick one paid course for this phase, make it this one.
+**Description:**
+Goes deeper into *how* vector databases work: embeddings, distance metrics, ANN algorithms (HNSW), sparse/dense/hybrid search. Understanding the internals helps you choose the right vector DB and tune performance.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/vector-databases-embeddings-applications/){ .md-button .md-button--primary }
+
+### 3. Building Applications with Vector Databases { #build-apps-vector-db }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Pinecone Partner
+
+**Description:**
+Six practical applications beyond basic RAG: semantic search, recommendation systems, hybrid search (text+images), facial similarity, anomaly detection. Broadens your mental model of what vector databases can do.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/building-applications-vector-databases/){ .md-button .md-button--primary }
+
+### 4. Advanced Retrieval for AI with Chroma { #adv-retrieval-chroma }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Chroma Partner
+
+**Description:**
+Focuses on *improving* retrieval quality: using LLMs to improve queries, query expansion, cross-encoder re-ranking, and training embedding adapters with user feedback. This is where you learn to make RAG actually *good*.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/advanced-retrieval-for-ai/){ .md-button .md-button--primary }
+
+### 5. Building and Evaluating Advanced RAG Applications { #eval-rag }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructors:** LlamaIndex & TruEra Partners
+
+**Description:**
+Introduces evaluation — the most underappreciated skill in AI engineering. You can't improve what you can't measure. Covers RAG evaluation techniques using TruEra tools.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/){ .md-button .md-button--primary }
+
+### 6. Preprocessing Unstructured Data for LLM Applications { #preprocess-data }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Unstructured.io Partner
+
+**Description:**
+Real-world data is messy: PDFs, Word docs, tables, images. This course teaches data extraction and preparation for RAG pipelines — the unglamorous but critical work that separates demos from production systems.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/preprocessing-unstructured-data-for-llm-applications/){ .md-button .md-button--primary }
+
+### 7. Knowledge Graphs for RAG { #knowledge-graphs-rag }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Neo4j Partner
+
+**Description:**
+Graph-based retrieval is increasingly important for complex domains where relationships between entities matter. Combines Neo4j with RAG for more sophisticated knowledge retrieval.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/knowledge-graphs-rag/){ .md-button .md-button--primary }
+
+### 8. Generative AI with Large Language Models { #coursera-genai-llm }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Coursera
+    - **Cost:** Free to audit
+    - **Duration:** ~20 hrs
+
+**Instructors:** Chris Fregly, Antje Barth (AWS & DeepLearning.AI)
+
+**Description:**
+This is the single most important longer course in the plan. Covers the **complete LLM lifecycle**: transformer architecture, training, fine-tuning, RLHF, scaling laws, and deployment. It bridges Phases 3 and 4, providing the theoretical backbone that makes everything else click.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.coursera.org/learn/generative-ai-with-llms){ .md-button .md-button--primary }
+
+### 9. LangChain — Develop AI Agents with LangChain & LangGraph { #udemy-langchain }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Udemy
+    - **Cost:** ~$10–15 on sale
+    - **Duration:** ~21 hrs
+
+**Instructor:** Eden Marco
+
+**Description:**
+The **most popular LangChain course on Udemy**, re-recorded for LangChain V1.0+. Builds three full projects: Ice Breaker agent, Documentation Helper (RAG chatbot), and a ChatGPT Code Interpreter clone. Designed for experienced software engineers — explains *when and why*, not just *how*.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.udemy.com/course/langchain/){ .md-button .md-button--primary }
 
 ---
 
@@ -143,73 +330,181 @@ URL: https://www.udemy.com/course/langchain/
 
 Now that you've built practical applications, this phase gives you the *understanding* of what's happening under the hood. This isn't academic — it directly improves your ability to debug, optimize, and architect AI systems.
 
-### Understanding transformers and neural networks
+### 1. Andrej Karpathy's "Neural Networks: Zero to Hero" { #karpathy-zero-to-hero }
 
-**1. Andrej Karpathy's "Neural Networks: Zero to Hero"** ⭐
-Platform: YouTube | Duration: ~14.5 hrs (8 videos) | Cost: Free
-URL: https://karpathy.ai/zero-to-hero.html
-This is widely considered **the single best deep learning tutorial series ever created**. Karpathy (former Sr. Director of AI at Tesla, OpenAI founding member) builds everything from absolute scratch in Python/PyTorch:
+!!! info inline end "Quick Stats"
+    - **Platform:** YouTube
+    - **Cost:** Free
+    - **Duration:** ~14.5 hrs
 
-- Videos 1–3 (~5.5 hrs): Build micrograd (autograd engine from scratch), bigram language model, MLP character-level model. These three alone give you a visceral understanding of how neural networks learn.
-- Video 7: **"Let's build GPT: from scratch, in code, spelled out"** (~2 hrs) — Considered a "rite of passage" for LLM practitioners. Builds a GPT following the "Attention is All You Need" paper. After this video, transformers stop being magic.
-- Video 8: **"Let's build the GPT Tokenizer"** (~2 hrs) — Explains why many LLM quirks trace back to tokenization. Builds the BPE tokenizer used in GPT from scratch.
+**Instructor:** Andrej Karpathy
 
-Watch videos 1–3 and 7–8 as priorities. Videos 4–6 are excellent but optional for your goals.
+**Description:**
+Widely considered **the single best deep learning tutorial series ever created**. Karpathy builds everything from absolute scratch in Python/PyTorch: micrograd, bigram language models, MLP character-level models, and a GPT from scratch following the "Attention is All You Need" paper.
 
-**2. 3Blue1Brown: "How might LLMs store facts" + "Attention in transformers"**
-Platform: YouTube | Duration: ~40 min total | Cost: Free
-*Rationale:* These two videos visualize the mechanics of how transformers actually store and retrieve knowledge — concepts that are extremely hard to grasp from text alone.
+[**Watch Series :octicons-arrow-right-24:**](https://karpathy.ai/zero-to-hero.html){ .md-button .md-button--primary }
 
-*Note: If you followed the Phase 1 recommendation, you will have already watched Karpathy's "Deep Dive into LLMs" (3.5 hrs) and the 3Blue1Brown neural network basics. Those provide the conceptual foundation; this phase adds the code-level understanding.*
+### 2. 3Blue1Brown: "How might LLMs store facts" + "Attention in transformers" { #3b1b-transformer-mech }
 
-### Embeddings deep-dive
+!!! info inline end "Quick Stats"
+    - **Platform:** YouTube
+    - **Cost:** Free
+    - **Duration:** ~40 min total
 
-**3. Understanding and Applying Text Embeddings**
-Platform: DeepLearning.ai | Instructor: Andrew Ng (with Google Cloud) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/google-cloud-vertex-ai/
-*Rationale:* Solidifies your understanding of what embeddings are, how they're created, and how to use them effectively. Essential theoretical grounding for all the RAG work in Phase 3.
+**Instructor:** Grant Sanderson
 
-**4. Embedding Models**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: July 2024
-URL: https://www.deeplearning.ai/short-courses/embedding-models-from-architecture-to-implementation/
-*Rationale:* Deeper dive into how embedding models work, including training approaches and architectural choices.
+**Description:**
+These videos visualize the mechanics of how transformers actually store and retrieve knowledge — concepts that are extremely hard to grasp from text alone.
 
-### Fine-tuning LLMs
+[**Watch Video :octicons-arrow-right-24:**](https://www.youtube.com/watch?v=9-Jl0dxWQs8){ .md-button .md-button--primary }
 
-**5. Finetuning Large Language Models**
-Platform: DeepLearning.ai | Instructor: Sharon Zhou (Lamini) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/finetuning-large-language-models/
-*Rationale:* The essential starting point for fine-tuning: when to fine-tune vs. prompt, preparing training data, the complete fine-tuning pipeline. Clarifies *decision-making* around fine-tuning, not just mechanics.
+### 3. Understanding and Applying Text Embeddings { #apply-embeddings }
 
-**6. Efficiently Serving LLMs**
-Platform: DeepLearning.ai | Partner: Predibase | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/efficiently-serving-llms/
-*Rationale:* Covers **LoRA** (Low-Rank Adaptation) for parameter-efficient fine-tuning and quantization for reducing model memory. These are the techniques that make fine-tuning affordable on consumer hardware.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**7. Pretraining LLMs**
-Platform: DeepLearning.ai | Instructors: Sung Kim & Lucy Park (Upstage) | Duration: ~1 hr | Cost: Free | Released: July 2024
-URL: https://www.deeplearning.ai/short-courses/pretraining-llms/
-*Rationale:* The complete pretraining pipeline from data preparation through training execution. Covers the Depth Upscaling technique that reduces costs by **70%**. Even if you never pretrain a model, understanding this process deepens your intuition about how LLMs behave.
+**Instructor:** Andrew Ng (with Google Cloud)
 
-**8. Quantization Fundamentals with Hugging Face + Quantization in Depth**
-Platform: DeepLearning.ai | Duration: ~2 hrs total | Cost: Free | Released: April–May 2024
-URL: https://www.deeplearning.ai/short-courses/quantization-fundamentals-with-hugging-face/
-*Rationale:* Quantization is how you run large models on smaller hardware. Two courses that go from fundamentals to advanced techniques — directly practical for deploying open-source models.
+**Description:**
+Solidifies your understanding of what embeddings are, how they're created, and how to use them effectively. Essential theoretical grounding for all the RAG work in Phase 3.
 
-**9. Reinforcement Learning from Human Feedback**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/reinforcement-learning-from-human-feedback/
-*Rationale:* RLHF is how models like ChatGPT get aligned with human preferences. Understanding this process helps you understand model behavior and the alignment landscape.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/google-cloud-vertex-ai/){ .md-button .md-button--primary }
 
-### Optional deeper dives
+### 4. Embedding Models { #embedding-models-arch }
 
-**Deep Learning Specialization** by Andrew Ng (Coursera) — 5 courses, ~3 months at 10 hrs/week, **4.9/5 rating with 137K+ reviews**, free to audit individual courses. Covers neural networks from scratch through CNNs, RNNs, and transformers. Take this if you want the full theoretical foundation.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**NLP Specialization** (Coursera, DeepLearning.ai) — 4 courses, co-taught by **Łukasz Kaiser, co-author of the original Transformer paper**. Covers sentiment analysis through attention mechanisms and BERT. Free to audit.
+**Description:**
+Deeper dive into how embedding models work, including training approaches and architectural choices.
 
-**freeCodeCamp: "Code an LLM From Scratch"** — YouTube, ~6 hrs, completely free. Builds from transformer architecture through RLHF alignment. An excellent free alternative to the Coursera courses.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/embedding-models-from-architecture-to-implementation/){ .md-button .md-button--primary }
 
-**Udemy: Data Science — Transformers for NLP** by Lazy Programmer — 12.5 hrs, ~$10–15 on sale. Implements transformers from scratch in both PyTorch and TensorFlow. Covers both practical usage and deep theory. Students compare the teaching quality to Ivy League courses.
+### 5. Finetuning Large Language Models { #finetune-llm }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Sharon Zhou (Lamini)
+
+**Description:**
+The essential starting point for fine-tuning: when to fine-tune vs. prompt, preparing training data, the complete fine-tuning pipeline. Clarifies *decision-making* around fine-tuning, not just mechanics.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/finetuning-large-language-models/){ .md-button .md-button--primary }
+
+### 6. Efficiently Serving LLMs { #serve-llm }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Predibase Partner
+
+**Description:**
+Covers **LoRA** (Low-Rank Adaptation) for parameter-efficient fine-tuning and quantization for reducing model memory. These are the techniques that make fine-tuning affordable on consumer hardware.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/efficiently-serving-llms/){ .md-button .md-button--primary }
+
+### 7. Pretraining LLMs { #pretrain-llm }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructors:** Sung Kim & Lucy Park (Upstage)
+
+**Description:**
+The complete pretraining pipeline from data preparation through training execution. Covers the Depth Upscaling technique that reduces costs by **70%**. Even if you never pretrain a model, understanding this process deepens your intuition about how LLMs behave.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/pretraining-llms/){ .md-button .md-button--primary }
+
+### 8. Quantization Fundamentals with Hugging Face { #quantization-hf }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~2 hrs total
+
+**Description:**
+Quantization is how you run large models on smaller hardware. This course goes from fundamentals to advanced techniques — directly practical for deploying open-source models.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/quantization-fundamentals-with-hugging-face/){ .md-button .md-button--primary }
+
+### 9. Reinforcement Learning from Human Feedback { #rlhf-course }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+RLHF is how models like ChatGPT get aligned with human preferences. Understanding this process helps you understand model behavior and the alignment landscape.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/reinforcement-learning-from-human-feedback/){ .md-button .md-button--primary }
+
+### Optional Deeper Dives
+
+#### Deep Learning Specialization { #dl-specialization }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Coursera
+    - **Cost:** Free to audit
+    - **Duration:** ~3 months
+
+**Instructor:** Andrew Ng
+
+**Description:**
+Five courses covering neural networks from scratch through CNNs, RNNs, and transformers. Take this if you want the full theoretical foundation.
+
+[**Visit Specialization :octicons-arrow-right-24:**](https://www.coursera.org/specializations/deep-learning){ .md-button .md-button--primary }
+
+#### NLP Specialization { #nlp-specialization }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Coursera
+    - **Cost:** Free to audit
+    - **Duration:** 4 courses
+
+**Instructors:** Łukasz Kaiser et al.
+
+**Description:**
+Co-taught by **Łukasz Kaiser, co-author of the original Transformer paper**. Covers sentiment analysis through attention mechanisms and BERT.
+
+[**Visit Specialization :octicons-arrow-right-24:**](https://www.coursera.org/specializations/natural-language-processing){ .md-button .md-button--primary }
+
+#### freeCodeCamp: "Code an LLM From Scratch" { #fcc-llm-scratch }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** YouTube
+    - **Cost:** Free
+    - **Duration:** ~6 hrs
+
+**Description:**
+Builds from transformer architecture through RLHF alignment. An excellent free alternative to the Coursera courses.
+
+[**Watch Video :octicons-arrow-right-24:**](https://www.youtube.com/watch?v=quh7z1q7-uc){ .md-button .md-button--primary }
+
+#### Udemy: Data Science — Transformers for NLP { #udemy-transformers-nlp }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Udemy
+    - **Cost:** ~$10–15 on sale
+    - **Duration:** ~12.5 hrs
+
+**Instructor:** Lazy Programmer
+
+**Description:**
+Implements transformers from scratch in both PyTorch and TensorFlow. Covers both practical usage and deep theory.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.udemy.com/course/data-science-transformers-nlp/){ .md-button .md-button--primary }
 
 ---
 
@@ -217,93 +512,209 @@ URL: https://www.deeplearning.ai/short-courses/reinforcement-learning-from-human
 
 Agentic AI is the **fastest-moving frontier in AI development**. This phase covers four key agentic design patterns (Reflection, Tool Use, Planning, Multi-Agent), three major frameworks (LangGraph, CrewAI, AutoGen), and the emerging protocols (MCP, A2A) that are becoming industry standards.
 
-### The essential starting point
+### 1. Agentic AI (by Andrew Ng) { #agentic-ai-ng }
 
-**1. Agentic AI (by Andrew Ng)** ⭐
-Platform: DeepLearning.ai | Instructor: Andrew Ng | Duration: 3–10 hrs (self-paced) | Cost: Free to audit (Pro for quizzes/cert) | Released: October 2025
-URL: https://www.deeplearning.ai/courses/agentic-ai/
-*Rationale:* **Start here before any framework-specific course.** Andrew Ng teaches all four agentic design patterns — Reflection, Tool Use (including MCP), Planning, and Multi-Agent — from first principles in raw Python, with no framework hiding the details. You build a complete deep research agent that searches, synthesizes, and reports. The course emphasizes evaluation-driven development, which Ng calls "the single biggest predictor of whether someone executes well" with agents. This is vendor-neutral knowledge that transfers to any framework. The most important course in Phase 5.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free to audit
+    - **Duration:** 3–10 hrs
 
-### Core patterns and concepts
+**Instructor:** Andrew Ng
 
-**2. AI Agentic Design Patterns with AutoGen**
-Platform: DeepLearning.ai | Instructors: Chi Wang & Qingyun Wu (AutoGen creators) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/ai-agentic-design-patterns-with-autogen/
-*Rationale:* Reinforces the four patterns from a different angle using AutoGen's ConversableAgent. Seeing patterns implemented in multiple ways deepens understanding.
+**Description:**
+**Start here before any framework-specific course.** Andrew Ng teaches all four agentic design patterns — Reflection, Tool Use, Planning, and Multi-Agent — from first principles in raw Python, with no framework hiding the details. You build a complete deep research agent that searches, synthesizes, and reports.
 
-**3. Functions, Tools and Agents with LangChain**
-Platform: DeepLearning.ai | Instructor: Harrison Chase | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/functions-tools-agents-langchain/
-*Rationale:* Covers OpenAI function calling, LangChain Expression Language (LCEL), and building conversational agents. This bridges the gap between the LangChain work in Phase 2 and full agentic systems.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/courses/agentic-ai/){ .md-button .md-button--primary }
 
-### Framework mastery: LangGraph
+### 2. AI Agentic Design Patterns with AutoGen { #autogen-patterns }
 
-**4. AI Agents in LangGraph**
-Platform: DeepLearning.ai | Instructors: Harrison Chase & Rotem Weiss (Tavily) | Duration: ~1.5 hrs | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/
-*Rationale:* Builds agents from scratch with Python + LLM, then rebuilds with LangGraph. Covers agentic search, ReAct agents, persistence, streaming, and human-in-the-loop. **LangGraph is the top choice when you need fine-grained control over agent behavior** — the most production-ready framework.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-**5. Long-Term Agentic Memory with LangGraph**
-Platform: DeepLearning.ai | Instructor: Harrison Chase | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/long-term-agentic-memory-with-langgraph/
-*Rationale:* Covers the three memory types (semantic, episodic, procedural) that make agents genuinely useful over time. Builds an email agent with routing, writing, and scheduling tools.
+**Instructors:** Chi Wang & Qingyun Wu
 
-**6. LangChain Academy: Introduction to LangGraph** (self-paced companion)
-Platform: academy.langchain.com | Cost: Free | Open-source notebooks on GitHub
-*Rationale:* The official LangGraph course with progressive modules covering state, nodes, edges, and memory. Work through the notebooks alongside the DeepLearning.ai courses for hands-on practice.
+**Description:**
+Reinforces the four patterns from a different angle using AutoGen's ConversableAgent. Seeing patterns implemented in multiple ways deepens understanding.
 
-### Framework mastery: CrewAI
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/ai-agentic-design-patterns-with-autogen/){ .md-button .md-button--primary }
 
-**7. Multi AI Agent Systems with crewAI**
-Platform: DeepLearning.ai | Instructor: João Moura (CrewAI founder/CEO) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/
-*Rationale:* CrewAI excels at **role-based multi-agent teams**. This course builds 6 business automations: resume tailoring, tech articles, customer support, outreach campaigns, event planning, financial analysis. Covers role-playing, memory, tools, and cooperation patterns.
+### 3. Functions, Tools and Agents with LangChain { #langchain-functions-tools }
 
-**8. Practical Multi AI Agents and Advanced Use Cases with CrewAI**
-Platform: DeepLearning.ai | Instructor: João Moura | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/practical-multi-ai-agents-and-advanced-use-cases-with-crewai/
-*Rationale:* The successor course covering production concerns: execution hooks, Flows orchestration, observability, LLM-as-a-Judge evaluation, and deployment. Projects include an automated code reviewer and deep researcher.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
 
-### Agentic RAG, specialized agents, and memory engineering
+**Instructor:** Harrison Chase
 
-**9. Building Agentic RAG with LlamaIndex**
-Platform: DeepLearning.ai | Instructor: Jerry Liu (LlamaIndex co-founder) | Duration: ~1 hr | Cost: Free
-URL: https://www.deeplearning.ai/short-courses/building-agentic-rag-with-llamaindex/
-*Rationale:* Bridges your RAG knowledge from Phase 3 with agentic patterns. Builds a multi-document research agent with router query engines and tool retrieval.
+**Description:**
+Covers OpenAI function calling, LangChain Expression Language (LCEL), and building conversational agents. This bridges the gap between the LangChain work in Phase 2 and full agentic systems.
 
-**10. Building AI Browser Agents**
-Platform: DeepLearning.ai | Duration: ~1 hr | Cost: Free | Released: April 2025
-URL: https://www.deeplearning.ai/short-courses/building-ai-browser-agents/
-*Rationale:* Browser agents represent a practical frontier — AI that can navigate the web. Directly relevant for web developers.
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/functions-tools-agents-langchain/){ .md-button .md-button--primary }
 
-**11. Agent Memory: Building Memory-Aware Agents** (NEW — March 2026)
-Platform: DeepLearning.ai | Partner: Oracle | Duration: ~1 hr | Cost: Free | Released: March 2026
-URL: https://www.deeplearning.ai/short-courses/agent-memory-building-memory-aware-agents/
-*Rationale:* The newest course in this plan. Covers **Memory Engineering** — building persistent memory stores, Memory Managers that orchestrate read/write/retrieval, semantic tool retrieval that scales without bloating context, and write-back pipelines for autonomous memory updates. Uses LangChain and Tavily with Oracle AI Database. Andrew Ng calls agent memory "one of the most debated topics in AI right now." This complements the LangGraph memory course (#5) by going deeper into architectural patterns.
+### 4. AI Agents in LangGraph { #langgraph-agents }
 
-### Cutting-edge protocols and SDKs
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1.5 hrs
 
-**12. Agent Skills with Anthropic**
-Platform: DeepLearning.ai | Instructor: Elie Schoppik (Anthropic) & Andrew Ng | Duration: ~1 hr | Cost: Free | Released: February 2026
-URL: https://www.deeplearning.ai/short-courses/agent-skills-with-anthropic/
-*Rationale:* Covers creating reusable agent skills, composing workflows, and building research agents with the Claude Agent SDK. Skills work across Claude.ai, Claude Code, and the API.
+**Instructors:** Harrison Chase & Rotem Weiss
 
-**13. A2A: The Agent2Agent Protocol**
-Platform: DeepLearning.ai | Partners: Google Cloud & IBM Research | Duration: ~1 hr | Cost: Free | Released: February 2026
-URL: https://www.deeplearning.ai/short-courses/a2a-the-agent2agent-protocol/
-*Rationale:* The **A2A protocol** (launched by Google Cloud, donated to Linux Foundation) is becoming the standard for agent-to-agent communication. Builds a healthcare multi-agent system with sequential and hierarchical workflows. Complements MCP, which you learned in Phase 2.
+**Description:**
+Builds agents from scratch with Python + LLM, then rebuilds with LangGraph. Covers agentic search, ReAct agents, persistence, streaming, and human-in-the-loop. **LangGraph is the top choice for fine-grained control.**
 
-### Paid deep-dives (optional but exceptional)
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/ai-agents-in-langgraph/){ .md-button .md-button--primary }
 
-**Udemy: The Complete Agentic AI Engineering Course** by Ed Donner
-Rating: Bestseller, **83,000+ students** | Duration: 6-week program | Cost: ~$15 on sale
-URL: https://www.udemy.com/course/the-complete-agentic-ai-engineering-course/
-Eight real-world projects across all major frameworks: Career Digital Twin, SDR Agent, Deep Research team (CrewAI), Stock Picker, 4-Agent Engineering Team (Docker + LangGraph), Browser Sidekick, Agent Creator (AutoGen), and a Trading Floor Capstone with **6 MCP servers and 44 tools**. The most comprehensive hands-on agentic AI course available.
+### 5. Long-Term Agentic Memory with LangGraph { #langgraph-long-term-memory }
 
-**IBM RAG and Agentic AI Professional Certificate** (Coursera)
-Duration: 4–6 months | Enrolled: 12,000+ | Cost: ~$49/month (financial aid available)
-URL: https://www.coursera.org/professional-certificates/ibm-rag-and-agentic-ai
-Covers RAG pipelines, agentic architectures, LangChain/LangGraph, MCP, CrewAI, AG2 (AutoGen), and BeeAI. Good if you want a credential for job applications.
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Harrison Chase
+
+**Description:**
+Covers the three memory types (semantic, episodic, procedural) that make agents genuinely useful over time. Builds an email agent with routing, writing, and scheduling tools.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/long-term-agentic-memory-with-langgraph/){ .md-button .md-button--primary }
+
+### 6. LangChain Academy: Introduction to LangGraph { #langchain-academy-langgraph }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** LangChain Academy
+    - **Cost:** Free
+    - **Duration:** Self-paced
+
+**Description:**
+The official LangGraph course with progressive modules covering state, nodes, edges, and memory. Work through the notebooks alongside the DeepLearning.ai courses for hands-on practice.
+
+[**Visit Course :octicons-arrow-right-24:**](https://academy.langchain.com/courses/intro-to-langgraph){ .md-button .md-button--primary }
+
+### 7. Multi AI Agent Systems with crewAI { #crewai-systems }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** João Moura (CrewAI founder/CEO)
+
+**Description:**
+CrewAI excels at **role-based multi-agent teams**. This course builds 6 business automations: resume tailoring, tech articles, customer support, outreach campaigns, event planning, financial analysis.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/){ .md-button .md-button--primary }
+
+### 8. Practical Multi AI Agents with CrewAI { #crewai-practical-advanced }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** João Moura
+
+**Description:**
+The successor course covering production concerns: execution hooks, Flows orchestration, observability, LLM-as-a-Judge evaluation, and deployment.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/practical-multi-ai-agents-and-advanced-use-cases-with-crewai/){ .md-button .md-button--primary }
+
+### 9. Building Agentic RAG with LlamaIndex { #agentic-rag-llamaindex }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Jerry Liu (LlamaIndex co-founder)
+
+**Description:**
+Bridges your RAG knowledge from Phase 3 with agentic patterns. Builds a multi-document research agent with router query engines and tool retrieval.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/building-agentic-rag-with-llamaindex/){ .md-button .md-button--primary }
+
+### 10. Building AI Browser Agents { #browser-agents }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Browser agents represent a practical frontier — AI that can navigate the web. Directly relevant for web developers.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/building-ai-browser-agents/){ .md-button .md-button--primary }
+
+### 11. Agent Memory: Building Memory-Aware Agents { #memory-aware-agents }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructor:** Oracle Partner
+
+**Description:**
+Covers **Memory Engineering** — building persistent memory stores, Memory Managers, and semantic tool retrieval that scales without bloating context.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/agent-memory-building-memory-aware-agents/){ .md-button .md-button--primary }
+
+### 12. Agent Skills with Anthropic { #anthropic-agent-skills }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructors:** Elie Schoppik & Andrew Ng
+
+**Description:**
+Covers creating reusable agent skills, composing workflows, and building research agents with the Claude Agent SDK.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/agent-skills-with-anthropic/){ .md-button .md-button--primary }
+
+### 13. A2A: The Agent2Agent Protocol { #a2a-protocol }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Instructors:** Google Cloud & IBM Partners
+
+**Description:**
+The **A2A protocol** is becoming the standard for agent-to-agent communication. Builds a healthcare multi-agent system with sequential and hierarchical workflows.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/a2a-the-agent2agent-protocol/){ .md-button .md-button--primary }
+
+### 14. Udemy: The Complete Agentic AI Engineering Course { #udemy-agentic-ai }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Udemy
+    - **Cost:** ~$15 on sale
+    - **Duration:** 6-week program
+
+**Instructor:** Ed Donner
+
+**Description:**
+Eight real-world projects across all major frameworks. The most comprehensive hands-on agentic AI course available, including a Trading Floor Capstone.
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.udemy.com/course/the-complete-agentic-ai-engineering-course/){ .md-button .md-button--primary }
+
+### 15. IBM RAG and Agentic AI Professional Certificate { #ibm-cert-agentic }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Coursera
+    - **Cost:** ~$49/month
+    - **Duration:** 4–6 months
+
+**Description:**
+Covers RAG pipelines, agentic architectures, LangChain/LangGraph, MCP, CrewAI, AG2, and BeeAI. Good for a job-ready credential.
+
+[**Visit Certificate :octicons-arrow-right-24:**](https://www.coursera.org/professional-certificates/ibm-rag-and-agentic-ai){ .md-button .md-button--primary }
 
 ### Framework decision guide
 

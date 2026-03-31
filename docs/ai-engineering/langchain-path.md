@@ -127,9 +127,10 @@ First stable major release. LCEL pipe syntax deprecated. Agents defined within L
 
 ## Phase 0: Environment & First Contact
 
-**Duration:** 2–3 days | **Prerequisites:** Python 3.10+, pip, a code editor, Google AI Studio API key
-
-**Goal:** Working Gemini call through LangChain. Understand what the abstraction layer does.
+!!! info inline end "Phase Overview"
+    - **Duration:** 2–3 days
+    - **Prerequisites:** Python 3.10+, pip
+    - **Goal:** Working Gemini call through LangChain
 
 ### Step 0.1 — The Evolution Story
 
@@ -249,9 +250,10 @@ for r in responses:
 
 ## Phase 1: Core Abstractions — Prompts, Parsing, Tools
 
-**Duration:** 1–2 weeks | **Prerequisites:** Phase 0 complete
-
-**Goal:** Understand and use LangChain's composable building blocks with Gemini.
+!!! info inline end "Phase Overview"
+    - **Duration:** 1–2 weeks
+    - **Prerequisites:** Phase 0 complete
+    - **Goal:** LangChain's composable building blocks
 
 ### Step 1.1 — Prompt Templates: Why Not F-Strings?
 
@@ -483,9 +485,10 @@ print(chunks[0].page_content[:200])
 
 ## Phase 2: RAG — Retrieval Augmented Generation
 
-**Duration:** 2–3 weeks | **Prerequisites:** Phase 1 complete
-
-**Goal:** Build a working RAG pipeline with Gemini embeddings and vector search.
+!!! info inline end "Phase Overview"
+    - **Duration:** 2–3 weeks
+    - **Prerequisites:** Phase 1 complete
+    - **Goal:** Vector search pipeline with Gemini
 
 ### Step 2.1 — What Are Embeddings? (First Principles)
 
@@ -684,9 +687,10 @@ for i, doc in enumerate(retrieved):
 
 ## Phase 3: Agents & LangGraph — Where It Gets Real
 
-**Duration:** 3–4 weeks | **Prerequisites:** Phase 2 complete
-
-**Goal:** Build stateful, multi-step agents that reason, use tools, and persist state.
+!!! info inline end "Phase Overview"
+    - **Duration:** 3–4 weeks
+    - **Prerequisites:** Phase 2 complete
+    - **Goal:** Stateful, multi-step agentic systems
 
 ### Step 3.1 — The ReAct Pattern (First Principles)
 
@@ -864,9 +868,10 @@ app = graph.compile()
 
 ## Phase 4: Production Engineering & Observability
 
-**Duration:** 2–3 weeks | **Prerequisites:** Phase 3 complete
-
-**Goal:** Ship reliable AI apps with monitoring, evaluation, and cost control.
+!!! info inline end "Phase Overview"
+    - **Duration:** 2–3 weeks
+    - **Prerequisites:** Phase 3 complete
+    - **Goal:** Reliable, monitored AI deployments
 
 ### Step 4.1 — LangSmith Tracing Deep Dive
 
