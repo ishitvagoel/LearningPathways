@@ -50,4 +50,5 @@ extra_css:
 nav:
   - Home: index.md
   - AI Engineering:
-      - ai-engineering/
+      - LangChain Path: ai-engineering/langchain-path.md
+      - AI Mastery Plan: ai-engineering/ai-mastery-plan.md
