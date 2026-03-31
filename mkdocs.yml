@@ -39,6 +39,14 @@ theme:
 extra_css:
   - assets/custom.css
 
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_fallback: true
+      type: datetime
+  - minify:
+      minify_html: true
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -61,8 +69,8 @@ nav:
     - LangChain Path: ai-engineering/langchain-path.md
     - AI Mastery Plan: ai-engineering/ai-mastery-plan.md
 
-repo_url: https://github.com/ishitvagoel/LeaningPathways
-repo_name: ishitvagoel/LeaningPathways
+repo_url: https://github.com/ishitvagoel/LearningPathways
+repo_name: ishitvagoel/LearningPathways
 edit_uri: edit/main/docs/
 
 extra:
