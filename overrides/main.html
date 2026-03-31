@@ -4,13 +4,44 @@
   {# Original edit/view buttons #}
   {{ super() }}
 
-  {# Custom Download button #}
+  {# Custom Download button with forced download via JS #}
   {% if page and page.file %}
-    <a href="https://github.com/ishitvagoel/LearningPathways/raw/main/docs/{{ page.file.src_path }}" 
+    <a href="javascript:void(0)" 
+       onclick="downloadMarkdown('{{ page.title | replace("'", "\\'") }}', 'https://raw.githubusercontent.com/ishitvagoel/LearningPathways/main/docs/{{ page.file.src_path }}')"
        title="Download Markdown" 
-       class="md-content__button md-icon" 
-       download>
+       class="md-content__button md-icon">
       {% include ".icons/material/download.svg" %}
     </a>
+
+    <script>
+      function downloadMarkdown(title, url) {
+        // Show a simple feedback in console
+        console.log('Starting download for:', title);
+        
+        fetch(url)
+          .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.blob();
+          })
+          .then(blob => {
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            // Clean up title for filename
+            const fileName = title.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'page';
+            a.download = fileName + '.md';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+          })
+          .catch(err => {
+            console.error('Download failed:', err);
+            // Fallback: open in new tab if fetch fails (e.g. CORS)
+            window.open(url, '_blank');
+          });
+      }
+    </script>
   {% endif %}
 {% endblock %}
