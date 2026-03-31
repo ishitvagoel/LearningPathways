@@ -1,5 +1,5 @@
 site_name: Learning Pathways
-site_url: https://ishitvagoel.github.io/LeaningPathways/
+site_url: https://ishitvagoel.github.io/LearningPathways/
 theme:
   name: material
   font:
@@ -84,3 +84,4 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/ishitvagoel
+
