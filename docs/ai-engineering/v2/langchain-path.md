@@ -1,25 +1,31 @@
 ---
 title: LangChain First Principles (V2)
-description: A model-guided deep dive into LangChain 1.x, LangGraph 1.x and LangSmith with Gemini 3.x — rebuilt for September 2026.
+description: A provider-neutral, model-guided deep dive into LangChain 1.x, LangGraph 1.x, Deep Agents and LangSmith — Claude as the reference provider, rebuilt September 2026.
 icon: material/link-variant
 tags:
   - AI
   - Python
   - LangChain
   - LangGraph
-  - Gemini
+  - Claude
+  - Harness Engineering
 ---
 
 # LangChain — First Principles Deep Dive (V2)
 
-**Curriculum V2 · September 2026 · LangChain 1.4 · LangGraph 1.2 · Gemini 3.x**
+**Curriculum V2 (revised) · September 2026 · LangChain 1.4 · LangGraph 1.2 · provider-neutral, Claude as reference**
 
 !!! abstract "What changed from V1"
-    V1 (March 2026) is preserved unchanged at [LangChain Path (V1)](../langchain-path.md). V2 fixes code that no longer runs (the V1 model `gemini-2.0-flash` has been shut down, and `create_react_agent` is not the LangChain 1.0 agent API), fills in the steps V1 left as placeholders, and adds the topics that became central during 2026: **context engineering, middleware, MCP, evals-as-tests, agent security, and Deep Agents**. The full audit, with sources, is in [V2 Review & Research Notes](review-notes.md).
+    V1 (March 2026) is preserved unchanged at [LangChain Path (V1)](../langchain-path.md). V2 fixes code that no longer runs (the V1 model `gemini-2.0-flash` has been shut down, and `create_react_agent` is not the LangChain 1.0 agent API), fills in the steps V1 left as placeholders, and adds the topics that became central during 2026: **context engineering, middleware, MCP, evals-as-tests, agent security, Deep Agents, harness engineering and ambient agents**.
+
+    **Revision (late September 2026):** the path is now **provider-neutral**. Every agent is built with a `"provider:model"` string, so switching provider is a one-line config change. Claude is the reference provider in the examples, and embeddings run locally on an open-source model, so there is no dependency on any single vendor's embedding API. The curriculum ships with a **Claude harness** (a `CLAUDE.md`, skills, a reviewer subagent and hooks) that turns Claude Code into your mentor — see the [Claude Harness Kit](claude-harness.md). The full audit, with sources, is in [V2 Review & Research Notes](review-notes.md).
 
 ---
 
 ## Instructions For The Teaching Model
+
+!!! tip "Run this path with the Claude Harness Kit"
+    The rules below are also packaged as Claude Code harness files (`CLAUDE.md`, `/lesson`, `/checkpoint-review`, `/quiz` skills, a read-only reviewer subagent and hooks). Copy the kit into your practice repo and Claude Code enforces them for you — see [Claude Harness Kit](claude-harness.md). Any other capable assistant can still use this section as a pasted prompt.
 
 You are acting as a **first-principles mentor** guiding a learner through the LangChain ecosystem. This document is your curriculum. Follow it sequentially: do not skip ahead, do not teach concepts from later phases, and do not assume the learner knows anything about LangChain unless the Learner Profile says so.
 
@@ -27,7 +33,7 @@ You are acting as a **first-principles mentor** guiding a learner through the La
 
 1. **One step at a time.** Each phase contains numbered steps. Cover one step per session (or as the learner requests). Never dump an entire phase in one response.
 2. **First-principles approach.** For every new concept, explain *why* it exists before *how* to use it. Name the underlying problem, show what breaks without the abstraction, then introduce it.
-3. **Always provide runnable code** using **Google Gemini** through `langchain-google-genai` (or the `"google_genai:<model>"` string with `init_chat_model` / `create_agent`). Code must target the versions pinned in Step 0.2.
+3. **Always provide runnable, provider-neutral code.** Create models with a `"provider:model"` string (`init_chat_model`, `create_agent`) read from `config.py`. Claude (`langchain-anthropic`) is the reference provider; if the learner uses another provider, change only `config.py`. Use provider-specific classes only when a lesson is explicitly about a provider feature, and say so. Code must target the versions pinned in Step 0.2.
 4. **Verify before you teach an API.** This ecosystem ships monthly. If you are unsure whether a function, parameter or import path still exists, say so and point the learner to the matching page on `docs.langchain.com` rather than guessing. Never invent parameters.
 5. **Ask before advancing.** After each step, check understanding with a question that requires reasoning, not recall (e.g., "What would break if we removed the checkpointer here?").
 6. **Track progress.** At the start of each session, ask which Phase and Step the learner is on and resume from there.
@@ -48,7 +54,7 @@ Read this carefully. This is who you are teaching.
 
 - Software engineer with strong Python skills (backend focus)
 - Comfortable with: APIs, JSON, HTTP, environment variables, virtual environments, pip, git
-- Has built AI-powered applications using **direct Gemini API calls** via the `google-genai` Python SDK (most likely using `client.models.generate_content`, which Google now labels legacy in favour of the Interactions API — see Step 0.4)
+- Has built AI-powered applications using **direct LLM SDK calls** (previously Google's `google-genai` SDK). This path deliberately removes that single-vendor dependency: the learner learns the provider-neutral abstractions, with Claude as the reference provider
 - Understands: prompt engineering, system prompts, API keys, token limits, streaming responses
 - Has worked with: Discord bots (Python), systemd deployments, flat JSON storage, VPS hosting
 - Familiar with: Transformer architecture (conceptual), design patterns (Facade, Factory, Middleware/Chain of Responsibility), system design concepts
@@ -67,33 +73,43 @@ Read this carefully. This is who you are teaching.
 - Prefers depth over breadth and Socratic discovery over lectures
 - Wants honest, direct feedback and "before vs after" comparisons (raw SDK vs LangChain)
 
-**LLM Provider:** Google Gemini
+**LLM Provider:** Provider-neutral. Reference implementation uses Anthropic Claude via `langchain-anthropic`; embeddings use a local open-source model via `langchain-huggingface`.
 
-**Goal:** Build production-grade AI agents with LangChain + LangGraph + Gemini, and be able to prove they work (evals) and are safe (guardrails).
+**Tooling:** Claude Code with the [Claude Harness Kit](claude-harness.md) as the mentor environment.
+
+**Goal:** Build production-grade AI agents with LangChain + LangGraph on any provider, and be able to prove they work (evals), are safe (guardrails), and are well-harnessed.
 
 ---
 
 ## Current Model Cheat-Sheet (September 2026)
 
-!!! warning "Model IDs change every few months"
-    Put the model ID in one place (an environment variable or a `config.py`) so a model retirement is a one-line change. Always confirm IDs on the [Gemini models page](https://ai.google.dev/gemini-api/docs/models) before starting a session.
+!!! warning "Model IDs change every few months — and this path doesn't care which provider you use"
+    Keep the provider and model in **one** place (`config.py` or environment variables) so a model retirement or a provider switch is a one-line change. Confirm current IDs on the provider's models page before each session (Claude: the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview)).
 
-| Role in this course | Model ID | Status (Sep 2026) | Use for |
-|---|---|---|---|
-| Default workhorse | `gemini-3.8-flash` | Stable | Almost everything: agents, RAG, structured output |
-| Cheap / high-volume | `gemini-3.5-flash-lite` | Stable | Routing, classification, summarisation, eval judges at scale |
-| Hard reasoning | `gemini-3.1-pro-preview` | Preview | Complex planning; treat as optional because preview models can change |
-| Embeddings | `gemini-embedding-001` | Stable | Text RAG (Phase 3) |
-| Multimodal embeddings | `gemini-embedding-2-preview` | Preview | Optional: images, audio, PDFs in the same vector space |
+| Role in this course | Reference model (Claude) | Use for |
+|---|---|---|
+| Default workhorse | `claude-opus-5` | Agents, planning, anything where quality matters |
+| Balanced / high-volume | `claude-sonnet-5` | Production traffic once evals show it holds quality; LLM-as-judge |
+| Cheap / fast | `claude-haiku-4-5` | Routing, classification, summarisation for compaction, bulk extraction |
+| Embeddings | `sentence-transformers/all-mpnet-base-v2` (local, open source) | Text RAG (Phase 3); runs on CPU, no API key, no per-call cost |
 
-`gemini-2.0-flash` (used throughout V1) is **shut down**; `text-embedding-004` has been superseded by `gemini-embedding-001`.
+**Why these choices:** Claude is the reference provider because the same company ships the harness this curriculum uses (Claude Code, the Agent SDK, skills and hooks), so the concepts line up end to end. Anthropic doesn't offer an embeddings API, and the course shouldn't depend on any vendor for them, so embeddings run locally through `langchain-huggingface`. You can swap in a hosted embedding model later (e.g. Voyage AI or OpenAI) by changing one line.
+
+!!! note "Using another provider?"
+    Set `PROVIDER=openai` (or `google_genai`, `mistralai`, `ollama`, ...) plus that provider's model IDs, and `pip install` its integration package. Nothing else in the path changes. Where a lesson touches a provider-specific feature (Claude's `effort` control, prompt caching), the lesson says so and names the general concept.
 
 ```python
-# config.py — the only place model IDs live
+# config.py — the only place provider and model IDs live
 import os
-CHAT_MODEL = os.getenv("CHAT_MODEL", "gemini-3.8-flash")
-FAST_MODEL = os.getenv("FAST_MODEL", "gemini-3.5-flash-lite")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "gemini-embedding-001")
+PROVIDER = os.getenv("PROVIDER", "anthropic")
+CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5")
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5")
+FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-4-5")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-mpnet-base-v2")
+
+def model_id(name: str) -> str:
+    """'provider:model' string accepted by init_chat_model and create_agent."""
+    return f"{PROVIDER}:{name}"
 ```
 
 All code below imports from this file.
@@ -102,7 +118,7 @@ All code below imports from this file.
 
 ## What NOT To Teach (Deprecated or Incorrect Patterns)
 
-If a tutorial uses anything in the left column, it predates LangChain 1.0 (October 2025) or the 2026 Gemini lineup. Translate it to the right column.
+If a tutorial uses anything in the left column, it predates LangChain 1.0 (October 2025) or the current generation of models. Translate it to the right column.
 
 | Deprecated / incorrect pattern | Era | Current replacement |
 |---|---|---|
@@ -120,8 +136,11 @@ If a tutorial uses anything in the left column, it predates LangChain 1.0 (Octob
 | Reading `result["__interrupt__"]` | LangGraph 1.0 | `invoke(..., version="v2")` → `result.interrupts` |
 | `langchain-mcp-adapters` / `MultiServerMCPClient` | 2025 | `langchain.mcp.MCPAdapter` (LangChain ≥ 1.4, beta) |
 | "LangGraph Platform" / "LangGraph Cloud" | 2024–2025 | **LangSmith Deployment** (renamed October 2025) |
-| `gemini-2.0-flash`, `gemini-1.5-*`, `models/text-embedding-004` | 2024–2025 | See the cheat-sheet above |
-| Setting `temperature=0` or `0.7` on Gemini 3.x "for determinism" | — | Leave Gemini 3.x at its default `1.0`; lower values can cause looping and degraded reasoning. Control behaviour with `thinking_level`, structured output and evals |
+| Hard-coded retired model IDs (`gemini-2.0-flash`, `gemini-1.5-*`, `gpt-4`, `claude-3-*`, `text-embedding-004`) | 2023–2025 | Provider + model from `config.py`; check the provider's models page |
+| Hard-wiring one vendor's classes everywhere (`ChatGoogleGenerativeAI(...)`, `ChatOpenAI(...)` in every file) | — | `init_chat_model(model_id(...))` / `create_agent(model_id(...))`; provider classes only where a lesson needs a provider feature |
+| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Current Claude models (Opus 5, Sonnet 5) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
+| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` on current Claude models (fixed budgets are rejected) |
+| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on current Claude models |
 
 !!! note "A correction to V1: LCEL is *not* deprecated"
     V1 said the pipe syntax (`prompt | model | parser`) was deprecated. That is inaccurate. Runnables and LCEL remain part of `langchain-core` in 1.x and still work for simple, linear pipelines. What changed is *emphasis*: agents are now built with `create_agent` + middleware, and anything with loops, state or branching belongs in LangGraph. Teach LCEL as "a convenient way to compose linear steps", not as the way to build applications.
@@ -134,7 +153,8 @@ If a tutorial uses anything in the left column, it predates LangChain 1.0 (Octob
 |---|---|---|---|
 | `langchain-core` | Base interfaces: messages, content blocks, tools, runnables | The grammar of the language | installed with `langchain` |
 | `langchain` | `create_agent`, middleware, `init_chat_model`, `langchain.mcp` | The standard library | `pip install "langchain[mcp]"` |
-| `langchain-google-genai` | `ChatGoogleGenerativeAI`, `GoogleGenerativeAIEmbeddings` (Gemini API *and* Vertex AI backends since 4.0) | The Gemini driver | `pip install langchain-google-genai` |
+| `langchain-anthropic` | `ChatAnthropic` — the reference provider driver (swap for `langchain-openai`, `langchain-google-genai`, `langchain-ollama`, ...) | A provider driver | `pip install langchain-anthropic` |
+| `langchain-huggingface` | `HuggingFaceEmbeddings` — local, open-source embeddings | Your own embedding engine | `pip install langchain-huggingface sentence-transformers` |
 | `langgraph` | Graph runtime: state, checkpoints, interrupts, durable execution | The workflow engine | `pip install langgraph` |
 | `langsmith` | Tracing, datasets, evals, prompt versioning | Debugger + APM + test runner | `pip install langsmith` |
 | `langchain-text-splitters` | Chunking documents | The paper shredder with good judgement | `pip install langchain-text-splitters` |
@@ -189,7 +209,7 @@ First stable major release with a no-breaking-changes promise until 2.0. `create
 !!! info inline end "Phase Overview"
     - **Duration:** 2–3 days
     - **Prerequisites:** Python 3.10+ (3.12 recommended)
-    - **Goal:** A working, traced Gemini call through LangChain
+    - **Goal:** A working, traced model call through LangChain
 
 ### Step 0.1 — The Evolution Story
 
@@ -201,39 +221,40 @@ First stable major release with a no-breaking-changes promise until 2.0. `create
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -U "langchain[mcp]>=1.4" "langgraph>=1.2" langsmith \
-  langchain-google-genai langchain-text-splitters langchain-chroma
+pip install -U "langchain[mcp]>=1.4" "langgraph>=1.2" langsmith anthropic \
+  langchain-anthropic langchain-huggingface sentence-transformers \
+  langchain-text-splitters langchain-chroma
 ```
 
 !!! tip "Optional: `uv`"
     `uv venv && uv pip install ...` does the same thing much faster. Either is fine; consistency matters more than the tool.
 
 ```bash
-export GOOGLE_API_KEY="your-gemini-key"        # GEMINI_API_KEY also works
+export ANTHROPIC_API_KEY="your-key"            # or the key for the provider you chose
 export LANGSMITH_TRACING="true"                # recommended from day one
 export LANGSMITH_API_KEY="your-langsmith-key"
 export LANGSMITH_PROJECT="langchain-first-principles"
 ```
 
-**Explain:** Tracing is worth enabling now because every later concept (tool calls, retrieval, middleware, interrupts) becomes *visible* in the trace. It is the fastest way to build intuition.
+**Explain:** Tracing is worth enabling now because every later concept (tool calls, retrieval, middleware, interrupts) becomes *visible* in the trace. It is the fastest way to build intuition. Never commit keys; keep them in your shell or a git-ignored `.env`.
 
-**Completion Check:** `python -c "import langchain, langgraph; from langchain_google_genai import ChatGoogleGenerativeAI; print(langchain.__version__)"` prints a 1.4+ version.
+**Completion Check:** `python -c "import langchain, langgraph, langchain_anthropic; print(langchain.__version__)"` prints a 1.4+ version.
 
-### Step 0.3 — First LangChain Call With Gemini
+### Step 0.3 — First LangChain Call
 
 **Teach:** Two ways to get a chat model, and what `.invoke()` returns.
 
 ```python
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chat_models import init_chat_model
 from langchain.messages import HumanMessage, SystemMessage
-from config import CHAT_MODEL
+from config import CHAT_MODEL, model_id
 
-# Option A: the provider class (full access to Gemini-specific parameters)
-model = ChatGoogleGenerativeAI(model=CHAT_MODEL)
+# Option A (default in this path): provider-neutral factory — "provider:model"
+model = init_chat_model(model_id(CHAT_MODEL))
 
-# Option B: the provider-agnostic factory ("provider:model" string)
-same_model = init_chat_model(f"google_genai:{CHAT_MODEL}")
+# Option B: the provider class, only when you need provider-specific parameters
+from langchain_anthropic import ChatAnthropic
+same_model = ChatAnthropic(model=CHAT_MODEL)
 
 response = model.invoke([
     SystemMessage("You are a concise assistant."),
@@ -242,57 +263,59 @@ response = model.invoke([
 
 print(type(response))            # AIMessage
 print(response.text)             # the plain text
-print(response.content_blocks)   # standard, provider-agnostic blocks
+print(response.content_blocks)   # standard, provider-agnostic blocks (text, reasoning, tool calls...)
 print(response.usage_metadata)   # input/output/total tokens
 ```
 
 **Key Concepts to Cover:**
 
 - Messages are typed objects: `SystemMessage`, `HumanMessage`, `AIMessage`, `ToolMessage`.
-- `response.content` may be a *list* of blocks for thinking/multimodal models; `response.text` gives the text and `response.content_blocks` gives a normalised view (text, reasoning, tool calls, images) that looks the same for every provider.
+- `response.content` may be a *list* of blocks for reasoning/multimodal models (e.g. a thinking block followed by a text block); `response.text` gives the text and `response.content_blocks` gives a normalised view that looks the same for every provider.
 - `usage_metadata` is how you will reason about cost later.
 
 **Completion Check:** The learner has inspected an `AIMessage` and can explain the difference between `.content`, `.text` and `.content_blocks`.
 
 ### Step 0.4 — Before & After: Raw SDK vs LangChain
 
-**Teach:** The same task three ways. Ask the learner to identify what changed and what didn't.
+**Teach:** The same task two ways. Ask the learner to identify what changed and what didn't.
 
-**Raw SDK — Interactions API (Google's default interface since mid-2026):**
+**Raw provider SDK (Anthropic Messages API):**
 
 ```python
-from google import genai
+import anthropic
 from config import CHAT_MODEL
 
-client = genai.Client()
-turn1 = client.interactions.create(model=CHAT_MODEL, input="My bot is called Ravenclaw.")
-turn2 = client.interactions.create(
+client = anthropic.Anthropic()                 # reads ANTHROPIC_API_KEY
+response = client.messages.create(
     model=CHAT_MODEL,
-    input="What is my bot called?",
-    previous_interaction_id=turn1.id,   # conversation state lives on Google's servers
+    max_tokens=16000,
+    messages=[{"role": "user", "content": "What is LangChain in one sentence?"}],
 )
-print(turn2.output_text)
+if response.stop_reason == "refusal":          # always check before reading content
+    print("declined:", response.stop_details)
+else:
+    print(next(b.text for b in response.content if b.type == "text"))
 ```
 
-**Raw SDK — `generate_content` (what the learner probably wrote before; still supported, now labelled legacy):**
-
-```python
-response = client.models.generate_content(model=CHAT_MODEL, contents="What is LangChain in one sentence?")
-print(response.text)
-```
+!!! tip "Production note: refusals and fallbacks"
+    A safety classifier can decline a request with HTTP 200 and `stop_reason == "refusal"`, which is why the example checks it before reading `content`. In production raw-SDK code on current Claude models, also opt into **server-side fallbacks**, which re-run a declined request on a recommended fallback model inside the same call: use `client.beta.messages.create(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`. In LangChain, `ModelFallbackMiddleware` (Step 4.2) plays the same role across providers.
 
 **LangChain:**
 
 ```python
-model = ChatGoogleGenerativeAI(model=CHAT_MODEL)
+from langchain.chat_models import init_chat_model
+from config import CHAT_MODEL, model_id
+
+model = init_chat_model(model_id(CHAT_MODEL))
 print(model.invoke("What is LangChain in one sentence?").text)
 ```
 
 **Discussion Points:**
 
-- LangChain wraps the SDK; there is no magic.
-- **Where does conversation state live?** With the Interactions API, Google stores it (by default, with a retention window). In this course *your application* owns state through LangGraph checkpointers, which keeps you provider-portable and lets you inspect, edit and replay it. That is a design choice worth being conscious of.
-- The value of LangChain shows up later: swapping `google_genai:` for another provider changes one string; tools, agents, middleware and evals stay the same.
+- LangChain wraps the SDK; there is no magic. The raw response is a list of typed content blocks (text, thinking, tool use), which is exactly what `content_blocks` normalises across providers.
+- **Where does conversation state live?** The Messages API is *stateless*: you resend the history every turn. Some providers offer server-side conversation state instead. In this course *your application* owns state through LangGraph checkpointers, which keeps you provider-portable and lets you inspect, edit and replay it.
+- The value of LangChain shows up later: switching provider changes the `PROVIDER` variable; tools, agents, middleware and evals stay the same.
+- **Honest trade-off:** a thin raw-SDK loop is sometimes the right answer. Anthropic's SDK has its own tool runner, and the Claude Agent SDK is a full harness. Knowing both levels is what lets you choose (Phase 5 revisits this).
 
 **Completion Check:** The learner can state the concrete value LangChain adds (portability, standard messages/tools, agent runtime, tracing) and what it costs (an extra layer, a version to track).
 
@@ -310,38 +333,41 @@ print([a.text for a in answers])
 
 **Completion Check:** The learner can say when each is appropriate (single call; real-time UX; parallel offline work).
 
-### Step 0.6 — Thinking Models, Parameters & Model Profiles
+### Step 0.6 — Reasoning Models, Effort & Model Profiles
 
-**Teach:** Gemini 3.x models *reason before answering*. That changes how you tune them.
+**Teach:** Current frontier models *reason before answering*, and you tune them differently from 2023-era models: you choose **how much effort** to spend, not a temperature.
 
 ```python
-fast = ChatGoogleGenerativeAI(model=CHAT_MODEL, thinking_level="low")
-deep = ChatGoogleGenerativeAI(model=CHAT_MODEL, thinking_level="high")
+from langchain_anthropic import ChatAnthropic   # provider-specific lesson: Claude's effort control
+from config import CHAT_MODEL
+
+quick = ChatAnthropic(model=CHAT_MODEL, thinking={"type": "adaptive"}, effort="low")
+careful = ChatAnthropic(model=CHAT_MODEL, thinking={"type": "adaptive"}, effort="high")
 
 q = "A unit has 480 attack; enemy armour reduces damage by 35% then subtracts 40. Damage?"
-for m in (fast, deep):
+for m in (quick, careful):
     r = m.invoke(q)
     print(r.usage_metadata, "\n", r.text[:200], "\n---")
 
-print(fast.profile)   # capability metadata: tool calling, structured output, modalities...
+print(quick.profile)   # capability metadata: tool calling, structured output, modalities...
 ```
 
 **Key Concepts:**
 
-- `thinking_level` (`"minimal"`, `"low"`, `"medium"`, `"high"`) trades latency and tokens for reasoning depth. (Gemini 2.5 used an integer `thinking_budget` instead.)
-- **Do not lower temperature on Gemini 3.x** to get "deterministic" answers; Google's guidance is to keep the default `1.0`. Reliability comes from structured output, good context and evals, not from temperature.
-- `.profile` lets code check a model's capabilities before relying on them — useful when you route between models.
+- **Adaptive thinking + effort** (`low` → `max`) trades latency and tokens for reasoning depth; the model decides how much to think within that setting. Other providers expose the same idea under different names (reasoning effort, thinking level); the concept transfers, the parameter name doesn't.
+- **Don't set temperature on current reasoning models.** Claude Opus 5 and Sonnet 5 reject non-default sampling parameters with an error. Reliability comes from structured output, good context and evals.
+- `.profile` lets code check a model's capabilities before relying on them — essential when you route between models or providers.
 
-**Completion Check:** The learner can explain why a higher thinking level costs more even when the visible answer is the same length.
+**Completion Check:** The learner can explain why higher effort costs more even when the visible answer is the same length, and which of their bot's tasks deserve `low` vs `high`.
 
 ### 🔨 Phase 0 Checkpoint Project
 
-**Task:** Take one feature from the learner's existing bot (a knowledge query or strategy answer) and rewrite it with `ChatGoogleGenerativeAI`. Then run it at two `thinking_level` settings and compare latency, tokens and answer quality in LangSmith.
+**Task:** Take one feature from the learner's existing bot (a knowledge query or strategy answer) and rewrite it with `init_chat_model`. Run it at two effort levels and compare latency, tokens and answer quality in LangSmith. Then switch `PROVIDER` to a second provider (or a local Ollama model) and confirm nothing else had to change.
 
 **Completion Criteria:**
 
-- Same behaviour as the raw-SDK version
-- A LangSmith trace for each run, and a one-paragraph note on the latency/quality trade-off observed
+- Same behaviour as the raw-SDK version, driven entirely by `config.py`
+- A LangSmith trace for each run, and a one-paragraph note on the effort trade-off and what changed when switching provider
 
 ---
 
@@ -386,15 +412,15 @@ messages = prompt.invoke({
 ```python
 from pydantic import BaseModel, Field
 from typing import Literal
-from langchain_google_genai import ChatGoogleGenerativeAI
-from config import CHAT_MODEL
+from langchain.chat_models import init_chat_model
+from config import CHAT_MODEL, model_id
 
 class Strategy(BaseModel):
     formation: str = Field(description="Recommended formation name")
     risk: Literal["low", "medium", "high"]
     reasoning: str = Field(description="Why this works, max 2 sentences")
 
-model = ChatGoogleGenerativeAI(model=CHAT_MODEL)
+model = init_chat_model(model_id(CHAT_MODEL))
 structured = model.with_structured_output(Strategy)
 
 result = structured.invoke("Best formation against a cavalry rush?")
@@ -461,7 +487,7 @@ print(final.text)
 
 ### Step 1.5 — Multimodal Input
 
-**Teach:** Gemini is natively multimodal; content blocks make images/PDFs/audio first-class message parts.
+**Teach:** Current frontier models accept images and PDFs; LangChain's standard content blocks make them first-class message parts that look the same for every provider.
 
 ```python
 import base64
@@ -481,7 +507,7 @@ print(model.invoke([msg]).text)
 
 ### Step 1.6 — Documents & Text Splitting
 
-**First-Principles:** "Context windows are large now (≈1M tokens on Gemini 3.x Flash), so why chunk at all?" Because (1) cost scales with tokens, (2) **context rot**: recall degrades as context grows, and (3) retrieval needs units small enough to be *about one thing*. Chunking is a relevance tool, not just a size workaround.
+**First-Principles:** "Context windows are large now (1M tokens on current Claude Opus/Sonnet models), so why chunk at all?" Because (1) cost scales with tokens, (2) **context rot**: recall degrades as context grows, and (3) retrieval needs units small enough to be *about one thing*. Chunking is a relevance tool, not just a size workaround.
 
 ```python
 from langchain_core.documents import Document
@@ -539,10 +565,10 @@ flowchart LR
 
 ```python
 from langchain.agents import create_agent
-from config import CHAT_MODEL
+from config import CHAT_MODEL, model_id
 
 agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_knowledge_base, calculate_damage],
     system_prompt="You are a game strategy assistant. Use tools for facts and arithmetic; never guess numbers.",
 )
@@ -566,7 +592,7 @@ class DamageReport(BaseModel):
     explanation: str
 
 agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[calculate_damage],
     response_format=DamageReport,
 )
@@ -603,7 +629,7 @@ for part in agent.stream(
 from langgraph.checkpoint.memory import InMemorySaver
 
 agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_knowledge_base],
     checkpointer=InMemorySaver(),
 )
@@ -635,7 +661,7 @@ def tiered_prompt(request: ModelRequest) -> str:
     return "Be brief." if tier == "free" else "Give detailed, sourced strategy."
 
 agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_knowledge_base],
     context_schema=Ctx,
     middleware=[tiered_prompt],
@@ -678,11 +704,11 @@ agent.invoke({"messages": [{"role": "user", "content": "How do I beat archers?"}
 **Mental Model:** "An embedding model places text as a point in high-dimensional space so that similar meanings are close together."
 
 ```python
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings   # local, open source, no API key
 import numpy as np
 from config import EMBED_MODEL
 
-emb = GoogleGenerativeAIEmbeddings(model=EMBED_MODEL)
+emb = HuggingFaceEmbeddings(model_name=EMBED_MODEL)       # downloads once (~400 MB), then runs offline
 q = emb.embed_query("best defensive formation")
 docs = emb.embed_documents([
     "Turtle formation is the best defence against ranged attacks",
@@ -693,7 +719,12 @@ cos = lambda a, b: float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 print(len(q), [round(cos(q, d), 3) for d in docs])
 ```
 
-**Key Concepts:** cosine similarity; `embed_query` vs `embed_documents` (asymmetric task types); dimensionality (`gemini-embedding-001` defaults to 3072 and can be reduced, trading a little quality for storage/speed).
+**Key Concepts:** cosine similarity; `embed_query` vs `embed_documents` (some models encode queries and documents differently); dimensionality (`all-mpnet-base-v2` produces 768-dimensional vectors; hosted models often produce 1024–3072, trading storage for quality).
+
+**Why a local model?** It removes a vendor dependency, costs nothing per call, keeps data on your machine, and makes the point that *the embedding model and the chat model are independent choices*. For production quality, benchmark it against a hosted model (e.g. Voyage AI) on your own retrieval test set in Step 3.6 — decide with data, not reputation.
+
+!!! warning "Never mix embedding models in one index"
+    Vectors from different embedding models live in different spaces. If you change `EMBED_MODEL`, re-embed the whole collection.
 
 **Completion Check:** The learner predicts the similarity ordering before running the code.
 
@@ -716,9 +747,10 @@ retriever = store.as_retriever(search_type="mmr", search_kwargs={"k": 4, "fetch_
 ### Step 3.4 — Two-Step RAG (Retrieval Always Runs)
 
 ```python
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.chat_models import init_chat_model
+from config import CHAT_MODEL, model_id
 
-model = ChatGoogleGenerativeAI(model=CHAT_MODEL)
+model = init_chat_model(model_id(CHAT_MODEL))
 
 def answer(question: str) -> str:
     docs = retriever.invoke(question)
@@ -747,7 +779,7 @@ def search_game_docs(query: str) -> str:
     return "\n\n".join(f"[{d.metadata['source']}] {d.page_content}" for d in docs)
 
 rag_agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_game_docs, calculate_damage],
     system_prompt="Use search_game_docs for any game fact. Cite sources. Say 'not found' rather than guess.",
 )
@@ -791,7 +823,7 @@ def recall_preferences(runtime: ToolRuntime[Ctx]) -> str:
     return "\n".join(i.value["fact"] for i in items) or "nothing saved"
 
 memory_agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[remember_preference, recall_preferences],
     context_schema=Ctx,
     store=store,
@@ -807,13 +839,13 @@ memory_agent = create_agent(
 
 ```python
 from langchain.agents.middleware import SummarizationMiddleware, ContextEditingMiddleware
-from config import FAST_MODEL
+from config import FAST_MODEL, model_id
 
 long_agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_game_docs],
     middleware=[
-        SummarizationMiddleware(model=f"google_genai:{FAST_MODEL}",
+        SummarizationMiddleware(model=model_id(FAST_MODEL),
                                 trigger=("tokens", 8000), keep=("messages", 20)),
     ],
     checkpointer=InMemorySaver(),
@@ -855,10 +887,10 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import after_model, wrap_model_call, ModelRequest, ModelResponse, AgentState
 from langchain.chat_models import init_chat_model
 from langgraph.runtime import Runtime
-from config import CHAT_MODEL, FAST_MODEL
+from config import CHAT_MODEL, FAST_MODEL, model_id
 
-cheap_model = init_chat_model(f"google_genai:{FAST_MODEL}")
-main_model = init_chat_model(f"google_genai:{CHAT_MODEL}")
+cheap_model = init_chat_model(model_id(FAST_MODEL))
+main_model = init_chat_model(model_id(CHAT_MODEL))
 
 @after_model
 def log_tool_requests(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -904,7 +936,7 @@ def ban_user(user_id: str, reason: str) -> str:
     return f"banned {user_id}"
 
 mod_agent = create_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[ban_user, search_game_docs],
     middleware=[HumanInTheLoopMiddleware(interrupt_on={
         "ban_user": {"allowed_decisions": ["approve", "edit", "reject"]},
@@ -949,11 +981,12 @@ import asyncio
 from pathlib import Path
 from langchain.agents import create_agent
 from langchain.mcp import MCPAdapter
+from config import CHAT_MODEL, model_id
 
 async def main():
     async with MCPAdapter(Path("game_server.py")) as adapter:   # stdio subprocess
         tools = await adapter.list_tools()
-    agent = create_agent(f"google_genai:{CHAT_MODEL}", tools)
+    agent = create_agent(model_id(CHAT_MODEL), tools)
     out = await agent.ainvoke({"messages": [{"role": "user", "content": "Stats for Knight?"}]})
     print(out["messages"][-1].text)
 
@@ -1004,11 +1037,11 @@ from typing import Literal
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langchain.chat_models import init_chat_model
 from langchain.messages import ToolMessage
-from config import CHAT_MODEL
+from config import CHAT_MODEL, model_id
 
 tools = [search_game_docs, calculate_damage]
 tools_by_name = {t.name: t for t in tools}
-llm = init_chat_model(f"google_genai:{CHAT_MODEL}").bind_tools(tools)
+llm = init_chat_model(model_id(CHAT_MODEL)).bind_tools(tools)
 
 def call_model(state: MessagesState):
     return {"messages": [llm.invoke(state["messages"])]}
@@ -1080,7 +1113,7 @@ with SqliteSaver.from_conn_string("graph.db") as saver:
 | **Custom workflow** | Hand-built LangGraph mixing deterministic and agentic nodes | Anything bespoke |
 
 ```python
-researcher = create_agent(f"google_genai:{CHAT_MODEL}", [search_game_docs],
+researcher = create_agent(model_id(CHAT_MODEL), [search_game_docs],
                           system_prompt="Research thoroughly; reply with a 5-bullet summary and sources.")
 
 @tool
@@ -1089,11 +1122,13 @@ def research(question: str) -> str:
     out = researcher.invoke({"messages": [{"role": "user", "content": question}]})
     return out["messages"][-1].text
 
-coach = create_agent(f"google_genai:{CHAT_MODEL}", [research, calculate_damage],
+coach = create_agent(model_id(CHAT_MODEL), [research, calculate_damage],
                      system_prompt="You are a coach. Delegate research; do the maths yourself.")
 ```
 
 **Key Insight:** Multi-agent is mostly a **context-engineering** technique (each subagent burns its own tokens and returns a distilled result). It multiplies cost and failure modes — use it when a single agent's context gets overloaded, not by default.
+
+**Evidence (2026):** Marmelab's *State of AI Harness Engineering 2026* reports that adding a dedicated reviewer agent *lowered* success by 8% in one ablation, a four-role team barely beat the best single agent (72.2% vs 71.8% on a SWE-bench subset), and chains of more than four agent-to-agent handoffs almost always failed at Microsoft's scale. Treat multi-agent as a tool for context isolation, not a quality multiplier.
 
 **Completion Check:** The learner justifies single- vs multi-agent for their bot with token and latency numbers.
 
@@ -1101,9 +1136,10 @@ coach = create_agent(f"google_genai:{CHAT_MODEL}", [research, calculate_damage],
 
 ```python
 from deepagents import create_deep_agent
+from config import CHAT_MODEL, model_id
 
 deep = create_deep_agent(
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(CHAT_MODEL),
     tools=[search_game_docs],
     system_prompt="You write thorough meta-analysis reports for the game community.",
 )
@@ -1114,6 +1150,104 @@ deep.invoke({"messages": [{"role": "user", "content": "Write a report on the cur
 
 **Completion Check:** The learner inspects the files the deep agent wrote and explains how the filesystem keeps the main context small.
 
+### Step 5.6 — Harness Engineering: Agent = Model + Harness
+
+**First-Principles:** Everything in an agent except the model is the **harness**: instructions, tools, context management, permissions, checks, memory and the loop itself. Practitioners in 2026 found the harness matters about as much as the model — one survey ran the same model through eight harnesses and saw task success range from 68% to 88%. OpenAI's February 2026 *Harness engineering* post and Birgitta Böckeler's article on martinfowler.com give the vocabulary:
+
+- **Guides (feed-forward)** steer the agent *before* it acts: system prompt, `AGENTS.md`, skills, tool descriptions.
+- **Sensors (feedback)** check *after* it acts and let it self-correct: tests, validators, linters, judges.
+- Each can be **computational** (deterministic code) or **inferential** (another model's judgement). Prefer computational wherever possible — in one analysis of 481 public `CLAUDE.md` files, only 4–16% of written security rules had a measurable effect, while executable checks did.
+
+**Build a sensor as middleware** — a deterministic check that sends the agent back to work when its final answer breaks a rule:
+
+```python
+from typing import Any
+from langchain.agents.middleware import AgentMiddleware, AgentState, hook_config
+from langchain.messages import HumanMessage
+from langgraph.runtime import Runtime
+
+class RequireCitations(AgentMiddleware):
+    """Sensor: a final answer about game facts must cite a source like [patch_notes.md]."""
+    max_retries = 2
+
+    @hook_config(can_jump_to=["model"])
+    def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        last = state["messages"][-1]
+        if getattr(last, "tool_calls", None):      # still working, not a final answer
+            return None
+        retries = sum(1 for m in state["messages"] if getattr(m, "name", None) == "citation_check")
+        if "[" in last.text or retries >= self.max_retries:
+            return None
+        return {
+            "messages": [HumanMessage("Your answer has no source citation. Search the docs and cite them.",
+                                      name="citation_check")],
+            "jump_to": "model",
+        }
+
+agent = create_agent(model_id(CHAT_MODEL), tools=[search_game_docs], middleware=[RequireCitations()])
+```
+
+!!! note "Check your version"
+    Jump targets and hook signatures are documented on the LangChain *Custom middleware* page; confirm them against your installed version before teaching.
+
+**Test the harness itself.** A guard that never fires is worse than none, because you believe you're protected. Write *negative* tests: an eval case that should trip the sensor, and one that should pass through. Marmelab found 60% of public harnesses had no tests at all.
+
+**Harness rot.** Rules exist to compensate for model weaknesses, and weaknesses disappear with new models. Record *why* each guide or sensor exists (one line is enough) and re-run your evals without it after every model upgrade; delete what no longer earns its tokens.
+
+**The same ideas at every level:** Deep Agents (Step 5.5) is a harness library; Claude Code is a harness you configure with `CLAUDE.md`, skills, subagents and hooks. This course's own [Claude Harness Kit](claude-harness.md) is a worked example — read its files after this step.
+
+**Completion Check:** The learner lists their agent's guides and sensors in a table (computational vs inferential) and shows one negative test proving a sensor fires.
+
+### Step 5.7 — Ambient Agents: Running Without a Human Prompt
+
+**First-Principles:** Everything so far starts when someone sends a message. **Ambient (proactive) agents** start from a *schedule* or an *event*: a nightly digest, a reaction to a new patch-notes post, a webhook from monitoring. 2026 made this mainstream — scheduled and event-triggered agents now ship as products (Claude Code routines, Claude Managed Agents scheduled deployments, LangSmith Deployment cron jobs), and personal always-on agents such as OpenClaw and Hermes Agent went viral.
+
+Nobody is watching when an ambient agent runs, so the design rules change:
+
+1. **Self-contained task prompt** with an explicit definition of done — there's no one to ask.
+2. **Budgets:** `ModelCallLimitMiddleware` / `ToolCallLimitMiddleware` and a wall-clock timeout.
+3. **Durable approvals:** anything irreversible goes through `interrupt()` (Step 5.3), so the run pauses in the checkpointer and a moderator approves later from Discord.
+4. **Treat trigger payloads as untrusted data.** A webhook body or a scraped post can contain prompt injection. (Claude Code routines, for example, wrap API-fired text in a block labelled as untrusted for exactly this reason.)
+5. **Idempotency and observability:** one `thread_id` per run (`digest-2026-09-28`), so reruns are safe and every run has a trace.
+
+```python
+# nightly_digest.py — run by a systemd timer (or any scheduler)
+import datetime
+from langchain.agents import create_agent
+from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware
+from langgraph.checkpoint.sqlite import SqliteSaver
+from config import CHAT_MODEL, model_id
+
+TASK = """Summarise today's patch-notes changes for the Discord #meta channel.
+Done means: <= 10 bullets, each citing its source file. If nothing changed, reply exactly 'NO_CHANGES'."""
+
+run_id = f"digest-{datetime.date.today().isoformat()}"
+with SqliteSaver.from_conn_string("ambient.db") as saver:
+    agent = create_agent(
+        model_id(CHAT_MODEL),
+        tools=[search_game_docs],
+        middleware=[ModelCallLimitMiddleware(run_limit=15), ToolCallLimitMiddleware(run_limit=20)],
+        checkpointer=saver,
+    )
+    out = agent.invoke({"messages": [{"role": "user", "content": TASK}]},
+                       {"configurable": {"thread_id": run_id}})
+    print(out["messages"][-1].text)     # hand this to your Discord posting code
+```
+
+```ini
+# /etc/systemd/system/nightly-digest.timer  (pairs with a nightly-digest.service running the script)
+[Timer]
+OnCalendar=*-*-* 06:07:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+**Optional teardown — personal agent harnesses.** Read the architecture docs of [OpenClaw](https://docs.openclaw.ai/) and [Hermes Agent](https://hermes-agent.nousresearch.com/) (messaging gateways, heartbeats/schedules, skills, local memory; Hermes also writes its own skills from experience). Then read OpenClaw's security history: hundreds of malicious skills found on its ClawHub marketplace, sandboxing disabled by default in 2.0. Map each incident to the lethal trifecta (Step 4.5). Run either one only in a throwaway VM with dummy accounts — never with your real email, keys or files.
+
+**Completion Check:** The learner's scheduled job runs unattended twice, the second run is a no-op or clearly idempotent, and any write action waits for approval.
+
 ### 🔨 Phase 5 Checkpoint Project
 
 **Task:** A multi-tool research & moderation system:
@@ -1122,7 +1256,9 @@ deep.invoke({"messages": [{"role": "user", "content": "Write a report on the cur
 2. SQLite/Postgres persistence; resumes after a crash
 3. `interrupt()`-based approval before posting anything public
 4. One subagent-as-tool
-5. Exported Mermaid diagram in the README
+5. At least one computational sensor (Step 5.6) with a negative test proving it fires
+6. One ambient job (Step 5.7) that runs on a schedule with budgets and durable approval
+7. Exported Mermaid diagram in the README
 
 **Completion Criteria:** The learner can draw the graph from memory and explain every edge condition.
 
@@ -1155,9 +1291,11 @@ from openevals.llm import create_llm_as_judge
 from openevals.prompts import CORRECTNESS_PROMPT
 from agentevals.trajectory.match import create_trajectory_match_evaluator
 
+from config import JUDGE_MODEL, model_id
+
 correctness = create_llm_as_judge(
     prompt=CORRECTNESS_PROMPT, feedback_key="correctness",
-    model=f"google_genai:{CHAT_MODEL}",
+    model=model_id(JUDGE_MODEL),       # a different (cheaper) model than the one being judged
 )
 trajectory = create_trajectory_match_evaluator(trajectory_match_mode="superset")
 ```
@@ -1190,7 +1328,7 @@ def test_tool_choice(q, expected_tool):
     assert expected_tool in called
 ```
 
-**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. 3.7 → 3.8 Flash) are regressions until proven otherwise.
+**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 4.6 → Sonnet 5) are regressions until proven otherwise.
 
 **Completion Check:** A failing eval blocks a (local or CI) merge.
 
@@ -1198,9 +1336,10 @@ def test_tool_choice(q, expected_tool):
 
 **Key Concepts:**
 
-- **Model routing:** Flash-Lite for classification/summaries/judges at scale; Flash for agents; Pro-class only where evals show it matters.
-- **`thinking_level`** per task — the cheapest reasoning that passes your evals.
-- **Context caching:** keep the stable prefix (system prompt, tool definitions) identical and first so provider caching can hit; this is where most teams leak money.
+- **Model routing:** a small model (e.g. Haiku-class) for classification, summaries and bulk judging; the default model for agents; the most capable model only where evals show it matters. Measure first whether *one* strong model at lower effort beats a cascade — one model also means one cache.
+- **Effort / reasoning level** per task — the cheapest setting that passes your evals.
+- **The advisor pattern:** a cheaper executor model consults a stronger "advisor" model only on hard steps (Anthropic presented this at Code with Claude, May 2026). It's a cost pattern you can build in LangGraph with a conditional edge.
+- **Prompt caching:** keep the stable prefix (tool definitions, system prompt) byte-identical and first so provider caching can hit — no timestamps or per-request IDs in the system prompt. With Claude you opt in per call (`model.invoke(messages, cache_control={"type": "ephemeral"})` in `langchain-anthropic`) and confirm hits in `usage_metadata` (cache-read tokens > 0). Datadog found only ~28% of LLM calls use caching; this is where most teams leak money.
 - **Budgets:** `ModelCallLimitMiddleware`, per-user quotas, and `usage_metadata` logged per request.
 - **Semantic caching** for repeated questions (e.g. "what's the best cavalry build?").
 
@@ -1254,13 +1393,18 @@ async def ask(body: Ask):
 |---|---|---|
 | [docs.langchain.com](https://docs.langchain.com/oss/python/langchain/overview) | Source of truth for LangChain, LangGraph, Deep Agents | Always |
 | [LangChain release changelog](https://docs.langchain.com/oss/python/releases/changelog) | What changed this month | Before each phase |
-| [Gemini API models](https://ai.google.dev/gemini-api/docs/models) | Current model IDs and deprecations | Before each phase |
+| [Claude models overview](https://platform.claude.com/docs/en/about-claude/models/overview) (or your provider's equivalent) | Current model IDs and deprecations | Before each phase |
+| [LangChain Anthropic integration](https://docs.langchain.com/oss/python/integrations/chat/anthropic) | Provider-specific parameters (effort, caching, server tools) | When a lesson needs them |
+| [Claude Harness Kit](claude-harness.md) | Run this path with Claude Code as your mentor | From Phase 0 |
 | [LangChain Academy](https://academy.langchain.com/) | Free official courses (LangGraph, agents, evals) | Alongside Phases 2–6 |
 | [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (Anthropic) | The mental model for Phase 3 | Before Phase 3 |
 | [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) (Anthropic) | Workflows vs agents; when *not* to build an agent | Before Phase 2 |
 | [MCP specification](https://modelcontextprotocol.io/specification/latest) | Protocol details (2026-07-28 revision) | Phase 4 |
 | [OWASP Top 10 for Agentic Applications](https://genai.owasp.org/) | Threat model | Phase 4 |
 | [Hamel Husain's evals FAQ](https://hamel.dev/blog/posts/evals-faq/) | Error analysis & evaluator design | Phase 6 |
+| [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) (Böckeler) | Guides & sensors vocabulary | Step 5.6 |
+| [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic) | Progress files, feature lists, incremental work | Steps 5.5–5.7 |
+| [The State of AI Harness Engineering 2026](https://marmelab.com/blog/2026/09/24/the-state-of-ai-harness-engineering-2026.html) (Marmelab) | Evidence on what works (and doesn't) | Step 5.6 |
 | [DeepLearning.AI — Evaluating AI Agents](https://www.deeplearning.ai/courses/evaluating-ai-agents) | Hands-on agent evals | Phase 6 |
 
 > **Tutorial hygiene:** before following any external tutorial, check its date and its imports. `initialize_agent`, `AgentExecutor`, `create_react_agent`, `ConversationBufferMemory`, `langchain_community.vectorstores`, `LANGCHAIN_TRACING_V2` or `gemini-2.0`/`1.5` model IDs all mean "translate before use".
@@ -1275,11 +1419,13 @@ async def ask(body: Ask):
 
 **Context is the product.** Most agent failures are context failures: missing information, too much irrelevant information, or ambiguous tools.
 
+**The harness is half the product.** Same model, different harness, very different results. Prefer checks that run over rules that are read.
+
 **Evals are how you know.** Every change to a prompt, model, tool or retriever is a hypothesis; the eval suite is the experiment.
 
 **Keep versions visible.** Pin package versions per project, keep model IDs in config, and re-check the changelog monthly.
 
 ---
 
-*Curriculum V2 — Model-Guided · LangChain 1.4 + LangGraph 1.2 + Deep Agents · Gemini 3.x · Last researched: September 2026*
+*Curriculum V2 (revised) — Model-Guided · LangChain 1.4 + LangGraph 1.2 + Deep Agents · provider-neutral, Claude as reference · Last researched: September 2026*
 *V1 (March 2026) remains available at [LangChain Path (V1)](../langchain-path.md).*

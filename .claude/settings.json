@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdocs build *)",
+      "Bash(python3 scripts/check_docs.py *)",
+      "Bash(python3 scripts/check_links.py *)"
+    ],
+    "deny": [
+      "Edit(/docs/ai-engineering/langchain-path.md)",
+      "Edit(/docs/ai-engineering/ai-mastery-plan.md)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/check_doc_hook.py",
+            "timeout": 30,
+            "statusMessage": "Checking page structure and code..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/v1_guard.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

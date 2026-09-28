@@ -1,5 +1,6 @@
 ---
 title: Welcome to Learning Pathways
+description: Versioned, first-principles learning paths for AI engineering, with Claude Code harness files that turn Claude into your mentor.
 ---
 
 # 📚 Learning Pathways
@@ -10,27 +11,35 @@ Welcome to a curated collection of deep-dive learning paths for AI and Software 
 
 <div class="grid cards" markdown>
 
+-   :material-rocket-launch: __AI Engineer Mastery Plan (V2)__
+
+    ---
+
+    A provider-neutral roadmap to production AI engineering: agentic and harness engineering, context engineering, evals, agents, ambient agents, security and post-training.
+
+    [:octicons-arrow-right-24: Start Learning](ai-engineering/v2/ai-mastery-plan.md)
+
 -   :simple-python: __LangChain Deep Dive (V2)__
 
     ---
 
-    Master LangChain 1.x, LangGraph and Deep Agents from first principles using Google Gemini 3.x — agents, context engineering, MCP, security and evals.
+    LangChain 1.x, LangGraph and Deep Agents from first principles — any provider, Claude as reference — including middleware, MCP, harness engineering and evals.
 
     [:octicons-arrow-right-24: Start Learning](ai-engineering/v2/langchain-path.md)
 
--   :simple-googlegemini: __AI Developer Mastery (V2)__
+-   :material-cog-transfer: __Claude Harness Kit__
 
     ---
 
-    A 2026-current roadmap for becoming a production-grade AI Engineer: coding agents, context engineering, evals, agents, security and post-training.
+    Harness files (`CLAUDE.md`, skills, subagent, hooks) that make Claude Code your mentor for these paths — and a worked example of harness engineering.
 
-    [:octicons-arrow-right-24: Start Learning](ai-engineering/v2/ai-mastery-plan.md)
+    [:octicons-arrow-right-24: Get the kit](ai-engineering/v2/claude-harness.md)
 
 -   :material-clipboard-search: __What changed in V2__
 
     ---
 
-    The audit of V1, the industry research behind V2, and every source used.
+    The audit of V1, two rounds of industry research, and every source used.
 
     [:octicons-arrow-right-24: Read the notes](ai-engineering/v2/review-notes.md)
 

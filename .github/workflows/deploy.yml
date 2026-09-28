@@ -34,10 +34,17 @@ jobs:
             mkdocs-material-
       - run: pip install -r requirements.txt
       - run: mkdocs build
+      - run: python3 scripts/check_docs.py --all
       - name: Copy source files for download
         run: |
           mkdir -p site/sources
           cp -r docs/* site/sources/
+      - name: Package Claude mentor kit
+        run: |
+          mkdir -p /tmp/mentor-kit
+          cp -r mentor-kit/. /tmp/mentor-kit/
+          cp docs/ai-engineering/v2/langchain-path.md docs/ai-engineering/v2/ai-mastery-plan.md /tmp/mentor-kit/curriculum/
+          (cd /tmp/mentor-kit && zip -qr "$GITHUB_WORKSPACE/site/mentor-kit.zip" .)
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

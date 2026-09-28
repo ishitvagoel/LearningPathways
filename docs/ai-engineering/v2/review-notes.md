@@ -13,6 +13,73 @@ tags:
 
 This page explains *why* V2 exists: what the review of V1 found, what the industry research showed, and which decisions follow from it. V1 files are untouched and remain in the site under **AI Engineering → V1 (March 2026)**.
 
+Sections 1–5 record the original V2 research. **Section 0** records the late-September revision: a second research pass, the switch to a provider-neutral curriculum, and the Claude harness files.
+
+---
+
+## 0. Revision — late September 2026
+
+### What prompted it
+
+A stress test of V2 asked whether the curriculum covered *harness engineering*, OpenClaw and Hermes. It didn't, and a second research pass found more gaps. The owner also asked to **remove the dependency on Gemini** and to deliver the curriculum through **Claude harness files** instead of "paste this into an assistant".
+
+### New findings from the second research pass
+
+| Topic | Evidence | Where it landed |
+|---|---|---|
+| **Harness engineering** — agent = model + harness; guides vs sensors | OpenAI *Harness engineering* (Feb 2026); Böckeler on martinfowler.com (Apr 2026); Marmelab *State of AI Harness Engineering 2026*: the same model scored 68–88% across eight harnesses, 60% of harnesses had no tests, only 4–16% of written `CLAUDE.md` security rules had a measurable effect | Mastery Plan Phase 0 and new Phase 6; LangChain Step 5.6; the harness kit itself |
+| **Agentic engineering** replacing "vibe coding" | Karpathy, Sequoia AI Ascent (Apr 2026) | Mastery Plan intro and Phase 0 |
+| **Loop engineering, skills everywhere, coding agents replacing IDEs, forward-deployed engineers** | AI Engineer World's Fair 2026 recap (Latent Space, July 2026) | Phase 5 (skills), Phase 6 (loops) |
+| **Ambient/scheduled agents and managed agent platforms** | Claude Managed Agents public beta (Apr 2026); Claude Code routines (schedule, API and GitHub triggers; fire payloads labelled untrusted); Code with Claude (May 2026) | Phase 6; LangChain Step 5.7; harness-choice table in Phase 5 |
+| **Personal agent harnesses** as a security case study | OpenClaw (≈247k stars by Mar 2026; malicious ClawHub skills; sandboxing off by default in 2.0; restrictions in China); Hermes Agent (Nous Research, Feb 2026; self-written skills) | Phase 6 teardown (sandboxed only); "what not to spend time on" |
+| **Multi-agent limits** | Marmelab: a reviewer agent lowered success 8% in one ablation; more than 4 handoffs almost always failed | LangChain Step 5.4; "what not to spend time on" |
+| **Computer use reality check** | 2026 OSWorld-family papers: agents trail humans by ~30 points and take 2.7–4.3× more steps than needed | Phase 5 electives |
+| **RL environments and verifiers**, reward hacking | Industry analyses of the RL-environment market (e.g. Wing VC, 2026); RLVR practice | Phase 8 |
+| **Agent identity** | OAuth 2.1 per-agent clients; MCP authorization; workload identity (SPIFFE/WIMSE) | Phase 7 |
+| **Regulation** | EU Digital Omnibus in force 27 Jul 2026: high-risk obligations deferred to Dec 2027 / Aug 2028; most Art. 50 transparency duties applied from 2 Aug 2026 | Phase 7 |
+| **Agentic payments** (awareness) | ACP (OpenAI/Stripe), AP2 (Google), MPP (Stripe/Tempo, Mar 2026) | Phase 7 |
+| **Cost patterns** | Anthropic's advisor pattern (Code with Claude, May 2026); effort as a cost lever | LangChain Step 6.5; Phase 7 checklist |
+
+### Provider-neutral rewrite
+
+- Every example builds models from `config.py` (`PROVIDER` + `model_id()`), so switching provider is a configuration change.
+- Claude is the *reference* provider because the same vendor ships the harness the curriculum uses. Its model IDs and parameters were checked against Anthropic's current documentation: `claude-opus-5` default, `claude-sonnet-5` judge, `claude-haiku-4-5` fast; adaptive thinking + `effort`; sampling parameters rejected on current models.
+- Embeddings moved to a **local open-source model** (`sentence-transformers/all-mpnet-base-v2` via `langchain-huggingface`), removing any vendor dependency from retrieval.
+- Gemini-specific material (the Interactions API, `thinking_level`, the Gemini temperature caveat, Gemini embedding models) was removed or generalised.
+- The old `GEMINI.md` was replaced by a tool-neutral `AGENTS.md` plus a `CLAUDE.md` that imports it.
+
+### Claude harness files
+
+- **Mentor kit** (`mentor-kit/`): `CLAUDE.md`, four skills, a reviewer subagent, a SessionStart context hook and a checkpoint gate. It is packaged as `mentor-kit.zip` on deploy.
+- **Repository harness**: `AGENTS.md`, `CLAUDE.md`, three skills, a reviewer subagent, deny rules for V1, a PostToolUse document checker and a Stop-time V1 guard.
+- Every hook was tested with synthetic events, including negative cases. See [Claude Harness Kit](claude-harness.md).
+
+### Claims deliberately not repeated
+
+- Specific open-weight leaderboard rankings (sources disagree).
+- Unverifiable percentage claims from vendor marketing about context engineering's impact.
+- The exact adoption count for Agent Skills beyond "dozens of products".
+
+### Additional sources (revision)
+
+- OpenAI, *Harness engineering: leveraging Codex in an agent-first world* — <https://openai.com/index/harness-engineering/>
+- B. Böckeler, *Harness engineering for coding agent users* — <https://martinfowler.com/articles/harness-engineering.html>
+- Marmelab, *The State of AI Harness Engineering 2026* — <https://marmelab.com/blog/2026/09/24/the-state-of-ai-harness-engineering-2026.html>
+- Anthropic, *Effective harnesses for long-running agents* — <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>
+- Anthropic, *Writing effective tools for agents* — <https://www.anthropic.com/engineering/writing-tools-for-agents>; *Code execution with MCP* — <https://www.anthropic.com/engineering/code-execution-with-mcp>; *Contextual Retrieval* — <https://www.anthropic.com/news/contextual-retrieval>
+- Latent Space, *5 Trends That Defined AI Engineering at World's Fair 2026* — <https://www.latent.space/p/aiewf26trends>
+- A. Karpathy, *Sequoia Ascent 2026* notes — <https://karpathy.bearblog.dev/sequoia-ascent-2026/>
+- The Pragmatic Engineer, *The impact of AI on software engineers in 2026* — <https://newsletter.pragmaticengineer.com/p/the-impact-of-ai-on-software-engineers-2026>
+- Claude Managed Agents announcement — <https://claude.com/blog/claude-managed-agents>; docs — <https://platform.claude.com/docs/en/managed-agents/overview>
+- InfoQ, *Code with Claude 2026* — <https://www.infoq.com/news/2026/05/code-with-claude/>
+- Claude Code docs: routines <https://code.claude.com/docs/en/routines>, memory <https://code.claude.com/docs/en/memory>, skills <https://code.claude.com/docs/en/skills>, subagents <https://code.claude.com/docs/en/sub-agents>, hooks <https://code.claude.com/docs/en/hooks>, permissions <https://code.claude.com/docs/en/permissions>
+- Claude Platform docs: effort <https://platform.claude.com/docs/en/build-with-claude/effort>, extended thinking <https://platform.claude.com/docs/en/build-with-claude/extended-thinking>, prompt caching <https://platform.claude.com/docs/en/build-with-claude/prompt-caching>
+- LangChain Anthropic integration — <https://docs.langchain.com/oss/python/integrations/chat/anthropic>; embedding integrations — <https://docs.langchain.com/oss/python/integrations/text_embedding>
+- OpenClaw — <https://en.wikipedia.org/wiki/OpenClaw>, <https://docs.openclaw.ai/>; Hermes Agent — <https://hermes-agent.nousresearch.com/>
+- EU AI Act omnibus analysis (Jones Walker) — <https://www.joneswalker.com/en/insights/blogs/ai-law-blog/yes-august-2-still-matters-the-eu-approved-a-high-risk-ai-delay-but-most-trans.html?id=102nbon>
+- Stripe, Agentic Commerce Protocol — <https://docs.stripe.com/agentic-commerce/acp>
+- Wing VC, *Who will win the RL environment market* — <https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why>
+
 ---
 
 ## 1. Review of V1 — LangChain Path
@@ -72,7 +139,7 @@ This page explains *why* V2 exists: what the review of V1 found, what the indust
 
 ## 4. Design decisions in V2
 
-- **Keep V1 intact**; V2 lives in `docs/ai-engineering/v2/` and is the default in the navigation.
+- **Keep V1 intact**; V2 lives in `docs/ai-engineering/v2/` and is the default in the navigation. (Because V2 had not yet been published when the late-September revision was made, the revision was applied to V2 in place; from now on published versions are frozen.)
 - **Order by dependency and by what's hired for:** build → retrieve/context → **evaluate** → agents → **secure/operate** → internals/post-training.
 - **Every phase ends in a checkpoint project**, and from Phase 4 on, every project ships with evals.
 - **Volatile facts are isolated** (model IDs in config; "check the docs" rules for the teaching model) so the next refresh is cheaper.
