@@ -15,8 +15,12 @@ Maintain the following structure for optimal site organization:
 ├── docs/                     # Root for all site content
 │   ├── index.md              # The Landing Page (Grid-based Navigation)
 │   ├── ai-engineering/       # Topic-specific subdirectories
-│   │   ├── langchain-path.md
-│   │   └── ai-mastery-plan.md
+│   │   ├── langchain-path.md     # V1 (March 2026) — frozen, do not edit
+│   │   ├── ai-mastery-plan.md    # V1 (March 2026) — frozen, do not edit
+│   │   └── v2/                   # V2 (September 2026) — current edition
+│   │       ├── langchain-path.md
+│   │       ├── ai-mastery-plan.md
+│   │       └── review-notes.md   # audit of V1 + research sources for V2
 │   └── assets/               # Shared site assets
 │       ├── images/
 │       └── custom.css        # Extra UI/UX overrides
@@ -78,7 +82,15 @@ When adding new Learning Paths (e.g., from Claude Opus), they MUST follow the es
 3.  Verify the "First Principles" structure is intact.
 4.  (Optional) Add a card for the new path to `docs/index.md`.
 
-### 2. Local Preview
+### 2. Versioning Curricula
+Curricula are versioned, never rewritten in place. When a path needs a substantial refresh:
+1.  Leave the existing version untouched (it may be in use by learners mid-way through).
+2.  Create the new version in a sibling folder (e.g., `docs/ai-engineering/v3/`) with the same filenames.
+3.  Add a `review-notes.md` in that folder recording what was wrong or outdated, the research performed, and its sources.
+4.  Update `mkdocs.yml` so the newest version is listed first, and point the landing-page cards at it.
+5.  Keep volatile facts (model IDs, package versions) in one clearly marked place per path so the next refresh is cheap.
+
+### 3. Local Preview
 To preview the site before pushing to GitHub:
 ```bash
 pip install mkdocs-material
@@ -86,7 +98,7 @@ mkdocs serve
 ```
 Visit `http://127.0.0.1:8000` in your browser.
 
-### 3. Deployment
+### 4. Deployment
 The site is automatically deployed to GitHub Pages when changes are pushed to the `main` branch via the `.github/workflows/deploy.yml` action.
 
 ---
