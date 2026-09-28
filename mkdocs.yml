@@ -66,8 +66,14 @@ markdown_extensions:
 nav:
   - Home: index.md
   - AI Engineering:
-    - LangChain Path: ai-engineering/langchain-path.md
-    - AI Mastery Plan: ai-engineering/ai-mastery-plan.md
+    - V2 (September 2026):
+      - AI Engineer Mastery Plan: ai-engineering/v2/ai-mastery-plan.md
+      - LangChain Path: ai-engineering/v2/langchain-path.md
+      - Claude Harness Kit: ai-engineering/v2/claude-harness.md
+      - Review & Research Notes: ai-engineering/v2/review-notes.md
+    - V1 (March 2026):
+      - LangChain Path: ai-engineering/langchain-path.md
+      - AI Mastery Plan: ai-engineering/ai-mastery-plan.md
 
 repo_url: https://github.com/ishitvagoel/LearningPathways
 repo_name: ishitvagoel/LearningPathways
