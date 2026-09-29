@@ -5,7 +5,7 @@ Claude-specific harness details live in `CLAUDE.md`, which imports this file.
 
 ## What this repo is
 
-A static MkDocs Material site (GitHub Pages) hosting versioned learning paths for AI engineering.
+A static MkDocs Material site (hosted on Vercel) hosting versioned learning paths for AI engineering.
 Content is Markdown in `docs/`; there is no application code to run in production.
 
 ```text
@@ -23,18 +23,25 @@ docs/
 mentor-kit/                         # Claude Code harness learners copy into their practice repo
 scripts/check_docs.py               # structure + stale-API checks (run on every page you edit)
 scripts/check_links.py              # external link checker
+scripts/build_site.py               # the production build: checks, MkDocs, sources, mentor-kit.zip
 mkdocs.yml                          # nav, theme, plugins
-.github/workflows/deploy.yml        # builds and deploys on push to main
+vercel.json                         # Vercel build settings (runs scripts/build_site.py)
+.github/workflows/ci.yml            # runs the same build on pushes to main and on pull requests; deploys nothing
 ```
 
 ## Commands
 
 ```bash
 pip install -r requirements.txt          # site dependencies
-mkdocs build -d /tmp/site                # must succeed with no new warnings
+python3 scripts/build_site.py            # the full production build into ./site (what Vercel and CI run)
+mkdocs build -d /tmp/site                # quick build only; must succeed with no new warnings
 python3 scripts/check_docs.py --all      # must print "OK"
 python3 scripts/check_links.py docs/ai-engineering/v2/*.md   # before publishing new resources
 ```
+
+## Hosting
+
+Vercel builds and deploys from Git: pushes to `main` go to production, and other branches and pull requests get previews. The build settings live in `vercel.json` (Framework Preset "Other"), so the Vercel dashboard needs no overrides. The one setting the build needs is the site URL, which comes from `SITE_URL` or, by default, Vercel's `VERCEL_PROJECT_PRODUCTION_URL` (on if "Automatically expose System Environment Variables" is ticked). `scripts/build_site.py` fails with instructions if neither is available. Vercel clones with `--depth=10`, so the script fetches the full history for the "last updated" dates, and turns them off if that isn't possible. Keep links to the site's own files relative (no domain in content), so the site can move again.
 
 ## Rules
 

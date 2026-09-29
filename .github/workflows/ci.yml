@@ -1,0 +1,24 @@
+name: ci
+# Checks only. The site itself is built and deployed by Vercel from vercel.json,
+# and it runs the same scripts/build_site.py, so a change that fails here fails there too.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history, for the "last updated" dates
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python3 scripts/build_site.py

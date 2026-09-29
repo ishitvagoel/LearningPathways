@@ -1,5 +1,5 @@
 site_name: Learning Pathways
-site_url: https://ishitvagoel.github.io/LearningPathways/
+site_url: !ENV [SITE_URL, "http://localhost:8000/"]   # set by scripts/build_site.py; localhost for local work
 theme:
   name: material
   custom_dir: overrides
@@ -42,7 +42,7 @@ extra_css:
 plugins:
   - search
   - git-revision-date-localized:
-      enable_fallback: true
+      enabled: !ENV [GIT_DATES, true]   # scripts/build_site.py turns this off when git history is unavailable
       type: datetime
   - minify:
       minify_html: true

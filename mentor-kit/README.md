@@ -1,7 +1,7 @@
 # Learning Pathways — Claude Code mentor kit
 
 A small Claude Code harness that turns Claude Code into a first-principles mentor for the
-[Learning Pathways](https://ishitvagoel.github.io/LearningPathways/) AI engineering curriculum.
+[Learning Pathways](https://github.com/ishitvagoel/LearningPathways) AI engineering curriculum.
 It's also a worked example of the harness engineering the curriculum teaches: every file here is a
 **guide**, a **sensor** or a **constraint**.
 

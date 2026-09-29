@@ -38,7 +38,7 @@ Sensors and guides can each be **computational** (a script, deterministic and ch
 
 ### Install
 
-1. Get the kit: download **`mentor-kit.zip`** from the site root (`https://ishitvagoel.github.io/LearningPathways/mentor-kit.zip`, built by the deploy workflow and including the curriculum pages) or copy the `mentor-kit/` folder from the [repository](https://github.com/ishitvagoel/LearningPathways).
+1. Get the kit: download [**`mentor-kit.zip`**](/mentor-kit.zip) from the root of this site (built with the site, and including the curriculum pages) or copy the `mentor-kit/` folder from the [repository](https://github.com/ishitvagoel/LearningPathways).
 2. Unzip or copy it into a new practice repository (keep the hidden `.claude/` folder) and run `git init`.
 3. If you copied the folder rather than the zip, put `langchain-path.md` and `ai-mastery-plan.md` into `curriculum/`.
 4. Edit `learner-profile.md` once. To use a provider other than Claude, set `PROVIDER` and the model variables (see `config.py`).
