@@ -27,23 +27,23 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 
 | Topic | Evidence | Where it landed |
 |---|---|---|
-| **Harness engineering** — agent = model + harness; guides vs sensors | OpenAI *Harness engineering* (Feb 2026); Böckeler on martinfowler.com (Apr 2026); Marmelab *State of AI Harness Engineering 2026*: the same model scored 68–88% across eight harnesses, 60% of harnesses had no tests, only 4–16% of written `CLAUDE.md` security rules had a measurable effect | Mastery Plan Phase 0 and new Phase 6; LangChain Step 5.6; the harness kit itself |
+| **Harness engineering** — agent = model + harness; guides vs sensors | OpenAI *Harness engineering* (Feb 2026); Böckeler on martinfowler.com (Apr 2026); Marmelab *State of AI Harness Engineering 2026*: 60% of harnesses had no tests; it also cites a Composio vendor experiment (same model, 68–88% across eight harnesses, 25 tasks) and an arXiv study (only 4–16% of written `CLAUDE.md` security rules had a measurable effect) | Mastery Plan Phase 0 and new Phase 6; LangChain Step 5.6; the harness kit itself |
 | **Agentic engineering** replacing "vibe coding" | Karpathy, Sequoia AI Ascent (Apr 2026) | Mastery Plan intro and Phase 0 |
 | **Loop engineering, skills everywhere, coding agents replacing IDEs, forward-deployed engineers** | AI Engineer World's Fair 2026 recap (Latent Space, July 2026) | Phase 5 (skills), Phase 6 (loops) |
 | **Ambient/scheduled agents and managed agent platforms** | Claude Managed Agents public beta (Apr 2026); Claude Code routines (schedule, API and GitHub triggers; fire payloads labelled untrusted); Code with Claude (May 2026) | Phase 6; LangChain Step 5.7; harness-choice table in Phase 5 |
 | **Personal agent harnesses** as a security case study | OpenClaw (≈247k stars by Mar 2026; malicious ClawHub skills; sandboxing off by default in 2.0; restrictions in China); Hermes Agent (Nous Research, Feb 2026; self-written skills) | Phase 6 teardown (sandboxed only); "what not to spend time on" |
 | **Multi-agent limits** | Marmelab: a reviewer agent lowered success 8% in one ablation; more than 4 handoffs almost always failed | LangChain Step 5.4; "what not to spend time on" |
-| **Computer use reality check** | 2026 OSWorld-family papers: agents trail humans by ~30 points and take 2.7–4.3× more steps than needed | Phase 5 electives |
+| **Computer use reality check** | OSWorld-Human (v2, May 2026): even the best agents take 2.7–4.3× more steps than necessary, with large latency; newer long-horizon benchmarks (OSWorld 2.0) report much lower success | Phase 5 electives |
 | **RL environments and verifiers**, reward hacking | Industry analyses of the RL-environment market (e.g. Wing VC, 2026); RLVR practice | Phase 8 |
 | **Agent identity** | OAuth 2.1 per-agent clients; MCP authorization; workload identity (SPIFFE/WIMSE) | Phase 7 |
 | **Regulation** | EU Digital Omnibus in force 27 Jul 2026: high-risk obligations deferred to Dec 2027 / Aug 2028; most Art. 50 transparency duties applied from 2 Aug 2026 | Phase 7 |
-| **Agentic payments** (awareness) | ACP (OpenAI/Stripe), AP2 (Google), MPP (Stripe/Tempo, Mar 2026) | Phase 7 |
+| **Agentic payments** (awareness) | ACP (Stripe, OpenAI and Meta), AP2 (Google; donated to the FIDO Alliance Apr 2026), MPP (Stripe/Tempo, Mar 2026) | Phase 7 |
 | **Cost patterns** | Anthropic's advisor pattern (Code with Claude, May 2026); effort as a cost lever | LangChain Step 6.5; Phase 7 checklist |
 
 ### Provider-neutral rewrite
 
 - Every example builds models from `config.py` (`PROVIDER` + `model_id()`), so switching provider is a configuration change.
-- Claude is the *reference* provider because the same vendor ships the harness the curriculum uses. Its model IDs and parameters were checked against Anthropic's current documentation: `claude-opus-5` default, `claude-sonnet-5` judge, `claude-haiku-4-5` fast; adaptive thinking + `effort`; sampling parameters rejected on current models.
+- Claude is the *reference* provider because the same vendor ships the harness the curriculum uses. Its model IDs and parameters are checked against Anthropic's models overview: `claude-opus-5-5` default (updated from `claude-opus-5` after the reviewer pass below), `claude-sonnet-5` judge, `claude-haiku-4-5` fast; adaptive thinking + `effort`; sampling parameters rejected on 4.7-and-later models. **Watch list:** Haiku 4.5 has no `effort` support and its retirement commitment is only "not sooner than 15 Oct 2026".
 - Embeddings moved to a **local open-source model** (`sentence-transformers/all-mpnet-base-v2` via `langchain-huggingface`), removing any vendor dependency from retrieval.
 - Gemini-specific material (the Interactions API, `thinking_level`, the Gemini temperature caveat, Gemini embedding models) was removed or generalised.
 - The old `GEMINI.md` was replaced by a tool-neutral `AGENTS.md` plus a `CLAUDE.md` that imports it.
@@ -80,6 +80,27 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 - Stripe, Agentic Commerce Protocol — <https://docs.stripe.com/agentic-commerce/acp>
 - Wing VC, *Who will win the RL environment market* — <https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why>
 
+### Reviewer pass (28–29 September 2026)
+
+After publication, the repo's own `curriculum-reviewer` subagent reviewed every V2 page against primary sources. Its main findings were independently re-checked before being applied:
+
+| Finding | Correction |
+|---|---|
+| Claude Opus 5.5 (`claude-opus-5-5`) is now Anthropic's current Opus; Opus 5 is legacy | Default model updated in the LangChain Path and mentor kit; Opus 5.5 behaviour notes added (default effort `medium`, thinking always on, forced tool choice rejected) |
+| Haiku 4.5 has no `effort` or adaptive thinking | Phase 1 effort sweep moved to Sonnet 5 / Opus 5.5; "current Claude models reject X" claims scoped to the right generations |
+| Agent Skills is *not* stewarded by the AAIF | Corrected: AAIF hosts MCP, AGENTS.md, goose, agentgateway and A2A; Agent Skills was only proposed (Sept 2026, vote pending) |
+| "Agents trail humans by ~30 points" on OSWorld had no source | Removed; replaced with OSWorld-Human's measured step inefficiency |
+| Three LangChain snippets couldn't do what the page claimed (interrupt graph, idempotent ambient job, persistent FastAPI threads) | Rewritten; missing imports added |
+| Marmelab statistics were attributed to Marmelab's own experiments | Attributed to the underlying Composio experiment and arXiv study |
+| Unsourced "36% of skills" | Cited to Snyk ToxicSkills (Feb 2026; any severity; 13.4% critical) and Koi Security |
+| Both curricula number phases from 0, so mentor-kit reviews collided | Checkpoints and reviews keyed by path (`mastery` / `langchain`), with a negative test for the collision |
+| The V1 Stop guard's reach was overstated, and a committed change bypassed it | Page reworded; pinned SHA-256 check for V1 added to `check_docs.py --all`, which CI runs |
+| Smaller items | Claude Code in Action moved to Phase 6 (course content changed), MCP Logging/HTTP+SSE deprecation wording, paid-item costs (Maven cohort ~$4,200), course durations, LangSmith Studio rename, ACP/AP2 attribution, EU primary source |
+
+**Not applied (awaiting the owner's decision):** two hook-configuration suggestions in `settings.json`: quoting `${CLAUDE_PROJECT_DIR}` for paths with spaces, and adding `fork` to the mentor kit's SessionStart matcher.
+
+**Sources added in this pass:** Anthropic models overview <https://platform.claude.com/docs/en/about-claude/models/overview>; model deprecations <https://platform.claude.com/docs/en/about-claude/model-deprecations>; AAIF Agent Skills proposal <https://github.com/aaif/project-proposals/issues/47>; A2A joins AAIF <https://aaif.io/blog/a2a-joins-aaif>; OSWorld-Human <https://arxiv.org/abs/2506.16042>; Snyk ToxicSkills <https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/>; Koi Security ClawHavoc findings, as reported by The Hacker News (the original Koi blog now redirects to Palo Alto Networks) <https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html>; AP2 to FIDO Alliance <https://blog.google/products-and-platforms/platforms/google-pay/agent-payments-protocol-fido-alliance/>; EU AI Omnibus <https://digital-strategy.ec.europa.eu/en/news/ai-omnibus-enters-force>; OWASP Agentic Top 10 <https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/>; LangSmith Studio <https://docs.langchain.com/langsmith/studio>; langgraph-checkpoint-postgres <https://pypi.org/project/langgraph-checkpoint-postgres/>.
+
 ---
 
 ## 1. Review of V1 — LangChain Path
@@ -88,12 +109,12 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 
 | # | V1 content | Problem | V2 fix |
 |---|---|---|---|
-| 1 | `ChatGoogleGenerativeAI(model="gemini-2.0-flash")` in every example | Gemini 2.0 Flash is **shut down** on the Gemini API | Model IDs centralised in `config.py`; default `gemini-3.8-flash` |
+| 1 | `ChatGoogleGenerativeAI(model="gemini-2.0-flash")` in every example | Gemini 2.0 Flash is **shut down** on the Gemini API | Model IDs centralised in `config.py`; default `gemini-3.8-flash` *(superseded by Section 0: provider-neutral, Claude reference)* |
 | 2 | `from langchain.agents import create_react_agent` presented as the LangChain 1.0 agent API (and in the "What replaced it" column) | LangChain 1.0's agent API is `create_agent`; `langgraph.prebuilt.create_react_agent` is the *deprecated* one | All agents use `create_agent`; deprecation table corrected |
 | 3 | "LCEL pipe syntax deprecated" | Inaccurate: Runnables/LCEL remain in `langchain-core`; what moved to `langchain-classic` are legacy *chains* and some retrievers | Explicit correction note in V2 |
 | 4 | `from langchain_core.pydantic_v1 import BaseModel` | Pydantic v1 shim removed; LangChain 1.x is Pydantic v2 | Plain `pydantic` imports |
 | 5 | `args_schema.schema()` | Pydantic v1 method | `tool.args` / `model_json_schema()` |
-| 6 | `models/text-embedding-004` | Superseded | `gemini-embedding-001` (and optional multimodal `gemini-embedding-2-preview`) |
+| 6 | `models/text-embedding-004` | Superseded | `gemini-embedding-001` *(superseded by Section 0: local open-source embeddings)* |
 | 7 | `from langchain_community.vectorstores import Chroma` | Replaced by the dedicated package | `from langchain_chroma import Chroma` |
 | 8 | `LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY` | Legacy variable names | `LANGSMITH_TRACING`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` |
 | 9 | `graph.set_entry_point(...)` | Legacy | `add_edge(START, ...)` |
@@ -104,7 +125,7 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 ### Gaps
 
 - **Placeholders instead of lessons:** Steps 3.3 (middleware), 3.5 (custom graph), 3.6 (persistence), 3.7 (HITL) and 3.8 (multi-agent) contained "(Teach this…)" notes with no code. V2 provides runnable code for each.
-- **Missing 2026 essentials:** context engineering, built-in middleware (retries, fallbacks, limits, PII, summarisation), MCP (now built into LangChain 1.4 as `langchain.mcp`), agent security/prompt injection, trajectory evals and evals-in-CI, Deep Agents, streaming v2, runtime context vs state, long-term memory stores, Gemini 3 thinking levels and the temperature caveat, the Interactions API (Google's default since mid-2026), multimodal content blocks.
+- **Missing 2026 essentials:** context engineering, built-in middleware (retries, fallbacks, limits, PII, summarisation), MCP (now built into LangChain 1.4 as `langchain.mcp`), agent security/prompt injection, trajectory evals and evals-in-CI, Deep Agents, streaming v2, runtime context vs state, long-term memory stores, Gemini 3 thinking levels and the temperature caveat, the Interactions API (Google's default since mid-2026), multimodal content blocks. *(The Gemini-specific items were later generalised or removed; see Section 0.)*
 - **Ordering:** V1 taught RAG before agents; V2 teaches agents first so retrieval can be taught both as a fixed pipeline *and* as an agent tool (agentic RAG), which is how it is used in 2026.
 
 ## 2. Review of V1 — AI Mastery Plan
@@ -114,7 +135,7 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 | Evals | One course, buried in the RAG phase, although practitioners and hiring guides now call evals the key differentiator | New **Phase 4: Evaluation & observability**, placed *before* agents |
 | Context engineering | Absent | Anchors Phase 3 |
 | Coding agents | Absent, despite being the biggest change in day-to-day engineering work | New **Phase 0** |
-| Security & governance | Absent (no prompt injection, OWASP, permissions) | New **Phase 6** |
+| Security & governance | Absent (no prompt injection, OWASP, permissions) | New **Phase 7** (security, identity, governance, cost) |
 | Inference / cost | Only LoRA/quantization; nothing on serving, caching or cost engineering | vLLM, semantic caching, production checklist |
 | Post-training | RLHF only | SFT/DPO/online RL, GRPO reinforcement fine-tuning, TRL/Unsloth, nanochat |
 | Aged resources | *Reasoning with o1*, *Prompt Engineering with Llama 2 & 3*, AutoGen course, "compare against GPT-4" | Marked optional/historical or replaced |
@@ -140,7 +161,7 @@ A stress test of V2 asked whether the curriculum covered *harness engineering*, 
 ## 4. Design decisions in V2
 
 - **Keep V1 intact**; V2 lives in `docs/ai-engineering/v2/` and is the default in the navigation. (Because V2 had not yet been published when the late-September revision was made, the revision was applied to V2 in place; from now on published versions are frozen.)
-- **Order by dependency and by what's hired for:** build → retrieve/context → **evaluate** → agents → **secure/operate** → internals/post-training.
+- **Order by dependency and by what's hired for:** agentic engineering → build → retrieve/context → **evaluate** → agents → **harness & ambient agents** → **secure/operate** → internals/post-training.
 - **Every phase ends in a checkpoint project**, and from Phase 4 on, every project ships with evals.
 - **Volatile facts are isolated** (model IDs in config; "check the docs" rules for the teaching model) so the next refresh is cheaper.
 

@@ -24,7 +24,7 @@ state is imported below; read it before doing anything else.
 
 - `/lesson [step]` — teach the next (or given) step
 - `/quiz` — spaced-repetition check on completed steps
-- `/checkpoint-review <phase>` — independent review of a checkpoint project (runs in a separate reviewer context)
+- `/checkpoint-review <mastery|langchain> <phase>` — independent review of a checkpoint project (runs in a separate reviewer context)
 - `/log-progress` — update `progress.md` after a session
 
 Update `progress.md` at the end of every session (the `/log-progress` skill does this).

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Stop hook: refuse to finish while a frozen V1 page differs from HEAD.
 
-The Edit deny rule in settings.json stops the Edit tool; this catches every other
-route (sed, a script, a Bash redirect). Exit 2 keeps Claude working with the message
-below as feedback. `stop_hook_active` prevents an infinite loop if it can't be fixed.
+The Edit deny rule in settings.json covers the Edit/Write tools and Bash file commands
+Claude Code recognises (sed, tee, redirects); this catches what it can't see, such as a
+Python script that opens the file itself. Exit 2 keeps Claude working with the message
+below as feedback, once per stop (`stop_hook_active` prevents an infinite loop). It
+compares against HEAD, so a committed change gets past it; the pinned-hash check in
+scripts/check_docs.py --all (run in CI) is the backstop for that.
 """
 import json
 import pathlib

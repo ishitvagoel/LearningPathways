@@ -18,7 +18,7 @@ It's also a worked example of the harness engineering the curriculum teaches: ev
    ```
 3. Edit `learner-profile.md` once. Optionally set `PROVIDER` / `CHAT_MODEL` (see `config.py`).
 4. Make the hook scripts executable: `chmod +x .claude/hooks/*.py`.
-5. Start Claude Code in the folder (`claude`), approve the project hooks when prompted, and run `/lesson`.
+5. Start Claude Code **at the folder's root** (`claude`) — the permission rules are anchored to the directory you start in — approve the project hooks when prompted, and run `/lesson`. Requires a recent Claude Code (v2.1.218 or later for the forked, blocking `/checkpoint-review`).
 
 ## What's inside
 
@@ -27,9 +27,9 @@ It's also a worked example of the harness engineering the curriculum teaches: ev
 | `CLAUDE.md` | Guide | Mentor rules; imports `learner-profile.md` and `progress.md` |
 | `.claude/skills/lesson` | Guide | `/lesson [step]` — teach the next step |
 | `.claude/skills/quiz` | Guide | `/quiz` — spaced repetition on weak spots |
-| `.claude/skills/checkpoint-review` | Guide → sensor | `/checkpoint-review <phase>` — forks an isolated reviewer |
+| `.claude/skills/checkpoint-review` | Guide → sensor | `/checkpoint-review <mastery\|langchain> <phase>` — forks an isolated reviewer |
 | `.claude/skills/log-progress` | Guide | `/log-progress` — keep `progress.md` current |
-| `.claude/agents/checkpoint-reviewer.md` | Inferential sensor | Independent reviewer that writes `reviews/phase-N.md` |
+| `.claude/agents/checkpoint-reviewer.md` | Inferential sensor | Independent reviewer that writes `reviews/<path>-phase-N.md` |
 | `.claude/hooks/session_context.py` | Computational guide | SessionStart: injects today's date and installed package versions |
 | `.claude/hooks/checkpoint_gate.py` | Computational sensor | Blocks marking a checkpoint "passed" without a PASS review on file |
 | `.claude/settings.json` | Constraint | Edits under `projects/` always ask first; `.env` is unreadable |

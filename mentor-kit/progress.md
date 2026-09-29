@@ -8,9 +8,11 @@
 
 ## Checkpoints
 
-| Phase | Checkpoint | Status | Review |
-|---|---|---|---|
-| 0 | Harness your own repo | not started | — |
+<!-- Path is `mastery` (AI Engineer Mastery Plan) or `langchain` (LangChain Path); both number phases from 0. -->
+
+| Path | Phase | Checkpoint | Status | Review |
+|---|---|---|---|---|
+| mastery | 0 | Harness your own repo | not started | — |
 
 ## Weak spots to revisit (from /quiz)
 
