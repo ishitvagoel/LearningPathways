@@ -101,6 +101,10 @@ After publication, the repo's own `curriculum-reviewer` subagent reviewed every 
 
 **Sources added in this pass:** Anthropic models overview <https://platform.claude.com/docs/en/about-claude/models/overview>; model deprecations <https://platform.claude.com/docs/en/about-claude/model-deprecations>; AAIF Agent Skills proposal <https://github.com/aaif/project-proposals/issues/47>; A2A joins AAIF <https://aaif.io/blog/a2a-joins-aaif>; OSWorld-Human <https://arxiv.org/abs/2506.16042>; Snyk ToxicSkills <https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/>; Koi Security ClawHavoc findings, as reported by The Hacker News (the original Koi blog now redirects to Palo Alto Networks) <https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html>; AP2 to FIDO Alliance <https://blog.google/products-and-platforms/platforms/google-pay/agent-payments-protocol-fido-alliance/>; EU AI Omnibus <https://digital-strategy.ec.europa.eu/en/news/ai-omnibus-enters-force>; OWASP Agentic Top 10 <https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/>; LangSmith Studio <https://docs.langchain.com/langsmith/studio>; langgraph-checkpoint-postgres <https://pypi.org/project/langgraph-checkpoint-postgres/>.
 
+### Link check (29 September 2026)
+
+`scripts/check_links.py` over the four V2 pages: 132 external links, none broken. The eight bot-blocked links (403/429) were confirmed another way: GitHub pages by direct fetch (the AAIF Agent Skills proposal is still open; AutoGen's README still says maintenance mode), YouTube via oEmbed, and the OpenAI, Karpathy and Udemy pages by web search. Pages that returned a generic or empty title (Wing VC, Stanford AI Index, YouTube) were opened and are the cited articles, not redirects. One fix: Ed Donner's Udemy course keeps its URL but is now titled *AI Engineer Agentic Track: The Complete Agent & MCP Course*, so the link text in the Mastery Plan was updated and the old name kept in brackets.
+
 ---
 
 ## 1. Review of V1 — LangChain Path
