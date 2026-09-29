@@ -41,7 +41,7 @@ python3 scripts/check_links.py docs/ai-engineering/v2/*.md   # before publishing
 
 ## Hosting
 
-Vercel builds and deploys from Git: pushes to `main` go to production, and other branches and pull requests get previews. The build settings live in `vercel.json` (Framework Preset "Other"), so the Vercel dashboard needs no overrides. The one setting the build needs is the site URL, which comes from `SITE_URL` or, by default, Vercel's `VERCEL_PROJECT_PRODUCTION_URL` (on if "Automatically expose System Environment Variables" is ticked). `scripts/build_site.py` fails with instructions if neither is available. Vercel clones with `--depth=10`, so the script fetches the full history for the "last updated" dates, and turns them off if that isn't possible. Keep links to the site's own files relative (no domain in content), so the site can move again.
+Vercel builds and deploys from Git: pushes to `main` go to production, and other branches and pull requests get previews. The build settings live in `vercel.json` (Framework Preset "Other"), so the Vercel dashboard needs no overrides. The one setting the build needs is the site URL, which comes from `SITE_URL` or, by default, Vercel's `VERCEL_PROJECT_PRODUCTION_URL` (on if "Automatically expose System Environment Variables" is ticked). `scripts/build_site.py` fails with instructions if neither is available. Vercel's Python is managed by `uv` and refuses system-wide `pip install` (PEP 668), so `vercel.json` installs into a `.venv` and builds with that interpreter. Vercel clones with `--depth=10`, so the script fetches the full history for the "last updated" dates, and turns them off if that isn't possible. Keep links to the site's own files relative (no domain in content), so the site can move again.
 
 ## Rules
 
