@@ -29,6 +29,8 @@ tags:
     - **Agentic payments**
     - **The EU AI Act's August 2026 obligations**
 
+    **Completeness review (29 September 2026):** a [crosswalk](#doing-both-paths) for doing this plan with the LangChain Path; a realistic timeline (about a year, including capstones); security from Phase 2; "Done when" criteria on every checkpoint; multimodal, fairness, privacy, online monitoring and streaming; and the current Claude lineup (Sonnet 5.5, Fable 5.1).
+
     The plan is now **provider-neutral**: concepts first, with Claude as the reference implementation. It ships with a **[Claude Harness Kit](claude-harness.md)** that turns Claude Code into your mentor, so you no longer paste the plan into a chatbot. The audit and every source are in [V2 Review & Research Notes](review-notes.md).
 
 Your Python/Flask/Django background is still an advantage. It covers exactly what most AI courses assume you lack: APIs, state, auth, deployment and testing.
@@ -73,7 +75,7 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 
 **7. Training shifted toward verifiable rewards.** The main new post-training technique is reinforcement learning with verifiable rewards (RLVR). "RL environment engineering" (tasks, sandboxes and *verifiers* that turn outcomes into rewards) became one of 2026's fastest-growing specialisms. Its central problem is **reward hacking**, which is the same skill as writing good evals, pointed at training.
 
-**8. Regulation arrived for some systems.** The EU's Digital Omnibus (in force 27 July 2026) deferred the AI Act's high-risk obligations to December 2027 and August 2028. Most **Article 50 transparency obligations**, such as telling people they are interacting with AI, still applied from 2 August 2026.
+**8. Regulation arrived for some systems.** The EU's AI Omnibus (in force 27 July 2026) deferred the AI Act's high-risk obligations to December 2027 and August 2028. Most **Article 50 transparency obligations**, such as telling people they are interacting with AI, still applied from 2 August 2026.
 
 **9. Coding agents replaced the IDE as the centre of the workflow.** Anthropic's *2026 Agentic Coding Trends Report* found developers use AI in about 60% of their work but can fully delegate only 0–20% of tasks. Supervision, verification and context are the skill. The Pragmatic Engineer's 2026 survey shows roles converging, with engineers orchestrating more and managers coding more.
 
@@ -94,7 +96,7 @@ Where an idea has a different name elsewhere, the plan says so (for example, "ef
 - **Already completed:** *AI for Everyone*, *Generative AI for Everyone*, and (in progress in V1) *ChatGPT Prompt Engineering for Developers*.
 - **Gaps:** LLM internals, retrieval, evaluation methodology, agent architectures, harness engineering, AI security, model adaptation.
 - **Goal:** Become a production-grade AI engineer who can design, build, evaluate, harness, secure and operate LLM-powered and agentic systems.
-- **Time budget assumed:** ~8–10 hours/week. Phases 0–8 take about 41 weeks (roughly 9–10 months), and the Phase 9 capstone portfolio adds another 2–3 months, so plan on about a year. Double the hours and it's about 6–7 months.
+- **Time budget assumed:** ~8–10 hours/week. Phases 0–8 take about 42 weeks (roughly 9–10 months), and the Phase 9 capstone portfolio adds another 2–3 months, so plan on about a year. Double the hours and it's about 6–7 months.
 - **Budget:** $0 core path. You'll need an API key for your chosen model provider; set a monthly spend limit. Optional paid items are marked.
 
 ## How to use this plan: the Claude Harness Kit
@@ -302,8 +304,9 @@ A code-light walkthrough of tokenizers, embeddings, attention and the modern tra
 *This replaces V1's "Reasoning with o1".* In 2026, every frontier model reasons before answering. What matters now is the *trade-off* you control, not model-specific tricks. On Claude, that control is [adaptive thinking](https://platform.claude.com/docs/en/build-with-claude/thinking) plus an [effort level](https://platform.claude.com/docs/en/build-with-claude/effort) from `low` to `max`. Other providers call it "reasoning effort" or "thinking level".
 
 - More effort means more latency and tokens. Measure whether it improves *your* task
-- Claude 4.7-and-later models (Opus 5.5, Sonnet 5) reject non-default sampling parameters such as `temperature`; reliability comes from effort, context, structured output and evals. Older courses that tune `temperature` predate this
+- Claude 4.7-and-later models (Fable 5.1, Opus 5.5, Sonnet 5.5) reject non-default sampling parameters such as `temperature`; reliability comes from effort, context, structured output and evals. Older courses that tune `temperature` predate this
 - Don't micro-manage the chain of thought. Give clear goals, constraints and a definition of done
+- Know the tiers. On Claude (September 2026): Haiku 4.5 is fastest and cheapest, Sonnet 5.5 balances speed and intelligence, Opus 5.5 is the recommended default, and Fable 5.1 is the top tier for the hardest reasoning and long-horizon work, at 2.5× Opus's price. Use a higher tier only when your evals show the lower one falling short; the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview) lists the current lineup
 
 [**Read the Docs :octicons-arrow-right-24:**](https://platform.claude.com/docs/en/build-with-claude/effort){ .md-button .md-button--primary }
 
@@ -321,7 +324,7 @@ A short, grounded course on what current models can and can't do reliably. It's 
 
 ### 🔨 Phase 1 checkpoint
 
-Pick three tasks: a factual lookup, a multi-step calculation and a classification. Run each at two effort levels on a mid-size model and a frontier model (on Claude: Sonnet 5 and Opus 5.5 — Haiku 4.5 doesn't support `effort`); if you have access to a second provider, include it too. For 10 examples each, record accuracy, latency and cost in a table. Then write a paragraph explaining the results using Karpathy's mental model (tokens, training, reasoning, jaggedness).
+Pick three tasks: a factual lookup, a multi-step calculation and a classification. Run each at two effort levels on a mid-size model and a frontier model (on Claude: Sonnet 5.5 and Opus 5.5, adding Fable 5.1 if your budget allows — Haiku 4.5 doesn't support `effort`); if you have access to a second provider, include it too. For 10 examples each, record accuracy, latency and cost in a table. Then write a paragraph explaining the results using Karpathy's mental model (tokens, training, reasoning, jaggedness).
 
 **Done when:** the table has accuracy, latency and cost for every task, effort level and model you ran, over 10 examples each, and the paragraph explains at least one surprising result.
 
@@ -442,7 +445,7 @@ Build a FastAPI or Django service with:
 - (b) a tool-calling endpoint using a hand-written tool loop, with no framework
 - (c) an MCP server exposing a capability from your own app, tested from an off-the-shelf MCP client
 - (d) a short threat note: which of your tools could be triggered by untrusted text, which legs of the lethal trifecta the service has, and what stops misuse
-- (e) a streaming endpoint that sends tokens to a browser page as they're generated, using [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events). Users judge speed by time to first token, not total time. See your provider's [streaming docs](https://platform.claude.com/docs/en/build-with-claude/streaming); tool calls and stop reasons arrive as stream events too
+- (e) a streaming endpoint that sends tokens to a browser page as they're generated, using [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events). Users judge speed by time to first token, not total time. See your provider's [streaming docs](https://platform.claude.com/docs/en/build-with-claude/streaming); tool calls and stop reasons arrive as stream events too. Model versions can change what a stream contains: on Claude Sonnet 5.5, text the model writes between tool calls arrives in thinking blocks, so your UI goes quiet between tool calls unless you [opt in to that text](https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5#text-between-tool-calls)
 
 Keep the provider and model IDs in one config file, and log tokens, cache hits and latency per request.
 
@@ -555,11 +558,11 @@ Build a documentation assistant over your own docs (PDFs + Markdown) with **loca
 - the semantic cache has a documented similarity threshold and one example of a wrong hit or a miss
 - the turn-10 inventory says what you'd remove and why
 
-Before you score faithfulness, read items 1–2 of Phase 4 (error analysis and judges); a small hand-labelled set is enough for now.
+Before you score faithfulness, read Phase 4's item 1, the evals FAQ (error analysis and validating judges); a small hand-labelled set is enough for now.
 
 ---
 
-## Phase 4: Evaluation and observability (Weeks 14–16)
+## Phase 4: Evaluation and observability (Weeks 14–17)
 
 You can't improve what you can't measure, and you can't safely ship agents you can't evaluate. This phase comes **before** agents on purpose: every agent you build afterwards gets an eval suite from day one. The same skill reappears twice later, in harness tests (Phase 6) and in reward design (Phase 8).
 
@@ -670,7 +673,7 @@ For high-risk systems (such as hiring or credit decisions), the EU AI Act's [Art
 
 ---
 
-## Phase 5: Agentic AI — patterns, frameworks, memory and protocols (Weeks 17–25)
+## Phase 5: Agentic AI — patterns, frameworks, memory and protocols (Weeks 18–26)
 
 Now build agents, with the Phase 4 evals attached from the first commit. Learn the **patterns** in plain code first, then one or two frameworks deeply.
 
@@ -784,7 +787,7 @@ How independently built agents discover each other (Agent Cards) and delegate ta
 
 ### 9. Optional electives (pick by interest)
 
-- **Computer use / browser agents:** [Building AI Browser Agents](https://www.deeplearning.ai/short-courses/building-ai-browser-agents/). *Reality check:* even when top agents complete desktop tasks, they take 2.7–4.3× more steps than necessary and run far slower than people (OSWorld-Human, 2026), and newer long-horizon benchmarks such as OSWorld 2.0 report much lower success on realistic multi-step work. Use GUI automation where no API exists, and keep a human in the loop.
+- **Computer use / browser agents:** [Building AI Browser Agents](https://www.deeplearning.ai/short-courses/building-ai-browser-agents/). *Reality check:* even when top agents complete desktop tasks, they take 2.7–4.3× more steps than necessary and run far slower than people (OSWorld-Human, 2026), and on [OSWorld 2.0](https://arxiv.org/abs/2606.29537) (July 2026: 108 realistic multi-hour workflows) the best agent completed only about 21% of tasks. Use GUI automation where no API exists, and keep a human in the loop.
 - **Voice agents:** start with [Voice for AI Agents and Applications](https://www.deeplearning.ai/courses/voice-for-ai-agents-and-applications) (Vocal Bridge): adding voice to an existing agent, outbound calls, and evaluating voice interactions. Then [Building AI Voice Agents for Production](https://www.deeplearning.ai/courses/building-ai-voice-agents-for-production) (LiveKit): real-time pipelines and latency budgets
 - **Generative UI:** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/courses/build-interactive-agents-with-generative-ui) (CopilotKit): agents that render UI, a natural fit for your front-end skills
 - **Programmatic prompt optimisation:** [DSPy: Build and Optimize Agentic Apps](https://www.deeplearning.ai/courses/dspy-build-optimize-agentic-apps): optimise prompts against your eval set instead of hand-tuning them
@@ -801,7 +804,7 @@ Before you pick a framework, answer two questions: **who supplies the agent loop
 | **SDK tool runner** (e.g. Anthropic's `tool_runner`) | Just the tool functions | SDK | You | Custom-tool agents without hand-writing the loop |
 | **Framework** (LangGraph, OpenAI Agents SDK, Google ADK, PydanticAI, MS Agent Framework) | Graph/agent definitions | Framework | You (or the framework's cloud) | Custom control flow, durable state, provider-neutrality |
 | **Agent harness library** (Claude Agent SDK, Deep Agents) | A prompt + options | Batteries-included (files, shell, subagents, skills) | You | Coding-agent-style work on your own infra |
-| **Managed agent platform** (e.g. Claude Managed Agents) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory) | Hosted, long-running or scheduled agents without owning the infrastructure |
+| **Managed agent platform** (e.g. Claude Managed Agents) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory), or a self-hosted sandbox you run | Hosted, long-running or scheduled agents without owning the infrastructure |
 
 ### Framework decision guide (September 2026)
 
@@ -840,7 +843,7 @@ Ship it with the Phase 4 eval harness, extended with **trajectory** evaluation: 
 
 ---
 
-## Phase 6: Harness engineering, long-running and ambient agents (Weeks 26–29) — *new*
+## Phase 6: Harness engineering, long-running and ambient agents (Weeks 27–30) — *new*
 
 The 2026 lesson: once models are capable, **reliability comes from the harness**. This phase makes harnesses a first-class engineering artefact that you design, test, measure and prune.
 
@@ -943,7 +946,7 @@ Then read OpenClaw's [security history](https://en.wikipedia.org/wiki/OpenClaw):
 
 ---
 
-## Phase 7: Production — security, identity, governance, cost and serving (Weeks 30–33)
+## Phase 7: Production — security, identity, governance, cost and serving (Weeks 31–34)
 
 Agents take actions with real credentials. This phase makes them safe, accountable, affordable and operable.
 
@@ -1063,7 +1066,7 @@ Take your Phase 6 agent through a security, identity and cost review:
 
 ---
 
-## Phase 8: LLM internals, post-training and RL environments (Weeks 34–41)
+## Phase 8: LLM internals, post-training and RL environments (Weeks 35–42)
 
 With systems, evals and harnesses in hand, going under the hood pays off. You'll know *when* adapting a model beats prompting, retrieval and a better harness, and you'll have the evals to prove it.
 
@@ -1170,7 +1173,7 @@ Conclude honestly. "A better harness beat fine-tuning" is a valid, valuable resu
 
 ---
 
-## Phase 9: Capstone projects and portfolio (Weeks 42+)
+## Phase 9: Capstone projects and portfolio (Weeks 43+)
 
 Each project ships with a README explaining design decisions and trade-offs, plus four things that separate an AI engineer's portfolio from tutorial output: an **eval report**, a **harness description** (guides and sensors, with their tests), a **threat model** and a **cost analysis**.
 
@@ -1267,14 +1270,14 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 | 1 | LLM foundations | 3–4 | Karpathy, 3Blue1Brown, How Transformer LLMs Work, effort docs | Accurate mental model; reasoning trade-offs |
 | 2 | Building LLM apps | 5–9 | Building Systems, Claude API course, structured output, tool-writing essay, MCP, lethal trifecta | Typed, tool-using, streaming, provider-configurable services + an MCP server, with a threat note |
 | 3 | Retrieval & context engineering | 10–13 | Context-engineering essay, RAG course, Advanced Retrieval, Document AI, Semantic Caching, Multimodal Data Pipelines | Measured, cited retrieval with local embeddings, including non-text sources |
-| 4 | Evals & observability | 14–16 | Evals FAQ, Evaluating AI Agents, NeMo reliability, fairness paper | Error analysis, validated judges, two-layer CI gate, privacy-safe traces, a fairness check |
-| 5 | Agentic AI | 17–25 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL and an injection test |
-| 6 | **Harness engineering & ambient agents** | 26–29 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
-| 7 | Security, identity, governance, cost | 30–33 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
-| 8 | Internals, post-training & RL environments | 34–41 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
-| 9 | Portfolio | 42+ | — | Four projects with evals, harness docs, threat models, cost analyses |
+| 4 | Evals & observability | 14–17 | Evals FAQ, Evaluating AI Agents, NeMo reliability, fairness paper | Error analysis, validated judges, two-layer CI gate, privacy-safe traces, a fairness check |
+| 5 | Agentic AI | 18–26 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL and an injection test |
+| 6 | **Harness engineering & ambient agents** | 27–30 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
+| 7 | Security, identity, governance, cost | 31–34 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
+| 8 | Internals, post-training & RL environments | 35–42 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
+| 9 | Portfolio | 43+ | — | Four projects with evals, harness docs, threat models, cost analyses |
 
-**Totals:** 49 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 41 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
+**Totals:** 49 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 42 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
 
 The biggest change is the order and the emphasis, not any single course. **Measure before you optimise, harness before you automate, contain before you trust, and understand the system before the model internals.**
 

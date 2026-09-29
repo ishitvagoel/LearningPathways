@@ -3,7 +3,7 @@ import os
 
 PROVIDER = os.getenv("PROVIDER", "anthropic")          # openai, google_genai, mistralai, ollama, ...
 CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5-5")   # Claude Opus 5.5; default effort is medium
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5")
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5-5")   # Claude Sonnet 5.5
 FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-4-5")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-mpnet-base-v2")  # local, open source
 
