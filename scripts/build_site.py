@@ -73,12 +73,25 @@ def ensure_history() -> bool:
     if not shallow:
         return True
     print("Shallow clone: fetching the full history so 'last updated' dates are correct...", flush=True)
-    try:
-        subprocess.run(["git", "fetch", "--unshallow", "--quiet"], cwd=ROOT, check=True, timeout=180)
-    except (subprocess.SubprocessError, OSError) as exc:
-        print(f"  could not fetch it ({exc.__class__.__name__}).")
-    if is_shallow() is False:
-        return True
+    # Try the clone's own remote first. Vercel's build clone has no usable `origin`, so fall back to the
+    # public repository URL Vercel describes in its system variables (the repo is public; no credentials).
+    sources = [[]]
+    owner, slug = os.environ.get("VERCEL_GIT_REPO_OWNER"), os.environ.get("VERCEL_GIT_REPO_SLUG")
+    if os.environ.get("VERCEL_GIT_PROVIDER") == "github" and owner and slug:
+        sources.append([f"https://github.com/{owner}/{slug}.git"])
+    for source in sources:
+        try:
+            subprocess.run(["git", "fetch", "--unshallow", "--quiet", *source], cwd=ROOT, check=True,
+                           timeout=180, capture_output=True, text=True)
+        except subprocess.CalledProcessError as exc:
+            print(f"  fetch from {source[0] if source else 'the default remote'} failed: "
+                  f"{(exc.stderr or '').strip().splitlines()[-1:] or exc.returncode}")
+        except (subprocess.SubprocessError, OSError) as exc:
+            print(f"  fetch from {source[0] if source else 'the default remote'} failed ({exc.__class__.__name__}).")
+        if is_shallow() is False:
+            return True
+        # With no remote configured, `git fetch` exits 0 without fetching anything.
+        print(f"  {source[0] if source else 'the default remote'}: history is still shallow")
     print("NOTE: history is still shallow, so 'last updated' dates are turned off rather than shown wrong.")
     return False
 
