@@ -10,9 +10,13 @@ import importlib.metadata as md
 import os
 
 PACKAGES = [
+    # LangChain Path
     "langchain", "langchain-core", "langgraph", "langsmith", "langchain-anthropic",
     "anthropic", "langchain-huggingface", "langchain-chroma", "deepagents", "fastmcp",
     "openevals", "agentevals",
+    # Mastery Plan: apps (Phase 2), retrieval (Phase 3), model internals and post-training (Phase 8)
+    "fastapi", "pydantic", "sentence-transformers", "claude-agent-sdk",
+    "torch", "transformers", "peft", "trl", "vllm",
 ]
 
 lines = [f"Today is {datetime.date.today().isoformat()}."]
@@ -28,5 +32,5 @@ else:
     lines.append("No curriculum packages are installed in this Python environment yet "
                  "(activate the project's virtualenv, or teach Step 0.2 setup first).")
 lines.append(f"Provider from environment: PROVIDER={os.getenv('PROVIDER', 'anthropic (default in config.py)')}.")
-lines.append("Read progress.md before teaching; resume from its current position.")
+lines.append("Read progress.md before teaching; resume from the current position for the path being studied.")
 print("\n".join(lines))

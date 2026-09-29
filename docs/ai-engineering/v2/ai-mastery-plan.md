@@ -442,6 +442,7 @@ Build a FastAPI or Django service with:
 - (b) a tool-calling endpoint using a hand-written tool loop, with no framework
 - (c) an MCP server exposing a capability from your own app, tested from an off-the-shelf MCP client
 - (d) a short threat note: which of your tools could be triggered by untrusted text, which legs of the lethal trifecta the service has, and what stops misuse
+- (e) a streaming endpoint that sends tokens to a browser page as they're generated, using [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events). Users judge speed by time to first token, not total time. See your provider's [streaming docs](https://platform.claude.com/docs/en/build-with-claude/streaming); tool calls and stop reasons arrive as stream events too
 
 Keep the provider and model IDs in one config file, and log tokens, cache hits and latency per request.
 
@@ -452,6 +453,7 @@ Keep the provider and model IDs in one config file, and log tokens, cache hits a
 - switching provider or model is a config-only change
 - per-request logs show tokens, cache hits and latency
 - the threat note exists
+- tokens appear in the browser as they're generated, and a refusal or error mid-stream is shown to the user rather than silently cut off
 
 ---
 
@@ -561,6 +563,14 @@ Before you score faithfulness, read items 1–2 of Phase 4 (error analysis and j
 
 You can't improve what you can't measure, and you can't safely ship agents you can't evaluate. This phase comes **before** agents on purpose: every agent you build afterwards gets an eval suite from day one. The same skill reappears twice later, in harness tests (Phase 6) and in reward design (Phase 8).
 
+**Offline and online.** *Offline* evals run a fixed eval set before a change ships; that's this phase's checkpoint. Production also needs *online* monitoring, because real users find failures your set doesn't contain. Online monitoring means:
+- sampling live traces for human review
+- running cheap deterministic checks on every response
+- capturing user feedback (ratings, edits, retries, abandoned sessions)
+- alerting when quality scores, cost or latency drift
+
+Every failure found in production goes back into the eval set. That is how the set stays representative.
+
 ### 1. AI Evals FAQ { #evals-faq }
 
 !!! info inline end "Quick Stats"
@@ -621,6 +631,23 @@ The most in-depth evals training available. Their O'Reilly book *Evals for AI En
 
 [**Visit Course :octicons-arrow-right-24:**](https://maven.com/parlance-labs/evals){ .md-button .md-button--primary }
 
+### 5. Fairness: evaluating discrimination in model decisions (paper) { #fairness }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Anthropic research
+    - **Cost:** Free
+    - **Duration:** ~1 hr
+
+**Description:**
+Bias is an eval problem. This paper shows a method you can reuse on any system: generate the same decision prompt many times, vary *only* the person's demographic details (age, gender, race), and compare the model's decisions. It also measures how much prompt-level interventions reduce the differences it finds. The same counterfactual idea covers other forms of bias:
+- **Decision bias:** does the outcome change when only the demographic details change?
+- **Quality-of-service bias:** slice your eval scores by user group, language or dialect. Does quality drop for some users?
+- **Judge bias:** LLM judges can favour an answer because of its position or its length. Validate your judge (item 1) with that in mind
+
+For high-risk systems (such as hiring or credit decisions), the EU AI Act's [Article 10](https://artificialintelligenceact.eu/article/10/) requires examining data for possible biases and taking measures to detect, prevent and mitigate them. Those obligations were deferred to Dec 2027 / Aug 2028.
+
+[**Read the paper :octicons-arrow-right-24:**](https://arxiv.org/abs/2312.03689){ .md-button .md-button--primary } [**Anthropic's summary :octicons-arrow-right-24:**](https://www.anthropic.com/news/evaluating-and-mitigating-discrimination-in-language-model-decisions){ .md-button }
+
 ### 🔨 Phase 4 checkpoint
 
 1. Instrument your Phase 3 assistant with tracing (LangSmith, Arize Phoenix, Langfuse or Braintrust; any is fine) and collect or synthesise 100 traces. Traces hold user data, so redact personal data before it leaves your machine (or self-host the tracer), and check your tracing vendor's retention settings.
@@ -630,6 +657,7 @@ The most in-depth evals training available. Their O'Reilly book *Evals for AI En
 5. Add CI in two layers:
    - **Unit tests on every commit.** Replace the model with a scripted fake so the tests are free, fast and deterministic. They check *your* code: tool logic, parsing, routing and guards. The LangChain Path's Step 6.4 shows the pattern.
    - **Evals on merge or nightly.** Run the real model against your eval set, and fail the job when scores regress.
+6. Add one fairness check (item 5). If your system's outputs could differ by who is asking or who a document is about, write counterfactual test pairs that vary only that detail. Otherwise, slice your eval scores by a user-group or language attribute and compare.
 
 **Done when:**
 - the failure taxonomy has counts
@@ -638,6 +666,7 @@ The most in-depth evals training available. Their O'Reilly book *Evals for AI En
 - a deliberately introduced regression makes CI fail
 - the unit tests run without an API key
 - a sample of stored traces contains no raw personal data
+- the fairness check's results are reported, including any gap it found and what you did about it
 
 ---
 
@@ -693,7 +722,7 @@ The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and
 **Instructor(s):** Elie Schoppik (Anthropic)
 
 **Description:**
-**Skills** are folders of instructions and scripts (a `SKILL.md` plus resources) that an agent loads *on demand*. They're progressive disclosure for context. Published by Anthropic as an open standard in Dec 2025, they're now supported by dozens of agent products, and "every agent platform is building around skills" was one of the headline trends at the 2026 AI Engineer World's Fair (one speaker, Paul Bakaus, argued for "skill engineering" as its own discipline). **Subagents** give a sub-task its own clean context and restricted tools. Take the DeepLearning.ai course, then Anthropic's *Introduction to agent skills* and *Introduction to subagents*.
+**Skills** are folders of instructions and scripts (a `SKILL.md` plus resources) that an agent loads *on demand*. They're progressive disclosure for context. Published by Anthropic as an open standard in Dec 2025, they're now supported by dozens of agent products, and "every agent platform is building around skills" was one of the headline trends at the 2026 AI Engineer World's Fair (one speaker, Paul Bakaus, argued for "skill engineering" as its own discipline). **Subagents** give a sub-task its own clean context and restricted tools. Take the DeepLearning.ai course, then Anthropic's *Introduction to agent skills* and *Introduction to subagents*. The course's "Skills with the Claude Agent SDK" lesson builds a research agent with the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview), so it's also your hands-on introduction to the harness-library option in the table below.
 
 - Security note: third-party skills are code you run. Audit them like dependencies. Snyk's ToxicSkills audit (Feb 2026) found at least one security flaw, of any severity, in 36.8% of 3,984 skills from ClawHub and skills.sh, and critical issues in 13.4%.
 
@@ -781,7 +810,7 @@ Learn the **patterns** first. Frameworks are interchangeable wrappers around the
 | Framework | Best for | Notes |
 |---|---|---|
 | **LangGraph / LangChain 1.x** | Controllable, stateful, durable workflows; provider-neutral | The fastest-growing named agent framework in job postings (194 → 4,294 postings mentioning LangGraph, 2024 → 2025, per the AI Index's labour-market data) |
-| **Claude Agent SDK** | Agents that need a coding-agent harness (files, shell, subagents, skills, hooks) | The harness behind Claude Code, as a library |
+| **Claude Agent SDK** | Agents that need a coding-agent harness (files, shell, subagents, skills, hooks) | The harness behind Claude Code, as a library ([docs](https://code.claude.com/docs/en/agent-sdk/overview)) |
 | **OpenAI Agents SDK** | Teams standardised on OpenAI's Responses API | Handoffs, guardrails and tracing built in |
 | **Google ADK** | Google Cloud shops, multi-agent and live voice | Strong A2A support |
 | **Microsoft Agent Framework** | Azure/.NET/enterprise Microsoft environments | Successor to AutoGen + Semantic Kernel (1.0 GA April 2026). **Don't start new projects on AutoGen** |
@@ -862,7 +891,7 @@ Read it critically: the authors call the field provisional.
     - **Duration:** ~2 hrs
 
 **Description:**
-**Loop engineering** (from the AI Engineer World's Fair 2026) is designing the nested loops around an agent: an autonomous inner loop, and a human outer loop that reviews, redirects and approves. **Ambient agents** run from schedules and events instead of chat messages. Study three real implementations:
+**Loop engineering** (from the AI Engineer World's Fair 2026) is designing the nested loops around an agent: an autonomous inner loop, and a human outer loop that reviews, redirects and approves. **Ambient agents** run from schedules and events instead of chat messages. Study four real implementations:
 - [Claude Code routines](https://code.claude.com/docs/en/routines): scheduled, API or GitHub triggers; untrusted fire payloads
 - [Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview): a hosted loop and sandbox, scheduled deployments, memory, outcomes graded against a rubric
 - the LangGraph approach in [LangChain Path Step 5.7](langchain-path.md)
@@ -1005,12 +1034,13 @@ Engineering principles for production agents from a web developer's perspective:
 - **Least privilege and identity:** tools authorise against the *user's or agent's own* identity, never the model's claims. Scoped, short-lived credentials; secrets never enter the model's context.
 - **Human approval** for irreversible or external actions, plus **budgets** (maximum model and tool calls, tokens, spend per user or run).
 - **Reliability:** retries with backoff, provider fallback (refusals and outages), and timeouts. Rate limits cause about a third of LLM call failures, and a `refusal` stop reason must be handled, not ignored.
+- **LLM gateways (when you run several services or providers):** a gateway such as [LiteLLM](https://docs.litellm.ai/) (self-hosted) or [OpenRouter](https://openrouter.ai/docs) (hosted) puts one API in front of many providers. It centralises keys, fallback, budgets and usage logs. The costs are an extra network hop, and a single component that holds every key and sees every prompt; secure it like one. With one app on one provider, your framework's fallback is enough.
 - **Cost:**
   - Cache first: keep prefixes stable for prompt caching, and use semantic caching.
   - Then the effort level per route.
   - Then model routing or the **advisor pattern**, where a cheap executor consults a strong model only on hard steps.
   - Judge cost per *completed task*, not per request.
-- **Observability:** traces with user/feature metadata, OpenTelemetry-compatible where possible.
+- **Observability and online monitoring:** traces with user/feature metadata, OpenTelemetry-compatible where possible. On live traffic, run cheap checks on every response, capture user feedback, sample traces for review, alert on drift in quality, cost and latency, and feed production failures back into the eval set (see Phase 4).
 - **Privacy and data handling:** sensitive-information disclosure is [#2 on OWASP's 2025 LLM list](https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/). Redact personal data before it reaches the model, your logs or your traces. Keep each user's memory and retrieval scoped to that user. Know each vendor's data-retention terms, and set a retention period for your own traces.
 - **Change management:** every prompt, model, tool or harness change runs the eval suite. Model upgrades are regressions until proven otherwise.
 - **Compliance:** AI disclosure where Article 50 or similar rules apply; audit logs for agent actions.
@@ -1146,7 +1176,7 @@ Each project ships with a README explaining design decisions and trade-offs, plu
 
 ### Project 1: Production RAG assistant as a web app
 
-Your docs (PDF + Markdown + code) → hybrid retrieval with re-ranking → cited answers, a semantic cache, auth and rate limiting in Django, Flask or FastAPI. An eval suite in CI and a dashboard of cost, latency and quality. *Demonstrates Phases 2–4.*
+Your docs (PDF + Markdown + code) → hybrid retrieval with re-ranking → cited answers, a semantic cache, auth and rate limiting in Django, Flask or FastAPI, and streamed answers. An eval suite in CI, a dashboard of cost, latency and quality, and a feedback loop: user ratings and sampled live traces become new eval cases. *Demonstrates Phases 2–4.*
 
 ### Project 2: Harness-engineered agent with MCP, memory and approvals
 
@@ -1235,16 +1265,16 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 |---|---|---|---|---|
 | 0 | **Agentic engineering & harness basics** | 1–2 | Claude Code course, harness essays, Spec-Driven Dev, Claude Code docs | Supervised coding-agent workflow; a tested harness in your own repo |
 | 1 | LLM foundations | 3–4 | Karpathy, 3Blue1Brown, How Transformer LLMs Work, effort docs | Accurate mental model; reasoning trade-offs |
-| 2 | Building LLM apps | 5–9 | Building Systems, Claude API course, structured output, tool-writing essay, MCP, lethal trifecta | Typed, tool-using, provider-configurable services + an MCP server, with a threat note |
+| 2 | Building LLM apps | 5–9 | Building Systems, Claude API course, structured output, tool-writing essay, MCP, lethal trifecta | Typed, tool-using, streaming, provider-configurable services + an MCP server, with a threat note |
 | 3 | Retrieval & context engineering | 10–13 | Context-engineering essay, RAG course, Advanced Retrieval, Document AI, Semantic Caching, Multimodal Data Pipelines | Measured, cited retrieval with local embeddings, including non-text sources |
-| 4 | Evals & observability | 14–16 | Evals FAQ, Evaluating AI Agents, NeMo reliability | Error analysis, validated judges, two-layer CI gate, privacy-safe traces |
+| 4 | Evals & observability | 14–16 | Evals FAQ, Evaluating AI Agents, NeMo reliability, fairness paper | Error analysis, validated judges, two-layer CI gate, privacy-safe traces, a fairness check |
 | 5 | Agentic AI | 17–25 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL and an injection test |
 | 6 | **Harness engineering & ambient agents** | 26–29 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
 | 7 | Security, identity, governance, cost | 30–33 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
 | 8 | Internals, post-training & RL environments | 34–41 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
 | 9 | Portfolio | 42+ | — | Four projects with evals, harness docs, threat models, cost analyses |
 
-**Totals:** 48 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 41 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
+**Totals:** 49 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 41 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
 
 The biggest change is the order and the emphasis, not any single course. **Measure before you optimise, harness before you automate, contain before you trust, and understand the system before the model internals.**
 
