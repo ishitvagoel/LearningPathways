@@ -105,6 +105,25 @@ After publication, the repo's own `curriculum-reviewer` subagent reviewed every 
 
 `scripts/check_links.py` over the four V2 pages: 132 external links, none broken. The eight bot-blocked links (403/429) were confirmed another way: GitHub pages by direct fetch (the AAIF Agent Skills proposal is still open; AutoGen's README still says maintenance mode), YouTube via oEmbed, and the OpenAI, Karpathy and Udemy pages by web search. Pages that returned a generic or empty title (Wing VC, Stanford AI Index, YouTube) were opened and are the cited articles, not redirects. One fix: Ed Donner's Udemy course keeps its URL but is now titled *AI Engineer Agentic Track: The Complete Agent & MCP Course*, so the link text in the Mastery Plan was updated and the old name kept in brackets.
 
+### Completeness review (29 September 2026)
+
+A full read of both paths, the harness kit and the mentor kit, checked against [roadmap.sh's AI Engineer roadmap](https://roadmap.sh/ai-engineer) (updated 11 September 2026). Topic coverage was strong. The gaps were in how the two paths fit together, whether the timelines were realistic, and whether checkpoints could be judged consistently. There were also four topic holes. Applied:
+
+| Finding | Change |
+|---|---|
+| The Mastery Plan sent learners to LangChain Phases 2–5 during its Phase 5. That skipped their prerequisites (LangChain Phases 0–1), repeated RAG, and put evals after agents | New [crosswalk](ai-mastery-plan.md#doing-both-paths) spreading the LangChain Path across Mastery Phases 2–7; the Mastery checkpoints are the gates. The LangChain Path links to it |
+| Phase 5 was overloaded, and "about 9 months" left out the capstones | Hugging Face agents course made optional. Phase 2 lengthened by a week and Phase 5 by two; weeks renumbered (Phases 0–8 now 41 weeks). The time budget now states about a year including capstones |
+| The Mastery Plan taught prompt injection only in Phase 7, after learners had built write-capable agents; the lethal trifecta was used before it was defined | New Phase 2 item on the lethal trifecta, a threat note in the Phase 2 checkpoint, and an injection test in the Phase 5 checkpoint |
+| Checkpoints had no pass criteria, so `/checkpoint-review` judged against criteria it invented | "Done when" lists on all Mastery checkpoints, plus a new Phase 9 portfolio checkpoint. Completion criteria added to LangChain Phase 4 and completed for Phase 5. The reviewer skill now judges against these and says so when a section has none |
+| The LangChain Path taught evals in Phase 6, but its Phase 3 checkpoint already asked for faithfulness scores | A tip at the Phase 3 checkpoint to read Steps 6.2–6.3 first; Mastery Phase 3 points to Phase 4's first items the same way |
+| No multimodal coverage in the Mastery Plan (roadmap.sh has a full multimodal section) | New Phase 3 item: *Building Multimodal Data Pipelines*. The checkpoint now needs one non-text source. *Voice for AI Agents and Applications* added to the voice elective |
+| No privacy guidance in the Mastery Plan, although Phase 4 sends traces to third-party tools | PII redaction and retention in the Phase 4 checkpoint; a privacy item in the production checklist citing OWASP LLM02:2025 |
+| No cheap, deterministic tests: Step 6.4 calls the real model in pytest | Two-layer CI in LangChain Step 6.4 and Mastery Phase 4: unit tests with a scripted fake model on every commit, evals on merge or nightly. The example was extracted from the page and run against LangChain 1.4.3. It passes, and fails when the tool is deliberately broken. `GenericFakeChatModel` doesn't implement `bind_tools`, which `create_agent` calls, so the example subclasses it |
+
+**Not yet applied (low priority):** production monitoring and user-feedback loops; streaming to a browser in the Mastery Plan; bias and fairness; LLM gateways (OpenRouter, LiteLLM); tracking two positions in the mentor kit's `progress.md` and reporting Mastery-phase packages in `session_context.py`; "Study three real implementations" in Phase 6 lists four; pointing to the Claude Agent SDK lesson in the Agent Skills course.
+
+**Sources added in this pass:** roadmap.sh AI Engineer <https://roadmap.sh/ai-engineer>; lethal trifecta <https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/>; Building Multimodal Data Pipelines <https://www.deeplearning.ai/courses/building-multimodal-data-pipelines>; Voice for AI Agents and Applications <https://www.deeplearning.ai/courses/voice-for-ai-agents-and-applications>; Claude vision <https://platform.claude.com/docs/en/build-with-claude/vision>; OWASP LLM02:2025 <https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/>; LangChain unit testing <https://docs.langchain.com/oss/python/langchain/test/unit-testing>.
+
 ---
 
 ## 1. Review of V1 — LangChain Path

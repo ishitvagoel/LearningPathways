@@ -94,7 +94,7 @@ Where an idea has a different name elsewhere, the plan says so (for example, "ef
 - **Already completed:** *AI for Everyone*, *Generative AI for Everyone*, and (in progress in V1) *ChatGPT Prompt Engineering for Developers*.
 - **Gaps:** LLM internals, retrieval, evaluation methodology, agent architectures, harness engineering, AI security, model adaptation.
 - **Goal:** Become a production-grade AI engineer who can design, build, evaluate, harness, secure and operate LLM-powered and agentic systems.
-- **Time budget assumed:** ~8–10 hours/week, which is about 9 months. Double the hours and it's about 5.
+- **Time budget assumed:** ~8–10 hours/week. Phases 0–8 take about 41 weeks (roughly 9–10 months), and the Phase 9 capstone portfolio adds another 2–3 months, so plan on about a year. Double the hours and it's about 6–7 months.
 - **Budget:** $0 core path. You'll need an API key for your chosen model provider; set a monthly spend limit. Optional paid items are marked.
 
 ## How to use this plan: the Claude Harness Kit
@@ -106,7 +106,22 @@ Don't paste this page into a chatbot. Copy the **[Claude Harness Kit](claude-har
 4. Verify fast-changing facts against official docs.
 5. Progress tracked in a file.
 
-The kit is also your first worked example of harness engineering, and you'll modify it in Phase 0. For LangChain-specific depth, switch to the [LangChain Path (V2)](langchain-path.md) during Phase 5.
+The kit is also your first worked example of harness engineering, and you'll modify it in Phase 0. If LangGraph will be your framework, follow the [LangChain Path (V2)](langchain-path.md) alongside this plan using the [crosswalk below](#doing-both-paths).
+
+## Doing both paths together { #doing-both-paths }
+
+The LangChain Path is a complete course on its own, and it overlaps with this plan: both teach tools, retrieval, evals and deployment. Don't do it end to end in the middle of Phase 5. Spread it across the phases that teach the same ideas, so each LangChain step becomes the hands-on version of what you're already studying:
+
+| LangChain Path | Do it during | How it fits |
+|---|---|---|
+| Phases 0–1 (setup, messages, structured output, tools, multimodal input) | Phase 2 | The LangChain form of Phase 2's API work, and the prerequisite for everything after it |
+| Steps 3.1–3.4 and 3.6 (context engineering, embeddings, vector stores, two-step RAG, hybrid search and re-ranking) | Phase 3 | Your build guide for the Phase 3 checkpoint |
+| Steps 6.1–6.4 (tracing, error analysis, evaluators, CI gate) | Phase 4 | The LangChain tooling for the Phase 4 checkpoint, applied to your Phase 3 assistant. The agent-specific parts (trajectory evaluators, testing an agent) come back in Phase 5 |
+| Phase 2, Steps 3.5 and 3.7–3.8, 4.1–4.5 and 5.1–5.4 (agents, agentic RAG, memory, middleware, human approval, MCP, security, LangGraph, multi-agent) | Phase 5 | The core of this phase if LangGraph is your framework. Do LangChain Phase 2 first: everything else in this row builds on `create_agent` |
+| Steps 5.5–5.7 (Deep Agents, harness engineering, ambient agents) | Phase 6 | The LangGraph versions of Phase 6's harness and ambient work |
+| Steps 6.5–6.6 (cost, deployment) | Phase 7 | Cost engineering and shipping |
+
+**Checkpoints:** this plan's checkpoints are your gates; build them with LangChain. You don't need to do the LangChain Path's checkpoint projects as well, unless you're following that path on its own.
 
 ---
 
@@ -205,6 +220,12 @@ Start with the reference pages for the four harness files you'll write in this p
 5. **Test the harness:** show the hook blocking a bad action (a negative test) and allowing a good one.
 6. Use the agent to add a feature *from a written spec*, and log where it went wrong and which guide or sensor would have prevented it.
 
+**Done when:**
+- the harness files are committed
+- the hook or rule has a recorded negative test (a bad action blocked) and a positive test (a good action allowed)
+- the spec-driven feature is merged with passing tests
+- the log names at least one agent mistake and the guide or sensor that would have caught it
+
 ---
 
 ## Phase 1: LLM foundations and mental models (Weeks 3–4)
@@ -302,9 +323,11 @@ A short, grounded course on what current models can and can't do reliably. It's 
 
 Pick three tasks: a factual lookup, a multi-step calculation and a classification. Run each at two effort levels on a mid-size model and a frontier model (on Claude: Sonnet 5 and Opus 5.5 — Haiku 4.5 doesn't support `effort`); if you have access to a second provider, include it too. For 10 examples each, record accuracy, latency and cost in a table. Then write a paragraph explaining the results using Karpathy's mental model (tokens, training, reasoning, jaggedness).
 
+**Done when:** the table has accuracy, latency and cost for every task, effort level and model you ran, over 10 examples each, and the paragraph explains at least one surprising result.
+
 ---
 
-## Phase 2: Building LLM-powered applications (Weeks 5–8)
+## Phase 2: Building LLM-powered applications (Weeks 5–9)
 
 This is where your web background becomes a superpower. An LLM is a new, probabilistic dependency inside a system you already know how to build.
 
@@ -393,18 +416,46 @@ Finding, running and serving open-weight models. In 2026, open-weight families (
 
 [**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/short-courses/open-source-models-hugging-face/){ .md-button .md-button--primary }
 
+### 7. Threat modelling 101: the lethal trifecta (essay) { #lethal-trifecta }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** simonwillison.net
+    - **Cost:** Free
+    - **Duration:** ~30 min
+
+**Instructor(s):** Simon Willison
+
+**Description:**
+Read this before your first tool loop, not after. The moment a model can call tools, text it reads can steer what it does. That is **prompt injection**, and it can't be fully prevented by a better prompt. An agent that combines three things can be tricked into leaking data:
+1. untrusted content (web pages, emails, documents, tool results)
+2. access to private data
+3. a way to communicate externally
+
+Design so no single agent holds all three, and put a person or a deterministic check in front of anything that writes, sends or spends. Phase 7 goes deeper (OWASP, red-teaming, identity); this is the minimum you need from now on.
+
+[**Read Article :octicons-arrow-right-24:**](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/){ .md-button .md-button--primary }
+
 ### 🔨 Phase 2 checkpoint
 
 Build a FastAPI or Django service with:
 - (a) an endpoint that returns **schema-validated** structured output
 - (b) a tool-calling endpoint using a hand-written tool loop, with no framework
 - (c) an MCP server exposing a capability from your own app, tested from an off-the-shelf MCP client
+- (d) a short threat note: which of your tools could be triggered by untrusted text, which legs of the lethal trifecta the service has, and what stops misuse
 
 Keep the provider and model IDs in one config file, and log tokens, cache hits and latency per request.
 
+**Done when:**
+- invalid model output is rejected rather than passed on
+- the tool loop answers a request that needs more than one tool call
+- an off-the-shelf MCP client can call your server
+- switching provider or model is a config-only change
+- per-request logs show tokens, cache hits and latency
+- the threat note exists
+
 ---
 
-## Phase 3: Retrieval and context engineering (Weeks 9–12)
+## Phase 3: Retrieval and context engineering (Weeks 10–13)
 
 Retrieval is still the most common production pattern. In 2026 it's taught as one tool within **context engineering**: choosing what enters the model's window, when, and in what form.
 
@@ -474,13 +525,39 @@ Reusing answers for *semantically* repeated questions. It's often the biggest co
 
 [**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/courses/semantic-caching-for-ai-agents){ .md-button .md-button--primary }
 
+### 6. Building Multimodal Data Pipelines { #multimodal }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** DeepLearning.ai
+    - **Cost:** Free to enrol
+    - **Duration:** ~1 hr
+
+**Instructor(s):** Gilberto Hernandez (Snowflake)
+
+**Description:**
+Real knowledge also lives in screenshots, slides, recordings and video. Current frontier models read images and PDFs directly (on Claude, see [vision](https://platform.claude.com/docs/en/build-with-claude/vision)). Audio and video usually go through a conversion step first. This course turns images, audio and video into LLM-ready text with OCR, speech recognition and vision-language models, then builds retrieval that cites answers across all three.
+
+- Decide per source: send the image or PDF to a multimodal model, or convert it to text once at ingestion (cheaper to re-query, easier to cite)
+- Voice *interfaces* (speech in, speech out, in real time) are a separate skill; see the Phase 5 electives. Image and video *generation* is a specialism; skip it unless your product needs it
+
+[**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/courses/building-multimodal-data-pipelines){ .md-button .md-button--primary }
+
 ### 🔨 Phase 3 checkpoint
 
-Build a documentation assistant over your own docs (PDFs + Markdown) with **local open-source embeddings**. Implement two retrieval strategies, such as pure vector search versus hybrid search with re-ranking and contextual chunk headers. Add a semantic cache and citations. On a 25-question test set, report retrieval hit rate@5 and answer faithfulness for each strategy. Finally, for one long conversation, write down exactly what was in the context window at turn 10 and what you'd remove.
+Build a documentation assistant over your own docs (PDFs + Markdown) with **local open-source embeddings**. Implement two retrieval strategies, such as pure vector search versus hybrid search with re-ranking and contextual chunk headers. Add a semantic cache and citations. On a 25-question test set, report retrieval hit rate@5 and answer faithfulness for each strategy. Include at least one non-text source, such as a scanned PDF, a screenshot or an audio transcript (see item 6). Finally, for one long conversation, write down exactly what was in the context window at turn 10 and what you'd remove.
+
+**Done when:**
+- both strategies are scored side by side on the same 25 questions, with hit rate@5 and faithfulness
+- every citation points to a real chunk
+- the non-text source is retrievable and cited
+- the semantic cache has a documented similarity threshold and one example of a wrong hit or a miss
+- the turn-10 inventory says what you'd remove and why
+
+Before you score faithfulness, read items 1–2 of Phase 4 (error analysis and judges); a small hand-labelled set is enough for now.
 
 ---
 
-## Phase 4: Evaluation and observability (Weeks 13–15)
+## Phase 4: Evaluation and observability (Weeks 14–16)
 
 You can't improve what you can't measure, and you can't safely ship agents you can't evaluate. This phase comes **before** agents on purpose: every agent you build afterwards gets an eval suite from day one. The same skill reappears twice later, in harness tests (Phase 6) and in reward design (Phase 8).
 
@@ -546,15 +623,25 @@ The most in-depth evals training available. Their O'Reilly book *Evals for AI En
 
 ### 🔨 Phase 4 checkpoint
 
-1. Instrument your Phase 3 assistant with tracing (LangSmith, Arize Phoenix, Langfuse or Braintrust; any is fine) and collect or synthesise 100 traces.
+1. Instrument your Phase 3 assistant with tracing (LangSmith, Arize Phoenix, Langfuse or Braintrust; any is fine) and collect or synthesise 100 traces. Traces hold user data, so redact personal data before it leaves your machine (or self-host the tracer), and check your tracing vendor's retention settings.
 2. Do error analysis and produce a failure taxonomy with counts.
 3. Build three deterministic checks.
 4. Build one LLM-as-judge on a *different, cheaper* model, validated against 50 of your own labels (report the agreement rate).
-5. Add a CI job that fails when scores regress.
+5. Add CI in two layers:
+   - **Unit tests on every commit.** Replace the model with a scripted fake so the tests are free, fast and deterministic. They check *your* code: tool logic, parsing, routing and guards. The LangChain Path's Step 6.4 shows the pattern.
+   - **Evals on merge or nightly.** Run the real model against your eval set, and fail the job when scores regress.
+
+**Done when:**
+- the failure taxonomy has counts
+- the three checks and the judge run in CI
+- the judge's agreement rate with your labels is reported (and the judge is fixed or replaced if it's poor)
+- a deliberately introduced regression makes CI fail
+- the unit tests run without an API key
+- a sample of stored traces contains no raw personal data
 
 ---
 
-## Phase 5: Agentic AI — patterns, frameworks, memory and protocols (Weeks 16–22)
+## Phase 5: Agentic AI — patterns, frameworks, memory and protocols (Weeks 17–25)
 
 Now build agents, with the Phase 4 evals attached from the first commit. Learn the **patterns** in plain code first, then one or two frameworks deeply.
 
@@ -589,10 +676,10 @@ The canonical distinction between **workflows** (predefined code paths) and **ag
 !!! info inline end "Quick Stats"
     - **Platform:** Learning Pathways
     - **Cost:** Free
-    - **Duration:** ~10–14 weeks part-time
+    - **Duration:** Spread across Phases 2–7 (see the crosswalk)
 
 **Description:**
-The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and Deep Agents. It covers agents, context engineering, middleware, MCP, security, harness engineering, ambient agents, evals and deployment. If LangGraph is your chosen framework, do its Phases 2–5 alongside this phase.
+The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and Deep Agents. It covers agents, context engineering, middleware, MCP, security, harness engineering, ambient agents, evals and deployment. If LangGraph is your chosen framework, this phase is where its agent steps belong: LangChain Phase 2, then Steps 3.5, 3.7–3.8, 4.1–4.5 and 5.1–5.4. The [crosswalk](#doing-both-paths) places the rest.
 
 [**Open the Path :octicons-arrow-right-24:**](langchain-path.md){ .md-button .md-button--primary }
 
@@ -612,7 +699,7 @@ The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and
 
 [**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/courses/agent-skills-with-anthropic){ .md-button .md-button--primary } [**Intro to agent skills :octicons-arrow-right-24:**](https://anthropic.skilljar.com/introduction-to-agent-skills){ .md-button } [**Intro to subagents :octicons-arrow-right-24:**](https://anthropic.skilljar.com/introduction-to-subagents){ .md-button }
 
-### 5. Hugging Face AI Agents Course { #hf-agents-course }
+### 5. Hugging Face AI Agents Course (optional) { #hf-agents-course }
 
 !!! info inline end "Quick Stats"
     - **Platform:** huggingface.co/learn
@@ -620,7 +707,7 @@ The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and
     - **Duration:** ~20–30 hrs
 
 **Description:**
-A broad course that compares frameworks (smolagents, LlamaIndex, LangGraph), with units on observability and evals and a benchmarked final project. It's good for seeing the same patterns in several frameworks and on open models.
+*Optional: this phase is full without it.* Take it if you want a second framework perspective, or after the plan. A broad course that compares frameworks (smolagents, LlamaIndex, LangGraph), with units on observability and evals and a benchmarked final project. It's good for seeing the same patterns in several frameworks and on open models.
 
 [**Visit Course :octicons-arrow-right-24:**](https://huggingface.co/learn/agents-course){ .md-button .md-button--primary }
 
@@ -669,7 +756,7 @@ How independently built agents discover each other (Agent Cards) and delegate ta
 ### 9. Optional electives (pick by interest)
 
 - **Computer use / browser agents:** [Building AI Browser Agents](https://www.deeplearning.ai/short-courses/building-ai-browser-agents/). *Reality check:* even when top agents complete desktop tasks, they take 2.7–4.3× more steps than necessary and run far slower than people (OSWorld-Human, 2026), and newer long-horizon benchmarks such as OSWorld 2.0 report much lower success on realistic multi-step work. Use GUI automation where no API exists, and keep a human in the loop.
-- **Voice agents:** [Building AI Voice Agents for Production](https://www.deeplearning.ai/courses/building-ai-voice-agents-for-production) (LiveKit): real-time pipelines and latency budgets
+- **Voice agents:** start with [Voice for AI Agents and Applications](https://www.deeplearning.ai/courses/voice-for-ai-agents-and-applications) (Vocal Bridge): adding voice to an existing agent, outbound calls, and evaluating voice interactions. Then [Building AI Voice Agents for Production](https://www.deeplearning.ai/courses/building-ai-voice-agents-for-production) (LiveKit): real-time pipelines and latency budgets
 - **Generative UI:** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/courses/build-interactive-agents-with-generative-ui) (CopilotKit): agents that render UI, a natural fit for your front-end skills
 - **Programmatic prompt optimisation:** [DSPy: Build and Optimize Agentic Apps](https://www.deeplearning.ai/courses/dspy-build-optimize-agentic-apps): optimise prompts against your eval set instead of hand-tuning them
 - **Role-based multi-agent:** [Multi AI Agent Systems with crewAI](https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/)
@@ -711,12 +798,20 @@ Build a research-and-action agent for a domain you know. It needs:
 - one subagent
 - human approval before any write action
 - a Skill that packages a repeatable procedure
+- a prompt-injection test: plant instructions in content the agent reads (a document, web page or tool result) and show it doesn't follow them
 
 Ship it with the Phase 4 eval harness, extended with **trajectory** evaluation: did the agent call the right tools in a sensible order?
 
+**Done when:**
+- the agent completes your representative tasks end to end
+- a test shows every write action waits for approval
+- the eval suite, including trajectory checks, runs in CI
+- the injection test is automated and passes
+- the README explains when the subagent, the memory and the Skill are used, and why each is there
+
 ---
 
-## Phase 6: Harness engineering, long-running and ambient agents (Weeks 23–26) — *new*
+## Phase 6: Harness engineering, long-running and ambient agents (Weeks 26–29) — *new*
 
 The 2026 lesson: once models are capable, **reliability comes from the harness**. This phase makes harnesses a first-class engineering artefact that you design, test, measure and prune.
 
@@ -796,7 +891,7 @@ Study these as *case studies*, not skills to master. They're products that chang
 - skills and local memory
 - self-written skills (Hermes)
 
-Then read OpenClaw's [security history](https://en.wikipedia.org/wiki/OpenClaw): malicious ClawHub skills, prompt-injection exfiltration through a third-party skill, disabled-by-default sandboxing, and government restrictions. Map each incident to the lethal trifecta and the OWASP agentic risks.
+Then read OpenClaw's [security history](https://en.wikipedia.org/wiki/OpenClaw): malicious ClawHub skills, prompt-injection exfiltration through a third-party skill, disabled-by-default sandboxing, and government restrictions. Map each incident to the lethal trifecta (Phase 2) and to the OWASP agentic risks (Phase 7).
 
 - **Safety rule:** run either one only in a throwaway VM with dummy accounts. Never use real email, keys or files.
 
@@ -810,9 +905,16 @@ Then read OpenClaw's [security history](https://en.wikipedia.org/wiki/OpenClaw):
 4. Make one workflow **ambient**: a scheduled or webhook-triggered run with budgets, durable approval and idempotency.
 5. Run a **harness ablation**: remove one guide or sensor at a time, re-run the evals and delete anything that doesn't earn its tokens.
 
+**Done when:**
+- the guides-and-sensors table exists
+- each guard's negative test fails when that guard is removed
+- a fresh session resumes from the progress file without your help
+- the ambient workflow has run twice unattended, with the second run a no-op or clearly idempotent
+- the ablation table shows eval scores with each guide or sensor removed, and justifies at least one keep-or-delete decision
+
 ---
 
-## Phase 7: Production — security, identity, governance, cost and serving (Weeks 27–30)
+## Phase 7: Production — security, identity, governance, cost and serving (Weeks 30–33)
 
 Agents take actions with real credentials. This phase makes them safe, accountable, affordable and operable.
 
@@ -824,7 +926,7 @@ Agents take actions with real credentials. This phase makes them safe, accountab
     - **Duration:** ~2–3 hrs reading
 
 **Description:**
-The shared vocabulary for AI risks. The LLM Top 10 covers prompt injection, sensitive data disclosure and excessive agency. The Agentic Top 10 (2026) adds goal hijacking, tool misuse, memory poisoning and privilege abuse. Read it alongside Simon Willison's [lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): untrusted content + private data + external communication = exfiltration risk.
+The shared vocabulary for AI risks. The LLM Top 10 covers prompt injection, sensitive data disclosure and excessive agency. The Agentic Top 10 (2026) adds goal hijacking, tool misuse, memory poisoning and privilege abuse. Revisit Simon Willison's [lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) from Phase 2 (untrusted content + private data + external communication = exfiltration risk) with this fuller vocabulary.
 
 [**Visit OWASP GenAI :octicons-arrow-right-24:**](https://genai.owasp.org/){ .md-button .md-button--primary }
 
@@ -909,6 +1011,7 @@ Engineering principles for production agents from a web developer's perspective:
   - Then model routing or the **advisor pattern**, where a cheap executor consults a strong model only on hard steps.
   - Judge cost per *completed task*, not per request.
 - **Observability:** traces with user/feature metadata, OpenTelemetry-compatible where possible.
+- **Privacy and data handling:** sensitive-information disclosure is [#2 on OWASP's 2025 LLM list](https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/). Redact personal data before it reaches the model, your logs or your traces. Keep each user's memory and retrieval scoped to that user. Know each vendor's data-retention terms, and set a retention period for your own traces.
 - **Change management:** every prompt, model, tool or harness change runs the eval suite. Model upgrades are regressions until proven otherwise.
 - **Compliance:** AI disclosure where Article 50 or similar rules apply; audit logs for agent actions.
 
@@ -921,9 +1024,16 @@ Take your Phase 6 agent through a security, identity and cost review:
 - an AI-disclosure statement
 - a cost report showing spend per completed task before and after two optimisations, with eval scores unchanged
 
+**Done when:**
+- the threat model names each trifecta leg the agent has and its mitigation
+- the five attacks run as automated tests and pass
+- the agent's credentials are listed and each is scoped to what its tools need
+- the disclosure appears wherever users meet the agent
+- the cost report shows lower spend per completed task, with eval scores unchanged within noise
+
 ---
 
-## Phase 8: LLM internals, post-training and RL environments (Weeks 31–38)
+## Phase 8: LLM internals, post-training and RL environments (Weeks 34–41)
 
 With systems, evals and harnesses in hand, going under the hood pays off. You'll know *when* adapting a model beats prompting, retrieval and a better harness, and you'll have the evals to prove it.
 
@@ -1026,9 +1136,11 @@ Pick a narrow, verifiable task from your own work, such as SQL generation for yo
 
 Conclude honestly. "A better harness beat fine-tuning" is a valid, valuable result.
 
+**Done when:** every variant is scored on the same eval set; the report gives quality, latency and cost per 1,000 requests for each; any reward hacking you found is described; and the conclusion recommends one variant with the evidence for it.
+
 ---
 
-## Phase 9: Capstone projects and portfolio (Weeks 39+)
+## Phase 9: Capstone projects and portfolio (Weeks 42+)
 
 Each project ships with a README explaining design decisions and trade-offs, plus four things that separate an AI engineer's portfolio from tutorial output: an **eval report**, a **harness description** (guides and sensors, with their tests), a **threat model** and a **cost analysis**.
 
@@ -1051,6 +1163,16 @@ The Phase 8 experiment, polished: reproducible training, eval comparison, servin
 ### Portfolio presentation tips
 
 Open-source the code. Write a short post per project focusing on *decisions* and *measured results*, include failure analyses (what the evals and sensors caught), and show cost per completed task. Hiring managers in 2026 look for evidence of evaluation, harness design, reliability engineering, and judgement about when *not* to use an agent.
+
+### 🔨 Phase 9 checkpoint: portfolio review
+
+Put the four projects in one folder (with the mentor kit, `projects/mastery-phase-9/`) and review them together with `/checkpoint-review mastery 9`.
+
+**Done when:**
+- each project's README covers its design decisions and trade-offs, plus its eval report, harness description, threat model and cost analysis
+- each project's eval suite runs in CI
+- someone else can set up and run each project from its README alone
+- Project 3's incident log covers its two unattended weeks
 
 ---
 
@@ -1113,16 +1235,16 @@ Open-source the code. Write a short post per project focusing on *decisions* and
 |---|---|---|---|---|
 | 0 | **Agentic engineering & harness basics** | 1–2 | Claude Code course, harness essays, Spec-Driven Dev, Claude Code docs | Supervised coding-agent workflow; a tested harness in your own repo |
 | 1 | LLM foundations | 3–4 | Karpathy, 3Blue1Brown, How Transformer LLMs Work, effort docs | Accurate mental model; reasoning trade-offs |
-| 2 | Building LLM apps | 5–8 | Building Systems, Claude API course, structured output, tool-writing essay, MCP | Typed, tool-using, provider-configurable services + an MCP server |
-| 3 | Retrieval & context engineering | 9–12 | Context-engineering essay, RAG course, Advanced Retrieval, Document AI, Semantic Caching | Measured, cited retrieval with local embeddings |
-| 4 | Evals & observability | 13–15 | Evals FAQ, Evaluating AI Agents, NeMo reliability | Error analysis, validated judges, CI gate |
-| 5 | Agentic AI | 16–22 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL |
-| 6 | **Harness engineering & ambient agents** | 23–26 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
-| 7 | Security, identity, governance, cost | 27–30 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
-| 8 | Internals, post-training & RL environments | 31–38 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
-| 9 | Portfolio | 39+ | — | Four projects with evals, harness docs, threat models, cost analyses |
+| 2 | Building LLM apps | 5–9 | Building Systems, Claude API course, structured output, tool-writing essay, MCP, lethal trifecta | Typed, tool-using, provider-configurable services + an MCP server, with a threat note |
+| 3 | Retrieval & context engineering | 10–13 | Context-engineering essay, RAG course, Advanced Retrieval, Document AI, Semantic Caching, Multimodal Data Pipelines | Measured, cited retrieval with local embeddings, including non-text sources |
+| 4 | Evals & observability | 14–16 | Evals FAQ, Evaluating AI Agents, NeMo reliability | Error analysis, validated judges, two-layer CI gate, privacy-safe traces |
+| 5 | Agentic AI | 17–25 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL and an injection test |
+| 6 | **Harness engineering & ambient agents** | 26–29 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
+| 7 | Security, identity, governance, cost | 30–33 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
+| 8 | Internals, post-training & RL environments | 34–41 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
+| 9 | Portfolio | 42+ | — | Four projects with evals, harness docs, threat models, cost analyses |
 
-**Totals:** about 40 core free resources (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 9 months at 8–10 hrs/week.
+**Totals:** 48 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 41 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
 
 The biggest change is the order and the emphasis, not any single course. **Measure before you optimise, harness before you automate, contain before you trust, and understand the system before the model internals.**
 

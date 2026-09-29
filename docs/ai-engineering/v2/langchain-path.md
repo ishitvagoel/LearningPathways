@@ -27,6 +27,9 @@ tags:
 !!! tip "Run this path with the Claude Harness Kit"
     The rules below are also packaged as Claude Code harness files (`CLAUDE.md`, `/lesson`, `/checkpoint-review`, `/quiz` skills, a read-only reviewer subagent and hooks). Copy the kit into your practice repo and Claude Code enforces them for you — see [Claude Harness Kit](claude-harness.md). Any other capable assistant can still use this section as a pasted prompt.
 
+!!! note "Also following the AI Engineer Mastery Plan?"
+    Don't run this path end to end in the middle of it. The plan's [crosswalk](ai-mastery-plan.md#doing-both-paths) spreads these phases across the matching Mastery phases, and the plan's checkpoints replace this path's projects.
+
 You are acting as a **first-principles mentor** guiding a learner through the LangChain ecosystem. This document is your curriculum. Follow it sequentially: do not skip ahead, do not teach concepts from later phases, and do not assume the learner knows anything about LangChain unless the Learner Profile says so.
 
 **Teaching Rules:**
@@ -883,6 +886,9 @@ long_agent = create_agent(
 4. Add long-term user preferences and summarisation middleware
 5. Evaluate 15+ questions: retrieval hit rate, faithfulness (does the answer stick to sources?), and answer correctness
 
+!!! tip "Evals start here, not in Phase 6"
+    Before you score faithfulness and correctness, read Steps 6.2–6.3 (error analysis and evaluators). A small hand-labelled set, deterministic checks and one judge are enough for now. Phase 6 turns them into a CI-gated suite, but every phase from here on should ship with evals.
+
 **Completion Criteria:** A short report comparing the two architectures with numbers, and a list of the three worst failures with hypotheses.
 
 ---
@@ -1031,6 +1037,8 @@ asyncio.run(main())
 ### 🔨 Phase 4 Checkpoint Project
 
 **Task:** Harden the Phase 3 assistant: retries + fallback model, call limits, PII redaction, HITL on any write/moderation tool, one capability served over MCP, and a documented prompt-injection test that now fails safely.
+
+**Completion Criteria:** Each hardening item is visible in a trace: a retry, the fallback firing, a call limit stopping a runaway loop, and PII redacted before the model sees it. The write/moderation tool can't run without approval. The MCP-served capability works from the agent and from an off-the-shelf MCP client. The prompt-injection test is automated and passes.
 
 ---
 
@@ -1291,7 +1299,13 @@ WantedBy=timers.target
 6. One ambient job (Step 5.7) that runs on a schedule with budgets and durable approval
 7. Exported Mermaid diagram in the README
 
-**Completion Criteria:** The learner can draw the graph from memory and explain every edge condition.
+**Completion Criteria:**
+
+- The system resumes correctly after its process is killed mid-run
+- Nothing public is posted without an approval
+- The sensor's negative test fails when the sensor is removed
+- The ambient job's second run on the same day is a no-op
+- The learner can draw the graph from memory and explain every edge condition
 
 ---
 
@@ -1341,6 +1355,42 @@ trajectory = create_trajectory_match_evaluator(trajectory_match_mode="superset")
 
 ### Step 6.4 — Evals as Tests (CI Gate)
 
+**Two layers, because they answer different questions.** *Unit tests* check **your** code (tool logic, parsing, routing, middleware, guards) and should run on every commit: free, fast and deterministic. *Evals* check **the model's behaviour** with your harness, so they cost money and vary a little between runs. Run them on merge or nightly.
+
+**Layer 1: unit tests with a scripted model.** Replace the model with a fake that replays scripted replies, including tool calls (see LangChain's [unit-testing guide](https://docs.langchain.com/oss/python/langchain/test/unit-testing)). `GenericFakeChatModel` doesn't implement `bind_tools`, which `create_agent` calls when you pass tools, so subclass it:
+
+```python
+# test_agent_unit.py — no API key, no network, runs in milliseconds
+from langchain.agents import create_agent
+from langchain.messages import AIMessage, ToolCall, ToolMessage
+from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
+from game_tools import calculate_damage          # your module holding the Step 1.3 tool
+
+
+class ScriptedModel(GenericFakeChatModel):
+    """Replays scripted replies. Accepts the tools create_agent binds, then ignores them."""
+    def bind_tools(self, tools, **kwargs):
+        return self
+
+
+def test_agent_runs_the_tool_and_answers():
+    model = ScriptedModel(messages=iter([
+        AIMessage(content="", tool_calls=[ToolCall(name="calculate_damage",
+                                                   args={"attack": 400, "defense": 150}, id="call_1")]),
+        "It deals 250 damage.",                     # the model's final answer
+    ]))
+    agent = create_agent(model, tools=[calculate_damage])
+    out = agent.invoke({"messages": [{"role": "user", "content": "Damage of 400 atk vs 150 def?"}]})
+
+    tool_results = [m for m in out["messages"] if isinstance(m, ToolMessage)]
+    assert tool_results[0].content == "250.0"      # your tool code really ran
+    assert out["messages"][-1].text == "It deals 250 damage."
+```
+
+The same approach tests middleware and guards: script a reply that *should* trip your sensor or approval gate, and assert that it did.
+
+**Layer 2: evals against the real model.**
+
 ```python
 # test_agent.py — run with: pytest  (LangSmith's pytest plugin logs results as an experiment)
 import pytest
@@ -1362,7 +1412,7 @@ def test_tool_choice(q, expected_tool):
 
 **Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 4.6 → Sonnet 5) are regressions until proven otherwise.
 
-**Completion Check:** A failing eval blocks a (local or CI) merge.
+**Completion Check:** Unit tests run on every commit without an API key, and a failing eval blocks a (local or CI) merge.
 
 ### Step 6.5 — Cost & Latency Engineering
 
