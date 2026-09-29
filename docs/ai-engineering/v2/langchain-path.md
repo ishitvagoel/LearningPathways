@@ -92,13 +92,16 @@ Read this carefully. This is who you are teaching.
 | Role in this course | Reference model (Claude) | Use for |
 |---|---|---|
 | Default workhorse | `claude-opus-5-5` (Claude Opus 5.5) | Agents, planning, anything where quality matters |
-| Balanced / high-volume | `claude-sonnet-5` | Production traffic once evals show it holds quality; LLM-as-judge |
+| Balanced / high-volume | `claude-sonnet-5-5` (Claude Sonnet 5.5) | Production traffic once evals show it holds quality; LLM-as-judge |
 | Cheap / fast | `claude-haiku-4-5` | Routing, classification, summarisation for compaction, bulk extraction (no adaptive thinking or `effort`; see note below) |
+| Hardest tasks (optional) | `claude-fable-5-1` (Claude Fable 5.1) | Only when evals show Opus 5.5 at higher effort still falls short; 2.5× Opus's price |
 | Embeddings | `sentence-transformers/all-mpnet-base-v2` (local, open source) | Text RAG (Phase 3); runs on CPU, no API key, no per-call cost |
 
-!!! info "Model notes (checked 28 Sep 2026 against Anthropic's models overview)"
+!!! info "Model notes (checked 29 Sep 2026 against Anthropic's models overview)"
     - **Claude Opus 5.5** is the current Opus model (Opus 5 is now listed as legacy). Its thinking is always on (adaptive), its **default effort is `medium`** (set `effort` explicitly where it matters), forced tool choice (`tool_choice` of `any`/`tool`) returns a 400, and reasoning text is omitted from responses unless you request a summary. Use a recent `langchain-anthropic` so structured output takes the supported path, and prefer `method="json_schema"` (Step 1.2).
-    - **Claude Haiku 4.5** is the fast tier but an older generation: it uses the older "extended thinking" mode, doesn't support `effort`, and its retirement commitment is only "not sooner than 15 Oct 2026". Check the [model deprecations page](https://platform.claude.com/docs/en/about-claude/model-deprecations); if it is retiring, set `FAST_MODEL=claude-sonnet-5` and use `effort="low"`.
+    - **Claude Sonnet 5.5** (released 28 Sep 2026) replaces Sonnet 5, which is now legacy. Its default effort is `high`, and adaptive thinking is on by default. Forced tool choice returns an error, as on Opus 5.5. Text it writes *between* tool calls arrives in thinking blocks, so a UI that streams that text goes quiet unless you opt in (see [what's new in Sonnet 5.5](https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5#text-between-tool-calls)).
+    - **Claude Fable 5.1** (released 1 Sep 2026) is the top tier, for demanding reasoning and long-horizon agentic work. Anthropic recommends starting with Opus and moving up only when evals demand it.
+    - **Claude Haiku 4.5** is the fast tier but an older generation: it uses the older "extended thinking" mode, doesn't support `effort`, and its retirement commitment is only "not sooner than 15 Oct 2026". Check the [model deprecations page](https://platform.claude.com/docs/en/about-claude/model-deprecations); if it is retiring, set `FAST_MODEL=claude-sonnet-5-5` and use `effort="low"`.
 
 **Why these choices:** Claude is the reference provider because the same company ships the harness this curriculum uses (Claude Code, the Agent SDK, skills and hooks), so the concepts line up end to end. Anthropic doesn't offer an embeddings API, and the course shouldn't depend on any vendor for them, so embeddings run locally through `langchain-huggingface`. You can swap in a hosted embedding model later (e.g. Voyage AI or OpenAI) by changing one line.
 
@@ -110,7 +113,7 @@ Read this carefully. This is who you are teaching.
 import os
 PROVIDER = os.getenv("PROVIDER", "anthropic")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5-5")
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5")
+JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5-5")
 FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-4-5")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-mpnet-base-v2")
 
@@ -145,9 +148,9 @@ If a tutorial uses anything in the left column, it predates LangChain 1.0 (Octob
 | "LangGraph Platform" / "LangGraph Cloud" | 2024–2025 | **LangSmith Deployment** (renamed October 2025) |
 | Hard-coded retired model IDs (`gemini-2.0-flash`, `gemini-1.5-*`, `gpt-4`, `claude-3-*`, `text-embedding-004`) | 2023–2025 | Provider + model from `config.py`; check the provider's models page |
 | Hard-wiring one vendor's classes everywhere (`ChatGoogleGenerativeAI(...)`, `ChatOpenAI(...)` in every file) | — | `init_chat_model(model_id(...))` / `create_agent(model_id(...))`; provider classes only where a lesson needs a provider feature |
-| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Claude Opus 5.5 and Sonnet 5 (and other 4.7-and-later models) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
-| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` — fixed budgets are deprecated on Claude 4.6 models and rejected on later ones (Opus 5.5, Sonnet 5). Haiku 4.5, an older generation, still uses them |
-| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on Claude 4.6-and-later models, including Opus 5.5 and Sonnet 5 |
+| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Claude Opus 5.5 and Sonnet 5.5 (and other 4.7-and-later models) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
+| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` — fixed budgets are deprecated on Claude 4.6 models and rejected on later ones (Opus 5.5, Sonnet 5.5). Haiku 4.5, an older generation, still uses them |
+| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on Claude 4.6-and-later models, including Opus 5.5 and Sonnet 5.5 |
 
 !!! note "A correction to V1: LCEL is *not* deprecated"
     V1 said the pipe syntax (`prompt | model | parser`) was deprecated. That is inaccurate. Runnables and LCEL remain part of `langchain-core` in 1.x and still work for simple, linear pipelines. What changed is *emphasis*: agents are now built with `create_agent` + middleware, and anything with loops, state or branching belongs in LangGraph. Teach LCEL as "a convenient way to compose linear steps", not as the way to build applications.
@@ -362,7 +365,7 @@ print(quick.profile)   # capability metadata: tool calling, structured output, m
 **Key Concepts:**
 
 - **Adaptive thinking + effort** (`low` → `max`) trades latency and tokens for reasoning depth; the model decides how much to think within that setting. Other providers expose the same idea under different names (reasoning effort, thinking level); the concept transfers, the parameter name doesn't.
-- **Don't set temperature on current reasoning models.** Claude Opus 5.5 and Sonnet 5 reject non-default sampling parameters with an error. Also note Opus 5.5's default effort is `medium`, so the two settings above genuinely differ from the default. Reliability comes from structured output, good context and evals.
+- **Don't set temperature on current reasoning models.** Claude Opus 5.5 and Sonnet 5.5 reject non-default sampling parameters with an error. Also note Opus 5.5's default effort is `medium`, so the two settings above genuinely differ from the default. Reliability comes from structured output, good context and evals.
 - `.profile` lets code check a model's capabilities before relying on them — essential when you route between models or providers.
 
 **Completion Check:** The learner can explain why higher effort costs more even when the visible answer is the same length, and which of their bot's tasks deserve `low` vs `high`.
@@ -1410,7 +1413,7 @@ def test_tool_choice(q, expected_tool):
     assert expected_tool in called
 ```
 
-**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 4.6 → Sonnet 5) are regressions until proven otherwise.
+**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 5 → Sonnet 5.5) are regressions until proven otherwise.
 
 **Completion Check:** Unit tests run on every commit without an API key, and a failing eval blocks a (local or CI) merge.
 
