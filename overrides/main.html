@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block content_action %}
-  {# Original view button #}
-  {{ super() }}
-
-  {# Custom Download button with absolute-root path and robust JS #}
+{# Material 9.7 has no `content_action` block, so the button is added in `content`. It comes first so that,
+   as the page-action buttons float right, it sits at the far right, next to the edit and view buttons. #}
+{% block content %}
+  {# Custom Download button. The URL is relative to this page, so it works on any host (production,
+     preview deployments, localhost). Pages are always served with a trailing slash (vercel.json).
+     The files it fetches come from scripts/build_site.py, so under `mkdocs serve` the button gets a 404. #}
   {% if page and page.file %}
     <a href="javascript:void(0)" 
-       onclick="downloadFile('{{ config.site_url }}sources/{{ page.file.src_path }}', '{{ page.title | replace("'", "\\'") }}.md')"
+       onclick="downloadFile('{{ base_url }}/sources/{{ page.file.src_path }}', '{{ page.title | replace("'", "\\'") }}.md')"
        title="Download Markdown" 
        class="md-content__button md-icon">
       {% include ".icons/material/download.svg" %}
@@ -42,4 +43,7 @@
       }
     </script>
   {% endif %}
+
+  {# The page's own content and its other action buttons, unchanged #}
+  {{ super() }}
 {% endblock %}

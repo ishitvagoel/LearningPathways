@@ -9,8 +9,8 @@ One script, so Vercel (vercel.json `buildCommand`) and CI (.github/workflows/ci.
 Output (./site) is a plain static tree. Nothing here needs a server.
 
 The site URL comes from, in order: SITE_URL, then Vercel's VERCEL_PROJECT_PRODUCTION_URL, then the
-localhost default in mkdocs.yml. It feeds canonical links, the sitemap and the
-"Download Markdown" URLs, and always ends with a slash.
+localhost default in mkdocs.yml. It feeds canonical links and the sitemap, and always ends with
+a slash. (The "Download Markdown" buttons use relative URLs, so they work on previews and localhost too.)
 
 "Last updated" dates need full git history, but Vercel clones with `--depth=10`. In a shallow clone
 the date plugin would date an unchanged page by the oldest commit it can see, which is wrong. So the
