@@ -22,7 +22,7 @@ The earlier editions said "paste this page into your AI assistant". This edition
 
 ## The vocabulary: guides, sensors, constraints
 
-Birgitta Böckeler's [harness engineering](https://martinfowler.com/articles/harness-engineering.html) article gives a useful split:
+Birgitta Böckeler's [harness engineering](https://martinfowler.com/articles/harness-engineering.html) article splits a harness into **guides** and **sensors**. This kit adds a third row, **constraints**, for the deterministic permission rules Claude Code provides:
 
 | Kind | Acts | Examples in these harnesses |
 |---|---|---|
@@ -30,7 +30,7 @@ Birgitta Böckeler's [harness engineering](https://martinfowler.com/articles/har
 | **Sensor** (feedback) | *After* the agent acts, checking and feeding problems back | PostToolUse checkers, the Stop-time V1 guard, the checkpoint reviewer subagent |
 | **Constraint** | Deterministically allows, asks or denies | `permissions` in `.claude/settings.json` |
 
-Sensors and guides can each be **computational** (a script, deterministic and cheap) or **inferential** (another model's judgement). The kit leans on computational checks wherever possible because the 2026 evidence is consistent: written rules are often ignored, while checks that *run* are not. In one analysis of 481 public `CLAUDE.md` files, only 4–16% of written security rules had a measurable effect ([Marmelab, 2026](https://marmelab.com/blog/2026/09/24/the-state-of-ai-harness-engineering-2026.html)).
+Sensors and guides can each be **computational** (a script, deterministic and cheap) or **inferential** (another model's judgement). The kit leans on computational checks wherever possible because the 2026 evidence is consistent: written rules are often ignored, while checks that *run* are not. One study of 481 public `CLAUDE.md` files found that only 4–16% of written security rules had a measurable effect (an arXiv paper cited in [Marmelab's 2026 review](https://marmelab.com/blog/2026/09/24/the-state-of-ai-harness-engineering-2026.html)).
 
 ---
 
@@ -42,7 +42,9 @@ Sensors and guides can each be **computational** (a script, deterministic and ch
 2. Unzip or copy it into a new practice repository (keep the hidden `.claude/` folder) and run `git init`.
 3. If you copied the folder rather than the zip, put `langchain-path.md` and `ai-mastery-plan.md` into `curriculum/`.
 4. Edit `learner-profile.md` once. To use a provider other than Claude, set `PROVIDER` and the model variables (see `config.py`).
-5. `chmod +x .claude/hooks/*.py`, start `claude` in the folder, approve the project hooks when asked, and run `/lesson`.
+5. `chmod +x .claude/hooks/*.py`, start `claude` **at the folder's root** (permission rules such as `Edit(/projects/**)` are anchored to the directory you start in), approve the project hooks when asked, and run `/lesson`.
+
+Use a recent Claude Code: the forked, blocking `/checkpoint-review` needs v2.1.218 or later, and reading `AGENTS.md` directly needs v2.1.277 or later.
 
 ### What each file does
 
@@ -63,7 +65,7 @@ practice-repo/
     ├── skills/
     │   ├── lesson/SKILL.md            # /lesson [step]
     │   ├── quiz/SKILL.md              # /quiz
-    │   ├── checkpoint-review/SKILL.md # /checkpoint-review <phase>  (forks the reviewer)
+    │   ├── checkpoint-review/SKILL.md # /checkpoint-review <mastery|langchain> <phase>  (forks the reviewer)
     │   └── log-progress/SKILL.md      # /log-progress
     └── agents/
         └── checkpoint-reviewer.md     # independent reviewer subagent
@@ -74,7 +76,7 @@ practice-repo/
 - **`CLAUDE.md` stays short** and imports state with `@progress.md`, so each session starts from where you left off without a long rulebook. Claude Code's docs recommend keeping it under about 200 lines.
 - **`session_context.py`** tackles a failure the V1 review found repeatedly: models teach the APIs they *remember*, not the ones you *installed*. Plain-text output from a `SessionStart` hook is added to Claude's context, so every session begins with the real package versions and today's date.
 - **`/checkpoint-review` runs in a forked context** with the `checkpoint-reviewer` subagent. The reviewer never saw the lesson, so it judges the repository against the curriculum's criteria rather than the mentor's impression of what you understood.
-- **`checkpoint_gate.py`** is a computational sensor. If `progress.md` marks a phase "passed" without `reviews/phase-N.md` ending in `VERDICT: PASS`, the edit is flagged back to Claude (exit code 2). "Checkpoints gate phases" stops being a promise and becomes a check.
+- **`checkpoint_gate.py`** is a computational sensor. If `progress.md` marks a checkpoint "passed" without `reviews/<path>-phase-N.md` ending in `VERDICT: PASS`, the edit is flagged back to Claude (exit code 2). "Checkpoints gate phases" stops being a promise and becomes a check. Checkpoints are keyed by path (`mastery` or `langchain`) because both curricula number their phases from 0; otherwise a LangChain Phase 3 pass would satisfy the Mastery Plan's Phase 3.
 - **`"ask": ["Edit(/projects/**)"]`** keeps your checkpoint code yours. The mentor explains and hints, and any edit under `projects/` (including by a subagent) needs your approval.
 - **`.env` is unreadable** to Claude's file tools (`deny: Read(./.env)`). Keep API keys there or in your shell.
 
@@ -88,6 +90,7 @@ Each hook was run against synthetic events before release, including **negative 
 | `checkpoint_gate.py` | phase marked passed, no review | block (exit 2) | ✅ |
 | `checkpoint_gate.py` | review ends `VERDICT: REVISE` | block (exit 2) | ✅ |
 | `checkpoint_gate.py` | review ends `VERDICT: PASS` | allow | ✅ |
+| `checkpoint_gate.py` | only the *other* curriculum's phase has a PASS | block (exit 2) | ✅ |
 | `session_context.py` | startup | prints date, versions, provider | ✅ |
 
 ---
@@ -102,20 +105,29 @@ Each hook was run against synthetic events before release, including **negative 
 | `.claude/skills/add-learning-path` | Guide | Scaffold a new path in the house format |
 | `.claude/skills/check-links` | Guide + sensor | Runs `scripts/check_links.py`, triages broken vs bot-blocked links |
 | `.claude/agents/curriculum-reviewer.md` | Inferential sensor | Read-only accuracy review against primary sources |
-| `scripts/check_docs.py` | Computational sensor | Frontmatter, Python blocks that parse, no deprecated APIs or retired model IDs *in code* |
+| `scripts/check_docs.py` | Computational sensor | Frontmatter, Python blocks that parse, no deprecated APIs or retired model IDs *in code*; with `--all` (run in CI), V1 pages must match pinned SHA-256 hashes |
 | `.claude/hooks/check_doc_hook.py` | Sensor wiring | PostToolUse on Edit and Write: runs `check_docs.py` on the edited page; problems go back to Claude |
-| `.claude/hooks/v1_guard.py` | Sensor | Stop hook: blocks finishing while a frozen V1 page differs from `HEAD` (catches `sed`/Bash routes the deny rule can't see) |
+| `.claude/hooks/v1_guard.py` | Sensor | Stop hook: once per stop, blocks finishing while a frozen V1 page differs from `HEAD` (catches routes the deny rule can't see, such as a Python script that opens the file itself) |
 | `.claude/settings.json` | Constraint | Denies `Edit` on V1 files and reading `.env`; pre-approves the build and check commands |
 
-**Defence in depth, on purpose.** The `Edit` deny rule stops the obvious route to a V1 file, but a shell command can still change one. The Stop hook checks the *outcome* (`git diff` against `HEAD`) whatever route was taken. Guides say what should happen, and sensors verify that it did.
+**Defence in depth, on purpose.** Three layers protect V1, and each covers a gap in the one before:
 
-The same testing discipline applied here. The document checker was run against a deliberately bad page (an `AgentExecutor` import and a `temperature=` argument) and blocked it. The V1 guard was run with a tampered V1 file and blocked it. On its first run over the whole site, the checker also caught a real problem: the landing page had no `description`.
+1. The `Edit` deny rule covers Claude's file tools and the Bash file commands Claude Code recognises (`sed`, `tee`, redirects). It can't see a script that opens the file itself.
+2. The Stop hook checks the *outcome* (`git diff` against `HEAD`) whatever route was taken, but only once per stop, and a committed change gets past it.
+3. The pinned-hash check in `check_docs.py --all` runs in CI on every deploy, so even a committed change to V1 fails the build.
+
+Guides say what should happen; sensors verify that it did.
+
+The same testing discipline applied here. The document checker was run against a deliberately bad page (an `AgentExecutor` import and a `temperature=` argument) and blocked it. The V1 guard and the pinned-hash check were each run against a tampered V1 file (the hash check also against a deleted one) and both failed as intended. While building this, the deny rule also blocked two of the maintainer's own test commands that would have touched real V1 files. On its first run over the whole site, the checker also caught a real problem: the landing page had no `description`.
 
 ---
 
+!!! tip "To block an action, use PreToolUse or a deny rule"
+    `PostToolUse` hooks run *after* the tool, so they can only report problems back (like `check_doc_hook.py`). To stop an action before it happens, use a permission `deny` rule (e.g. `Edit(/migrations/**)`) or a `PreToolUse` hook that exits with code 2.
+
 ## Using these files with other tools
 
-`AGENTS.md` is the cross-tool convention read by many coding agents (Codex, Cursor, Gemini CLI and others), and Claude Code can read it directly or through the `@AGENTS.md` import used here. The skills follow the open [Agent Skills](https://agentskills.io/home) format (a folder with a `SKILL.md`), which other agent products also load. Hooks and permission rules are Claude Code-specific. If you use a different agent, port the *checks* (`scripts/check_docs.py`, the guard logic) to that tool's hook or CI mechanism. The scripts themselves are plain Python.
+`AGENTS.md` is the cross-tool convention read by many coding agents (Codex, Cursor, Gemini CLI and others). Claude Code reads it directly only when no `CLAUDE.md` exists (v2.1.277 or later); otherwise it needs the `@AGENTS.md` import used here, which is the reliable pattern. The skills follow the open [Agent Skills](https://agentskills.io/home) format (a folder with a `SKILL.md`), which other agent products also load. Hooks and permission rules are Claude Code-specific. If you use a different agent, port the *checks* (`scripts/check_docs.py`, the guard logic) to that tool's hook or CI mechanism. The scripts themselves are plain Python.
 
 ## Keep the harness healthy
 

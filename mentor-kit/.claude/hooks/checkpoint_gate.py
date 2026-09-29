@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """PostToolUse hook (Edit|Write): a checkpoint may only be marked "passed" in progress.md
-when reviews/phase-<N>.md exists and ends with "VERDICT: PASS".
+when reviews/<path>-phase-<N>.md exists and ends with "VERDICT: PASS".
+
+<path> is "mastery" or "langchain": both curricula number their phases from 0, so reviews
+are keyed by path to stop one curriculum's PASS satisfying the other's checkpoint.
 
 This is a computational sensor: it checks a fact instead of trusting an instruction.
 Exit 2 sends the reason back to Claude so it can correct progress.md.
@@ -18,15 +21,16 @@ if file_path.name != "progress.md":
 
 progress = (ROOT / "progress.md").read_text(encoding="utf-8")
 problems = []
-# table rows look like: | 3 | Documentation assistant | passed | reviews/phase-3.md |
-for phase, status in re.findall(r"^\|\s*(\d+)\s*\|[^|]*\|\s*([^|]*?)\s*\|", progress, re.M):
+# table rows look like: | mastery | 3 | Documentation assistant | passed | reviews/mastery-phase-3.md |
+ROW = re.compile(r"^\|\s*(mastery|langchain)\s*\|\s*(\d+)\s*\|[^|]*\|\s*([^|]*?)\s*\|", re.M | re.I)
+for path, phase, status in ROW.findall(progress):
     if status.strip().lower() != "passed":
         continue
-    review = ROOT / "reviews" / f"phase-{phase}.md"
+    review = ROOT / "reviews" / f"{path.lower()}-phase-{phase}.md"
     if not review.exists():
-        problems.append(f"Phase {phase} is marked passed but {review.relative_to(ROOT)} does not exist.")
+        problems.append(f"{path} phase {phase} is marked passed but {review.relative_to(ROOT)} does not exist.")
     elif not review.read_text(encoding="utf-8").rstrip().endswith("VERDICT: PASS"):
-        problems.append(f"Phase {phase} is marked passed but its review does not end with 'VERDICT: PASS'.")
+        problems.append(f"{path} phase {phase} is marked passed but its review does not end with 'VERDICT: PASS'.")
 
 if problems:
     print("\n".join(problems)

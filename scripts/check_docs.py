@@ -11,17 +11,21 @@ Checks every Markdown page for:
   3. Deprecated API patterns and retired model IDs *inside Python code blocks*
      (prose and "what not to teach" tables may mention them; runnable code may not)
 
-Frozen V1 pages are skipped. Exits 1 and prints problems to stderr when any check fails.
+Frozen V1 pages are not linted; instead `--all` verifies they still match their pinned
+SHA-256 hashes, so a change to V1 fails CI even if it was committed (the Stop-hook guard
+only compares against HEAD). Exits 1 and prints problems to stderr when any check fails.
 """
 import ast
+import hashlib
 import pathlib
 import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+# Frozen V1 pages and the SHA-256 of their published (March 2026) content.
 FROZEN = {
-    "docs/ai-engineering/langchain-path.md",
-    "docs/ai-engineering/ai-mastery-plan.md",
+    "docs/ai-engineering/langchain-path.md": "14536b223d8e9e496d37518917d32aa12a0cddf0747ffb10c8429db4dc48044b",
+    "docs/ai-engineering/ai-mastery-plan.md": "7b3a1b5237f3e538ba043e794c6e6fd16dffe429b5602fcf7c7902b264698a49",
 }
 
 # pattern -> why it is wrong. Keep this list short and evidence-based; prune it when it rots.
@@ -73,12 +77,26 @@ def check_file(path: pathlib.Path) -> list[str]:
     return problems
 
 
+def check_frozen() -> list[str]:
+    problems = []
+    for rel, expected in FROZEN.items():
+        path = ROOT / rel
+        if not path.exists():
+            problems.append(f"{rel}: frozen V1 page is missing")
+        elif hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+            problems.append(f"{rel}: frozen V1 page has been modified; restore it from git history "
+                            f"(e.g. `git checkout 705fa88 -- {rel}`)")
+    return problems
+
+
 def main(argv: list[str]) -> int:
     if argv == ["--all"]:
         files = sorted((ROOT / "docs").rglob("*.md"))
+        problems = check_frozen()
     else:
         files = [pathlib.Path(a) for a in argv]
-    problems = [p for f in files if f.exists() for p in check_file(f)]
+        problems = []
+    problems += [p for f in files if f.exists() for p in check_file(f)]
     for p in problems:
         print(p, file=sys.stderr)
     if problems:

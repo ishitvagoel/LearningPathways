@@ -88,10 +88,14 @@ Read this carefully. This is who you are teaching.
 
 | Role in this course | Reference model (Claude) | Use for |
 |---|---|---|
-| Default workhorse | `claude-opus-5` | Agents, planning, anything where quality matters |
+| Default workhorse | `claude-opus-5-5` (Claude Opus 5.5) | Agents, planning, anything where quality matters |
 | Balanced / high-volume | `claude-sonnet-5` | Production traffic once evals show it holds quality; LLM-as-judge |
-| Cheap / fast | `claude-haiku-4-5` | Routing, classification, summarisation for compaction, bulk extraction |
+| Cheap / fast | `claude-haiku-4-5` | Routing, classification, summarisation for compaction, bulk extraction (no adaptive thinking or `effort`; see note below) |
 | Embeddings | `sentence-transformers/all-mpnet-base-v2` (local, open source) | Text RAG (Phase 3); runs on CPU, no API key, no per-call cost |
+
+!!! info "Model notes (checked 28 Sep 2026 against Anthropic's models overview)"
+    - **Claude Opus 5.5** is the current Opus model (Opus 5 is now listed as legacy). Its thinking is always on (adaptive), its **default effort is `medium`** (set `effort` explicitly where it matters), forced tool choice (`tool_choice` of `any`/`tool`) returns a 400, and reasoning text is omitted from responses unless you request a summary. Use a recent `langchain-anthropic` so structured output takes the supported path, and prefer `method="json_schema"` (Step 1.2).
+    - **Claude Haiku 4.5** is the fast tier but an older generation: it uses the older "extended thinking" mode, doesn't support `effort`, and its retirement commitment is only "not sooner than 15 Oct 2026". Check the [model deprecations page](https://platform.claude.com/docs/en/about-claude/model-deprecations); if it is retiring, set `FAST_MODEL=claude-sonnet-5` and use `effort="low"`.
 
 **Why these choices:** Claude is the reference provider because the same company ships the harness this curriculum uses (Claude Code, the Agent SDK, skills and hooks), so the concepts line up end to end. Anthropic doesn't offer an embeddings API, and the course shouldn't depend on any vendor for them, so embeddings run locally through `langchain-huggingface`. You can swap in a hosted embedding model later (e.g. Voyage AI or OpenAI) by changing one line.
 
@@ -102,7 +106,7 @@ Read this carefully. This is who you are teaching.
 # config.py — the only place provider and model IDs live
 import os
 PROVIDER = os.getenv("PROVIDER", "anthropic")
-CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5")
+CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5-5")
 JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5")
 FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-4-5")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-mpnet-base-v2")
@@ -131,16 +135,16 @@ If a tutorial uses anything in the left column, it predates LangChain 1.0 (Octob
 | `tool.args_schema.schema()` | Pydantic v1 | `tool.args` or `tool.tool_call_schema.model_json_schema()` |
 | `from langchain_community.vectorstores import Chroma` | v0.2 | `from langchain_chroma import Chroma` |
 | `LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY` | 2023–2024 | `LANGSMITH_TRACING`, `LANGSMITH_API_KEY` |
-| `graph.set_entry_point("x")` | v0.1 | `graph.add_edge(START, "x")` |
+| `graph.set_entry_point("x")` *(older style, still valid)* | v0.1 | `graph.add_edge(START, "x")` is the recommended modern syntax |
 | `compile(interrupt_before=[...])` for human approval | v0.2 | `interrupt()` + `Command(resume=...)`; for agents, `HumanInTheLoopMiddleware` |
-| Reading `result["__interrupt__"]` | LangGraph 1.0 | `invoke(..., version="v2")` → `result.interrupts` |
+| Reading `result["__interrupt__"]` *(still works)* | LangGraph 1.0 | Prefer `invoke(..., version="v2")` → `result.interrupts`, or `stream_events(..., version="v3")` for event-driven UIs |
 | `langchain-mcp-adapters` / `MultiServerMCPClient` | 2025 | `langchain.mcp.MCPAdapter` (LangChain ≥ 1.4, beta) |
 | "LangGraph Platform" / "LangGraph Cloud" | 2024–2025 | **LangSmith Deployment** (renamed October 2025) |
 | Hard-coded retired model IDs (`gemini-2.0-flash`, `gemini-1.5-*`, `gpt-4`, `claude-3-*`, `text-embedding-004`) | 2023–2025 | Provider + model from `config.py`; check the provider's models page |
 | Hard-wiring one vendor's classes everywhere (`ChatGoogleGenerativeAI(...)`, `ChatOpenAI(...)` in every file) | — | `init_chat_model(model_id(...))` / `create_agent(model_id(...))`; provider classes only where a lesson needs a provider feature |
-| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Current Claude models (Opus 5, Sonnet 5) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
-| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` on current Claude models (fixed budgets are rejected) |
-| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on current Claude models |
+| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Claude Opus 5.5 and Sonnet 5 (and other 4.7-and-later models) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
+| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` — fixed budgets are deprecated on Claude 4.6 models and rejected on later ones (Opus 5.5, Sonnet 5). Haiku 4.5, an older generation, still uses them |
+| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on Claude 4.6-and-later models, including Opus 5.5 and Sonnet 5 |
 
 !!! note "A correction to V1: LCEL is *not* deprecated"
     V1 said the pipe syntax (`prompt | model | parser`) was deprecated. That is inaccurate. Runnables and LCEL remain part of `langchain-core` in 1.x and still work for simple, linear pipelines. What changed is *emphasis*: agents are now built with `create_agent` + middleware, and anything with loops, state or branching belongs in LangGraph. Teach LCEL as "a convenient way to compose linear steps", not as the way to build applications.
@@ -194,7 +198,7 @@ First stable major release with a no-breaking-changes promise until 2.0. `create
 ### Era 6: The 1.x Maturation (November 2025 – September 2026) `✅ CURRENT`
 
 - **1.1 (Nov 2025):** model `.profile` (capabilities sourced from models.dev), retry and summarisation middleware improvements.
-- **1.2 (Dec 2025):** tool `extras`, provider tool search, strict schema adherence for `response_format`.
+- **1.2 (Dec 2025):** tool `extras` for provider-specific tool parameters (e.g. Anthropic tool search), strict schema adherence for `response_format`.
 - **LangGraph 1.1 (Mar 2026):** type-safe streaming and `invoke(..., version="v2")` returning a `GraphOutput` (`.value`, `.interrupts`).
 - **1.3 / LangGraph 1.2 (May 2026):** per-node timeouts and error handlers, graceful shutdown, v3 event streaming.
 - **1.4 (Sep 2026):** **MCP built in** as `langchain.mcp` (beta, on FastMCP), replacing `langchain-mcp-adapters`.
@@ -355,7 +359,7 @@ print(quick.profile)   # capability metadata: tool calling, structured output, m
 **Key Concepts:**
 
 - **Adaptive thinking + effort** (`low` → `max`) trades latency and tokens for reasoning depth; the model decides how much to think within that setting. Other providers expose the same idea under different names (reasoning effort, thinking level); the concept transfers, the parameter name doesn't.
-- **Don't set temperature on current reasoning models.** Claude Opus 5 and Sonnet 5 reject non-default sampling parameters with an error. Reliability comes from structured output, good context and evals.
+- **Don't set temperature on current reasoning models.** Claude Opus 5.5 and Sonnet 5 reject non-default sampling parameters with an error. Also note Opus 5.5's default effort is `medium`, so the two settings above genuinely differ from the default. Reliability comes from structured output, good context and evals.
 - `.profile` lets code check a model's capabilities before relying on them — essential when you route between models or providers.
 
 **Completion Check:** The learner can explain why higher effort costs more even when the visible answer is the same length, and which of their bot's tasks deserve `low` vs `high`.
@@ -421,7 +425,7 @@ class Strategy(BaseModel):
     reasoning: str = Field(description="Why this works, max 2 sentences")
 
 model = init_chat_model(model_id(CHAT_MODEL))
-structured = model.with_structured_output(Strategy)
+structured = model.with_structured_output(Strategy, method="json_schema")   # provider-native structured output
 
 result = structured.invoke("Best formation against a cavalry rush?")
 print(result.formation, result.risk)   # a validated Strategy instance
@@ -638,7 +642,18 @@ agent.invoke({"messages": [{"role": "user", "content": "I main cavalry."}]}, cfg
 print(agent.invoke({"messages": [{"role": "user", "content": "What do I main?"}]}, cfg)["messages"][-1].text)
 ```
 
-For persistence across restarts, swap in `SqliteSaver` (`pip install langgraph-checkpoint-sqlite`) or `PostgresSaver` (`langgraph-checkpoint-postgres`).
+For persistence across restarts, swap in `SqliteSaver`. Note that `from_conn_string` is a **context manager**, so the agent must be used inside the `with` block:
+
+```python
+# pip install langgraph-checkpoint-sqlite
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+with SqliteSaver.from_conn_string("bot_memory.db") as saver:
+    agent = create_agent(model=model_id(CHAT_MODEL), tools=[search_knowledge_base], checkpointer=saver)
+    agent.invoke({"messages": [{"role": "user", "content": "I main cavalry."}]}, cfg)
+```
+
+For production use `PostgresSaver` / `AsyncPostgresSaver` (`langgraph-checkpoint-postgres`; see Step 6.6).
 
 **Key Insight:** A Discord channel or user ID maps naturally to a `thread_id`. This replaces every `*Memory` class from older tutorials.
 
@@ -838,7 +853,7 @@ memory_agent = create_agent(
 ### Step 3.8 — Managing the Window: Summarisation & Context Editing
 
 ```python
-from langchain.agents.middleware import SummarizationMiddleware, ContextEditingMiddleware
+from langchain.agents.middleware import SummarizationMiddleware, ContextEditingMiddleware, ClearToolUsesEdit
 from config import FAST_MODEL, model_id
 
 long_agent = create_agent(
@@ -847,6 +862,8 @@ long_agent = create_agent(
     middleware=[
         SummarizationMiddleware(model=model_id(FAST_MODEL),
                                 trigger=("tokens", 8000), keep=("messages", 20)),
+        # clear old tool outputs once context passes ~50k tokens, keeping the 3 most recent
+        ContextEditingMiddleware(edits=[ClearToolUsesEdit(trigger=50_000, keep=3)]),
     ],
     checkpointer=InMemorySaver(),
 )
@@ -1078,6 +1095,7 @@ print(graph.get_graph().draw_mermaid())   # paste into any Mermaid renderer
 from langgraph.types import interrupt, Command
 from langgraph.checkpoint.sqlite import SqliteSaver
 
+# Reuses call_model and run_tools from Step 5.2
 class AnnounceState(MessagesState):
     decision: str
 
@@ -1086,8 +1104,18 @@ def confirm_post(state: AnnounceState):
     decision = interrupt({"question": "Post this to #announcements?", "draft": draft})
     return {"decision": decision}          # a later node posts only if decision == "approved"
 
-# Rebuild the Step 5.2 graph with StateGraph(AnnounceState), add the "confirm" node
-# between "model" and END, then compile with a durable checkpointer:
+def route_after_model(state: AnnounceState) -> Literal["tools", "confirm"]:
+    return "tools" if state["messages"][-1].tool_calls else "confirm"   # final draft -> human
+
+builder = StateGraph(AnnounceState)
+builder.add_node("model", call_model)
+builder.add_node("tools", run_tools)
+builder.add_node("confirm", confirm_post)
+builder.add_edge(START, "model")
+builder.add_conditional_edges("model", route_after_model)
+builder.add_edge("tools", "model")
+builder.add_edge("confirm", END)
+
 with SqliteSaver.from_conn_string("graph.db") as saver:
     app = builder.compile(checkpointer=saver)
     cfg = {"configurable": {"thread_id": "announce-1"}}
@@ -1135,6 +1163,7 @@ coach = create_agent(model_id(CHAT_MODEL), [research, calculate_damage],
 ### Step 5.5 — Deep Agents: The Harness for Long-Running Work
 
 ```python
+# pip install deepagents
 from deepagents import create_deep_agent
 from config import CHAT_MODEL, model_id
 
@@ -1152,7 +1181,7 @@ deep.invoke({"messages": [{"role": "user", "content": "Write a report on the cur
 
 ### Step 5.6 — Harness Engineering: Agent = Model + Harness
 
-**First-Principles:** Everything in an agent except the model is the **harness**: instructions, tools, context management, permissions, checks, memory and the loop itself. Practitioners in 2026 found the harness matters about as much as the model — one survey ran the same model through eight harnesses and saw task success range from 68% to 88%. OpenAI's February 2026 *Harness engineering* post and Birgitta Böckeler's article on martinfowler.com give the vocabulary:
+**First-Principles:** Everything in an agent except the model is the **harness**: instructions, tools, context management, permissions, checks, memory and the loop itself. Practitioners in 2026 found the harness matters about as much as the model — a vendor benchmark (Composio, cited in Marmelab's 2026 review) ran the same model through eight harnesses and saw task success range from 68% to 88% (only 25 tasks, so treat it as indicative). OpenAI's February 2026 *Harness engineering* post and Birgitta Böckeler's article on martinfowler.com give the vocabulary:
 
 - **Guides (feed-forward)** steer the agent *before* it acts: system prompt, `AGENTS.md`, skills, tool descriptions.
 - **Sensors (feedback)** check *after* it acts and let it self-correct: tests, validators, linters, judges.
@@ -1208,7 +1237,7 @@ Nobody is watching when an ambient agent runs, so the design rules change:
 2. **Budgets:** `ModelCallLimitMiddleware` / `ToolCallLimitMiddleware` and a wall-clock timeout.
 3. **Durable approvals:** anything irreversible goes through `interrupt()` (Step 5.3), so the run pauses in the checkpointer and a moderator approves later from Discord.
 4. **Treat trigger payloads as untrusted data.** A webhook body or a scraped post can contain prompt injection. (Claude Code routines, for example, wrap API-fired text in a block labelled as untrusted for exactly this reason.)
-5. **Idempotency and observability:** one `thread_id` per run (`digest-2026-09-28`), so reruns are safe and every run has a trace.
+5. **Idempotency and observability:** one `thread_id` per run (`digest-2026-09-28`). That alone makes reruns *detectable*, not safe — invoking the same thread again appends a new turn and runs the agent again — so check the checkpoint first and exit if today's run already completed.
 
 ```python
 # nightly_digest.py — run by a systemd timer (or any scheduler)
@@ -1217,11 +1246,12 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware
 from langgraph.checkpoint.sqlite import SqliteSaver
 from config import CHAT_MODEL, model_id
+from game_tools import search_game_docs      # your module holding the Step 3.5 tool
 
 TASK = """Summarise today's patch-notes changes for the Discord #meta channel.
 Done means: <= 10 bullets, each citing its source file. If nothing changed, reply exactly 'NO_CHANGES'."""
 
-run_id = f"digest-{datetime.date.today().isoformat()}"
+cfg = {"configurable": {"thread_id": f"digest-{datetime.date.today().isoformat()}"}}
 with SqliteSaver.from_conn_string("ambient.db") as saver:
     agent = create_agent(
         model_id(CHAT_MODEL),
@@ -1229,8 +1259,9 @@ with SqliteSaver.from_conn_string("ambient.db") as saver:
         middleware=[ModelCallLimitMiddleware(run_limit=15), ToolCallLimitMiddleware(run_limit=20)],
         checkpointer=saver,
     )
-    out = agent.invoke({"messages": [{"role": "user", "content": TASK}]},
-                       {"configurable": {"thread_id": run_id}})
+    if agent.get_state(cfg).values.get("messages"):   # idempotency: today's run already exists
+        raise SystemExit("digest already produced today; nothing to do")
+    out = agent.invoke({"messages": [{"role": "user", "content": TASK}]}, cfg)
     print(out["messages"][-1].text)     # hand this to your Discord posting code
 ```
 
@@ -1244,7 +1275,7 @@ Persistent=true
 WantedBy=timers.target
 ```
 
-**Optional teardown — personal agent harnesses.** Read the architecture docs of [OpenClaw](https://docs.openclaw.ai/) and [Hermes Agent](https://hermes-agent.nousresearch.com/) (messaging gateways, heartbeats/schedules, skills, local memory; Hermes also writes its own skills from experience). Then read OpenClaw's security history: hundreds of malicious skills found on its ClawHub marketplace, sandboxing disabled by default in 2.0. Map each incident to the lethal trifecta (Step 4.5). Run either one only in a throwaway VM with dummy accounts — never with your real email, keys or files.
+**Optional teardown — personal agent harnesses.** Read the architecture docs of [OpenClaw](https://docs.openclaw.ai/) and [Hermes Agent](https://hermes-agent.nousresearch.com/) (messaging gateways, heartbeats/schedules, skills, local memory; Hermes also writes its own skills from experience). Then read OpenClaw's security history: Koi Security's audit found 341 malicious skills among 2,857 on its ClawHub marketplace (early 2026), and The Register criticised its August 2026 release for not enabling sandboxing by default. Map each incident to the lethal trifecta (Step 4.5). Run either one only in a throwaway VM with dummy accounts — never with your real email, keys or files.
 
 **Completion Check:** The learner's scheduled job runs unattended twice, the second run is a no-op or clearly idempotent, and any write action waits for approval.
 
@@ -1279,7 +1310,7 @@ WantedBy=timers.target
 
 ### Step 6.2 — Error Analysis Before Metrics
 
-**First-Principles:** "You can't write a good metric for a failure you haven't seen." Following Hamel Husain & Shreya Shankar's evals practice: review 50–100 real traces, write open-ended notes, **cluster failures into categories**, count them, and only then build evaluators for the top categories.
+**First-Principles:** "You can't write a good metric for a failure you haven't seen." Following Hamel Husain & Shreya Shankar's evals practice: review at least 100 real traces, write open-ended notes, **cluster failures into categories**, count them, and only then build evaluators for the top categories.
 
 **Completion Check:** The learner produces a failure taxonomy with counts from real (or realistic synthetic) traces.
 
@@ -1314,6 +1345,7 @@ trajectory = create_trajectory_match_evaluator(trajectory_match_mode="superset")
 # test_agent.py — run with: pytest  (LangSmith's pytest plugin logs results as an experiment)
 import pytest
 from langsmith import testing as t
+from game_agents import rag_agent        # your module holding the Step 3.5 agent
 
 @pytest.mark.langsmith
 @pytest.mark.parametrize("q,expected_tool", [
@@ -1350,21 +1382,36 @@ def test_tool_choice(q, expected_tool):
 **Teach two paths:**
 
 1. **Self-hosted:** FastAPI + your compiled agent/graph + Postgres checkpointer; stream via Server-Sent Events; health checks; secrets from env vars; systemd or containers (the learner already knows VPS + systemd).
-2. **LangSmith Deployment** (formerly LangGraph Platform): describe the app in `langgraph.json`, run locally with `langgraph dev` (includes LangGraph Studio for visual debugging), then deploy; you get durable execution, task queues, cron and streaming APIs out of the box.
+2. **LangSmith Deployment** (formerly LangGraph Platform): describe the app in `langgraph.json`, run locally with `langgraph dev` (includes LangSmith Studio, formerly LangGraph Studio, for visual debugging), then deploy; you get durable execution, task queues, cron and streaming APIs out of the box.
 
 ```python
-from fastapi import FastAPI
+# pip install fastapi uvicorn langgraph-checkpoint-postgres "psycopg[binary]"
+import os
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from langchain.agents import create_agent
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from config import CHAT_MODEL, model_id
+from game_tools import search_game_docs
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # An async handler needs an async checkpointer; the agent is built with it so thread_id persists.
+    async with AsyncPostgresSaver.from_conn_string(os.environ["DATABASE_URL"]) as saver:
+        await saver.setup()                       # creates the checkpoint tables on first run
+        app.state.agent = create_agent(model_id(CHAT_MODEL), tools=[search_game_docs], checkpointer=saver)
+        yield
+
+app = FastAPI(lifespan=lifespan)
 
 class Ask(BaseModel):
     thread_id: str
     message: str
 
 @app.post("/ask")
-async def ask(body: Ask):
-    out = await rag_agent.ainvoke(
+async def ask(body: Ask, request: Request):
+    out = await request.app.state.agent.ainvoke(
         {"messages": [{"role": "user", "content": body.message}]},
         {"configurable": {"thread_id": body.thread_id}},
     )
@@ -1400,7 +1447,7 @@ async def ask(body: Ask):
 | [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (Anthropic) | The mental model for Phase 3 | Before Phase 3 |
 | [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) (Anthropic) | Workflows vs agents; when *not* to build an agent | Before Phase 2 |
 | [MCP specification](https://modelcontextprotocol.io/specification/latest) | Protocol details (2026-07-28 revision) | Phase 4 |
-| [OWASP Top 10 for Agentic Applications](https://genai.owasp.org/) | Threat model | Phase 4 |
+| [OWASP Top 10 for Agentic Applications](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) | Threat model | Phase 4 |
 | [Hamel Husain's evals FAQ](https://hamel.dev/blog/posts/evals-faq/) | Error analysis & evaluator design | Phase 6 |
 | [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) (Böckeler) | Guides & sensors vocabulary | Step 5.6 |
 | [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic) | Progress files, feature lists, incremental work | Steps 5.5–5.7 |

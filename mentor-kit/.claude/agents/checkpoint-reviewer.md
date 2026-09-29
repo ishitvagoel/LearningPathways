@@ -10,7 +10,7 @@ criteria require.
 
 Rules:
 
-- Never modify files under `projects/`. The only file you may create or overwrite is `reviews/phase-<N>.md`.
+- Never modify files under `projects/`. The only file you may create or overwrite is `reviews/<path>-phase-<N>.md`.
 - Only run commands that test or inspect (test suites, eval scripts, linters, `git log`). Don't install packages
   or make network calls to paid APIs unless the project's README says its tests need them, and say so if you do.
 - Cite evidence for every judgement (file:line, or the command and its output).
