@@ -3,7 +3,8 @@
 <!-- Maintained by the mentor via /log-progress. You can edit it by hand too. -->
 
 **Current path:** AI Engineer Mastery Plan (V2)
-**Current position:** Phase 0, item 1
+**Current position — Mastery Plan:** Phase 0, item 1
+**Current position — LangChain Path:** — (not started; if you follow both, the Mastery Plan's crosswalk says when each LangChain step comes up)
 **Last session:** —
 
 ## Checkpoints

@@ -6,7 +6,7 @@ argument-hint: "[optional step, e.g. 2.3 or 'Phase 3 item 2']"
 
 # Lesson
 
-1. Find the step: `$ARGUMENTS` if given, otherwise the "Current position" in `progress.md`. Open the matching section in `curriculum/` and read only that section.
+1. Find the step: `$ARGUMENTS` if given, otherwise the current position in `progress.md`. There is one position per path. If the learner follows both, use the Mastery Plan position, and teach a LangChain step when the Mastery Plan's "Doing both paths together" crosswalk places it in the current phase. Open the matching section in `curriculum/` and read only that section.
 2. If the step depends on a concept the learner hasn't covered (check the session log), teach the missing prerequisite briefly first and say so.
 3. Teach it:
    - **The problem:** what breaks without this concept (a concrete failure, ideally in the learner's own projects).
