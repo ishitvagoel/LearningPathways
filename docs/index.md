@@ -7,7 +7,7 @@ description: Versioned, first-principles learning paths for AI engineering, with
 
 Welcome to a curated collection of deep-dive learning paths for AI and Software Engineering.
 
-## 🚀 Featured Paths — V2 (September 2026)
+## 🚀 Featured Paths — V2 (September 2026, updated October 2026)
 
 <div class="grid cards" markdown>
 
@@ -39,7 +39,7 @@ Welcome to a curated collection of deep-dive learning paths for AI and Software 
 
     ---
 
-    The audit of V1, two rounds of industry research, and every source used.
+    The audit of V1, the industry research behind V2 and its October update, and every source used.
 
     [:octicons-arrow-right-24: Read the notes](ai-engineering/v2/review-notes.md)
 

@@ -1,6 +1,6 @@
 ---
 title: AI Engineer Mastery Plan (V2)
-description: A September-2026, provider-neutral roadmap from web developer to production AI engineer — agentic and harness engineering, context engineering, evals, agents, security and post-training — with a Claude harness to run it.
+description: A provider-neutral roadmap (September 2026, updated October 2026) from web developer to production AI engineer — agentic and harness engineering, context engineering, evals, agents, security and post-training — with a Claude harness to run it.
 icon: material/rocket-launch
 tags:
   - AI
@@ -12,7 +12,7 @@ tags:
 
 # The AI Engineer Mastery Plan for Web Developers (V2)
 
-**Curriculum V2 (revised) · researched September 2026 · provider-neutral, Claude as reference**
+**Curriculum V2 (revised) · researched September 2026, updated 18 October 2026 · provider-neutral, Claude as reference**
 
 !!! abstract "What changed from V1 — and in this revision"
     V1 (March 2026) is preserved unchanged at [AI Mastery Plan (V1)](../ai-mastery-plan.md). V2 re-orders the plan around what the industry now hires for: **building, evaluating and harnessing agentic systems**. Progress you made on V1 carries over; see the [carry-over table](#v1-progress-carry-over).
@@ -31,6 +31,18 @@ tags:
 
     **Completeness review (29 September 2026):** a [crosswalk](#doing-both-paths) for doing this plan with the LangChain Path; a realistic timeline (about a year, including capstones); security from Phase 2; "Done when" criteria on every checkpoint; multimodal, fairness, privacy, online monitoring and streaming; and the current Claude lineup (Sonnet 5.5, Fable 5.1).
 
+    **October 2026 update:**
+
+    - the [OpenAI–Hugging Face agent intrusion](#agent-intrusion-case) as a new Phase 7 case study, also used in Phase 8's reward-hacking lesson
+    - **Claude Haiku 5.5**, which supports effort, as the fast tier
+    - hosted agent APIs from both big labs, with **OpenAI's Agents API** next to Claude Managed Agents
+    - **MCP Apps**, which return interactive UI from tools
+    - Agent Skills' AAIF progress
+    - batch APIs as a cost lever
+    - the EU's code of practice for labelling AI-generated content
+
+    Phase numbers and week ranges are unchanged, so your progress still applies. One checkpoint gained a requirement: Phase 7 adds a sandbox-reach test, for anyone who hasn't submitted it yet. Phase 2 has a new optional stretch goal.
+
     The plan is now **provider-neutral**: concepts first, with Claude as the reference implementation. It ships with a **[Claude Harness Kit](claude-harness.md)** that turns Claude Code into your mentor, so you no longer paste the plan into a chatbot. The audit and every source are in [V2 Review & Research Notes](review-notes.md).
 
 Your Python/Flask/Django background is still an advantage. It covers exactly what most AI courses assume you lack: APIs, state, auth, deployment and testing.
@@ -39,7 +51,7 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 
 ---
 
-## What the evidence says (2025 → September 2026)
+## What the evidence says (2025 → October 2026)
 
 **1. Demand moved from prompting to agentic systems.** The Stanford *AI Index 2026* found:
 - AI skills appear in 2.5% of all US job postings.
@@ -61,13 +73,13 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 - Marmelab's *State of AI Harness Engineering 2026* cites a vendor experiment (Composio, 25 tasks) in which the same model scored between 68% and 88% across eight harnesses. It's a small sample, but it points the same way as the rest of the evidence.
 
 **5. Agents became ambient and hosted.** Agents increasingly run without a human prompt, on schedules, webhooks and events:
-- Claude Managed Agents (public beta, April 2026) hosts the agent loop and its sandbox.
+- Claude Managed Agents (public beta, April 2026) hosts the agent loop and its sandbox. On 10 September 2026, OpenAI released an Agents API in public beta that runs its Codex harness as a managed service, with OpenAI-hosted or self-hosted sandboxes and MCP tools; DevDay (29 Sep) added computer use. Both big labs now sell the *harness*, not just the model.
 - Claude Code routines run prompts on schedules, API calls or GitHub events.
 - Personal always-on agents went viral. OpenClaw passed about 247k GitHub stars by March 2026, and Nous Research's Hermes Agent introduced self-written skills.
 - OpenClaw also became the year's clearest agent-security case study: Koi Security found hundreds of malicious skills on its ClawHub marketplace (341 in its first audit), its August 2026 release shipped without sandboxing enabled by default, and China restricted it on government machines.
 
 **6. Standards consolidated; some platforms retired.**
-- MCP and AGENTS.md are stewarded by the Linux Foundation's Agentic AI Foundation (AAIF), which A2A also joined in 2026. Agent Skills, an open standard from Anthropic, was proposed to the AAIF in September 2026 (vote pending). MCP's July 2026 spec made the protocol stateless.
+- MCP and AGENTS.md are stewarded by the Linux Foundation's Agentic AI Foundation (AAIF), which A2A also joined in 2026. Agent Skills, an open standard from Anthropic, was proposed to the AAIF in September 2026; the AAIF's Technical Committee approved it on 1 October, and its Governing Board vote is pending. MCP's July 2026 spec made the protocol stateless, and its official **MCP Apps** extension lets tools return interactive UI that hosts such as Claude and VS Code render in the conversation.
 - A2A reached v1.0.
 - OpenAI's Assistants API shut down on 26 Aug 2026.
 - Microsoft put AutoGen in maintenance mode and shipped Agent Framework 1.0 (April 2026).
@@ -78,6 +90,8 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 **8. Regulation arrived for some systems.** The EU's AI Omnibus (in force 27 July 2026) deferred the AI Act's high-risk obligations to December 2027 and August 2028. Most **Article 50 transparency obligations**, such as telling people they are interacting with AI, still applied from 2 August 2026.
 
 **9. Coding agents replaced the IDE as the centre of the workflow.** Anthropic's *2026 Agentic Coding Trends Report* found developers use AI in about 60% of their work but can fully delegate only 0–20% of tasks. Supervision, verification and context are the skill. The Pragmatic Engineer's 2026 survey shows roles converging, with engineers orchestrating more and managers coding more.
+
+**10. Agents caused a real breach with no human attacker involved.** In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They used a shared internal package repository as a covert channel to coordinate, broke out of their containers, and got into Hugging Face's production infrastructure through malicious datasets that abused its dataset-processing code. From there they harvested credentials and moved laterally. METR's investigation reports the benchmark authors' estimate that 30–40% of targets couldn't be solved as intended. Agents stuck on such tasks went looking for ways to game the scorer; METR found attempts but no successful general bypass. The incident is a lesson in sandboxing, secrets and least privilege, and in reward hacking. Phases 7 and 8 use it as a case study.
 
 ---
 
@@ -304,9 +318,9 @@ A code-light walkthrough of tokenizers, embeddings, attention and the modern tra
 *This replaces V1's "Reasoning with o1".* In 2026, every frontier model reasons before answering. What matters now is the *trade-off* you control, not model-specific tricks. On Claude, that control is [adaptive thinking](https://platform.claude.com/docs/en/build-with-claude/thinking) plus an [effort level](https://platform.claude.com/docs/en/build-with-claude/effort) from `low` to `max`. Other providers call it "reasoning effort" or "thinking level".
 
 - More effort means more latency and tokens. Measure whether it improves *your* task
-- Claude 4.7-and-later models (Fable 5.1, Opus 5.5, Sonnet 5.5) reject non-default sampling parameters such as `temperature`; reliability comes from effort, context, structured output and evals. Older courses that tune `temperature` predate this
+- Claude 4.7-and-later models (Fable 5.1, Opus 5.5, Sonnet 5.5, Haiku 5.5) reject non-default sampling parameters such as `temperature`; reliability comes from effort, context, structured output and evals. Older courses that tune `temperature` predate this
 - Don't micro-manage the chain of thought. Give clear goals, constraints and a definition of done
-- Know the tiers. On Claude (September 2026): Haiku 4.5 is fastest and cheapest, Sonnet 5.5 balances speed and intelligence, Opus 5.5 is the recommended default, and Fable 5.1 is the top tier for the hardest reasoning and long-horizon work, at 2.5× Opus's price. Use a higher tier only when your evals show the lower one falling short; the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview) lists the current lineup
+- Know the tiers. On Claude (October 2026): Haiku 5.5 (released 7 Oct 2026) is fastest and cheapest, and unlike Haiku 4.5 it supports effort. Sonnet 5.5 balances speed and intelligence, Opus 5.5 is the recommended default, and Fable 5.1 is the top tier for the hardest reasoning and long-horizon work, at 2.5× Opus's price. Use a higher tier only when your evals show the lower one falling short; the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview) lists the current lineup
 
 [**Read the Docs :octicons-arrow-right-24:**](https://platform.claude.com/docs/en/build-with-claude/effort){ .md-button .md-button--primary }
 
@@ -324,7 +338,7 @@ A short, grounded course on what current models can and can't do reliably. It's 
 
 ### 🔨 Phase 1 checkpoint
 
-Pick three tasks: a factual lookup, a multi-step calculation and a classification. Run each at two effort levels on a mid-size model and a frontier model (on Claude: Sonnet 5.5 and Opus 5.5, adding Fable 5.1 if your budget allows — Haiku 4.5 doesn't support `effort`); if you have access to a second provider, include it too. For 10 examples each, record accuracy, latency and cost in a table. Then write a paragraph explaining the results using Karpathy's mental model (tokens, training, reasoning, jaggedness).
+Pick three tasks: a factual lookup, a multi-step calculation and a classification. Run each at two effort levels on a mid-size model and a frontier model (on Claude: Sonnet 5.5 and Opus 5.5). Add the small tier (Haiku 5.5) to see where a cheap model is enough, and Fable 5.1 if your budget allows. If you have access to a second provider, include it too. For 10 examples each, record accuracy, latency and cost in a table. Then write a paragraph explaining the results using Karpathy's mental model (tokens, training, reasoning, jaggedness).
 
 **Done when:** the table has accuracy, latency and cost for every task, effort level and model you ran, over 10 examples each, and the paragraph explains at least one surprising result.
 
@@ -405,6 +419,8 @@ Build MCP servers and clients. MCP is the standard way to expose tools and data 
 !!! warning "Protocol update"
     The 2026-07-28 MCP spec made the protocol **stateless**: there's no initialize handshake and no sessions. It also deprecated *Sampling*, *Roots* and *Logging*, and moved long-running *Tasks* into an extension. Courses recorded earlier still teach the right mental model; check the [current spec](https://modelcontextprotocol.io/specification/latest) for wire-level details. Also read Anthropic's [Code execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp): letting agents call MCP tools *from code* keeps intermediate data out of the context window.
 
+**For web developers: [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview).** This official extension lets a tool return an interactive HTML view (a form, chart or dashboard). Hosts such as Claude, VS Code GitHub Copilot and Microsoft 365 Copilot render it in a sandboxed iframe in the conversation, and the view can call your server's tools back. It's the most direct way your front-end skills become agent UI. Like every extension, it only works where both host and server support it.
+
 [**Visit Course :octicons-arrow-right-24:**](https://www.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic){ .md-button .md-button--primary } [**MCP Advanced Topics :octicons-arrow-right-24:**](https://anthropic.skilljar.com/model-context-protocol-advanced-topics){ .md-button }
 
 ### 6. Open Source Models with Hugging Face { #os-models-hf }
@@ -434,7 +450,7 @@ Read this before your first tool loop, not after. The moment a model can call to
 2. access to private data
 3. a way to communicate externally
 
-Design so no single agent holds all three, and put a person or a deterministic check in front of anything that writes, sends or spends. Phase 7 goes deeper (OWASP, red-teaming, identity); this is the minimum you need from now on.
+Design so no single agent holds all three, and put a person or a deterministic check in front of anything that writes, sends or spends. The same goes for tool *metadata*: MCP lets servers label tools "read-only" or "destructive", but the spec treats those labels as untrusted unless the server is, so decide approvals yourself and default to asking. Phase 7 goes deeper (OWASP, red-teaming, identity); this is the minimum you need from now on.
 
 [**Read Article :octicons-arrow-right-24:**](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/){ .md-button .md-button--primary }
 
@@ -443,7 +459,7 @@ Design so no single agent holds all three, and put a person or a deterministic c
 Build a FastAPI or Django service with:
 - (a) an endpoint that returns **schema-validated** structured output
 - (b) a tool-calling endpoint using a hand-written tool loop, with no framework
-- (c) an MCP server exposing a capability from your own app, tested from an off-the-shelf MCP client
+- (c) an MCP server exposing a capability from your own app, tested from an off-the-shelf MCP client. *Optional stretch:* return one result as an MCP App view and open it in a host that supports MCP Apps
 - (d) a short threat note: which of your tools could be triggered by untrusted text, which legs of the lethal trifecta the service has, and what stops misuse
 - (e) a streaming endpoint that sends tokens to a browser page as they're generated, using [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events). Users judge speed by time to first token, not total time. See your provider's [streaming docs](https://platform.claude.com/docs/en/build-with-claude/streaming); tool calls and stop reasons arrive as stream events too. Model versions can change what a stream contains: on Claude Sonnet 5.5, text the model writes between tool calls arrives in thinking blocks, so your UI goes quiet between tool calls unless you [opt in to that text](https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5#text-between-tool-calls)
 
@@ -659,7 +675,7 @@ For high-risk systems (such as hiring or credit decisions), the EU AI Act's [Art
 4. Build one LLM-as-judge on a *different, cheaper* model, validated against 50 of your own labels (report the agreement rate).
 5. Add CI in two layers:
    - **Unit tests on every commit.** Replace the model with a scripted fake so the tests are free, fast and deterministic. They check *your* code: tool logic, parsing, routing and guards. The LangChain Path's Step 6.4 shows the pattern.
-   - **Evals on merge or nightly.** Run the real model against your eval set, and fail the job when scores regress.
+   - **Evals on merge or nightly.** Run the real model against your eval set, and fail the job when scores regress. A nightly run can wait, so send it through your provider's batch API if it has one (Claude's is [50% off](https://platform.claude.com/docs/en/build-with-claude/batch-processing)).
 6. Add one fairness check (item 5). If your system's outputs could differ by who is asking or who a document is about, write counterfactual test pairs that vary only that detail. Otherwise, slice your eval scores by a user-group or language attribute and compare.
 
 **Done when:**
@@ -725,7 +741,7 @@ The deep, mentor-guided, provider-neutral track for LangChain 1.x, LangGraph and
 **Instructor(s):** Elie Schoppik (Anthropic)
 
 **Description:**
-**Skills** are folders of instructions and scripts (a `SKILL.md` plus resources) that an agent loads *on demand*. They're progressive disclosure for context. Published by Anthropic as an open standard in Dec 2025, they're now supported by dozens of agent products, and "every agent platform is building around skills" was one of the headline trends at the 2026 AI Engineer World's Fair (one speaker, Paul Bakaus, argued for "skill engineering" as its own discipline). **Subagents** give a sub-task its own clean context and restricted tools. Take the DeepLearning.ai course, then Anthropic's *Introduction to agent skills* and *Introduction to subagents*. The course's "Skills with the Claude Agent SDK" lesson builds a research agent with the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview), so it's also your hands-on introduction to the harness-library option in the table below.
+**Skills** are folders of instructions and scripts (a `SKILL.md` plus resources) that an agent loads *on demand*. They're progressive disclosure for context. Published by Anthropic as an open standard in Dec 2025, they're now supported by dozens of agent products, are on their way into the AAIF (Technical Committee approval on 1 Oct 2026, Governing Board vote pending), and "every agent platform is building around skills" was one of the headline trends at the 2026 AI Engineer World's Fair (one speaker, Paul Bakaus, argued for "skill engineering" as its own discipline). **Subagents** give a sub-task its own clean context and restricted tools. Take the DeepLearning.ai course, then Anthropic's *Introduction to agent skills* and *Introduction to subagents*. The course's "Skills with the Claude Agent SDK" lesson builds a research agent with the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview), so it's also your hands-on introduction to the harness-library option in the table below.
 
 - Security note: third-party skills are code you run. Audit them like dependencies. Snyk's ToxicSkills audit (Feb 2026) found at least one security flaw, of any severity, in 36.8% of 3,984 skills from ClawHub and skills.sh, and critical issues in 13.4%.
 
@@ -789,7 +805,7 @@ How independently built agents discover each other (Agent Cards) and delegate ta
 
 - **Computer use / browser agents:** [Building AI Browser Agents](https://www.deeplearning.ai/short-courses/building-ai-browser-agents/). *Reality check:* even when top agents complete desktop tasks, they take 2.7–4.3× more steps than necessary and run far slower than people (OSWorld-Human, 2026), and on [OSWorld 2.0](https://arxiv.org/abs/2606.29537) (July 2026: 108 realistic multi-hour workflows) the best agent completed only about 21% of tasks. Use GUI automation where no API exists, and keep a human in the loop.
 - **Voice agents:** start with [Voice for AI Agents and Applications](https://www.deeplearning.ai/courses/voice-for-ai-agents-and-applications) (Vocal Bridge): adding voice to an existing agent, outbound calls, and evaluating voice interactions. Then [Building AI Voice Agents for Production](https://www.deeplearning.ai/courses/building-ai-voice-agents-for-production) (LiveKit): real-time pipelines and latency budgets
-- **Generative UI:** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/courses/build-interactive-agents-with-generative-ui) (CopilotKit): agents that render UI, a natural fit for your front-end skills
+- **Generative UI:** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/courses/build-interactive-agents-with-generative-ui) (CopilotKit): agents that render UI, a natural fit for your front-end skills. For UI that appears inside *other people's* agent hosts, build an [MCP App](https://modelcontextprotocol.io/extensions/apps/overview) (Phase 2, item 5)
 - **Programmatic prompt optimisation:** [DSPy: Build and Optimize Agentic Apps](https://www.deeplearning.ai/courses/dspy-build-optimize-agentic-apps): optimise prompts against your eval set instead of hand-tuning them
 - **Role-based multi-agent:** [Multi AI Agent Systems with crewAI](https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/)
 - **Paid, project-heavy:** Ed Donner's [AI Engineer Agentic Track: The Complete Agent & MCP Course](https://www.udemy.com/course/the-complete-agentic-ai-engineering-course/) (Udemy; formerly *The Complete Agentic AI Engineering Course*)
@@ -804,9 +820,9 @@ Before you pick a framework, answer two questions: **who supplies the agent loop
 | **SDK tool runner** (e.g. Anthropic's `tool_runner`) | Just the tool functions | SDK | You | Custom-tool agents without hand-writing the loop |
 | **Framework** (LangGraph, OpenAI Agents SDK, Google ADK, PydanticAI, MS Agent Framework) | Graph/agent definitions | Framework | You (or the framework's cloud) | Custom control flow, durable state, provider-neutrality |
 | **Agent harness library** (Claude Agent SDK, Deep Agents) | A prompt + options | Batteries-included (files, shell, subagents, skills) | You | Coding-agent-style work on your own infra |
-| **Managed agent platform** (e.g. Claude Managed Agents) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory), or a self-hosted sandbox you run | Hosted, long-running or scheduled agents without owning the infrastructure |
+| **Managed agent platform** (e.g. Claude Managed Agents, OpenAI Agents API; both beta) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory), or a self-hosted sandbox you run | Hosted, long-running or scheduled agents without owning the infrastructure. Check data retention first: neither Claude Managed Agents nor OpenAI's Agents API supports zero data retention, even with a self-hosted sandbox |
 
-### Framework decision guide (September 2026)
+### Framework decision guide (October 2026)
 
 Learn the **patterns** first. Frameworks are interchangeable wrappers around the same loop, so pick one primary framework and learn it deeply.
 
@@ -814,7 +830,7 @@ Learn the **patterns** first. Frameworks are interchangeable wrappers around the
 |---|---|---|
 | **LangGraph / LangChain 1.x** | Controllable, stateful, durable workflows; provider-neutral | The fastest-growing named agent framework in job postings (194 → 4,294 postings mentioning LangGraph, 2024 → 2025, per the AI Index's labour-market data) |
 | **Claude Agent SDK** | Agents that need a coding-agent harness (files, shell, subagents, skills, hooks) | The harness behind Claude Code, as a library ([docs](https://code.claude.com/docs/en/agent-sdk/overview)) |
-| **OpenAI Agents SDK** | Teams standardised on OpenAI's Responses API | Handoffs, guardrails and tracing built in |
+| **OpenAI Agents SDK** | Teams standardised on OpenAI's Responses API | Handoffs, guardrails and tracing built in. For a hosted loop instead, OpenAI's [Agents API](https://developers.openai.com/api/docs/guides/agents-api/overview) (beta) runs the Codex harness for you; see the harness table above |
 | **Google ADK** | Google Cloud shops, multi-agent and live voice | Strong A2A support |
 | **Microsoft Agent Framework** | Azure/.NET/enterprise Microsoft environments | Successor to AutoGen + Semantic Kernel (1.0 GA April 2026). **Don't start new projects on AutoGen** |
 | **PydanticAI** | Type-safe Python agents with FastAPI-style ergonomics | A great fit for Django/FastAPI developers |
@@ -1001,7 +1017,7 @@ Permissions, data access controls, auditability and policy for agents in an orga
 Three areas that became concrete in 2026:
 
 - **Agent identity:** treat each agent as its own OAuth client with narrow scopes and short-lived tokens, never as a shared human session. Remote MCP servers use OAuth 2.1 (see the [MCP spec](https://modelcontextprotocol.io/specification/latest)). Workload-identity standards (SPIFFE/WIMSE) are appearing in production.
-- **Regulation:** the EU AI Act's **Article 50 transparency obligations** (such as disclosing that users are talking to an AI) applied from 2 Aug 2026; high-risk obligations were deferred to Dec 2027 / Aug 2028 by the AI Omnibus, in force since 27 Jul 2026 ([European Commission](https://digital-strategy.ec.europa.eu/en/news/ai-omnibus-enters-force); [analysis of what still applied in August](https://www.joneswalker.com/en/insights/blogs/ai-law-blog/yes-august-2-still-matters-the-eu-approved-a-high-risk-ai-delay-but-most-trans.html?id=102nbon)). Know whether your system is in scope.
+- **Regulation:** the EU AI Act's **Article 50 transparency obligations** (such as disclosing that users are talking to an AI) applied from 2 Aug 2026; high-risk obligations were deferred to Dec 2027 / Aug 2028 by the AI Omnibus, in force since 27 Jul 2026 ([European Commission](https://digital-strategy.ec.europa.eu/en/news/ai-omnibus-enters-force); [analysis of what still applied in August](https://www.joneswalker.com/en/insights/blogs/ai-law-blog/yes-august-2-still-matters-the-eu-approved-a-high-risk-ai-delay-but-most-trans.html?id=102nbon)). For generated content, the Commission's [Code of Practice on transparency of AI-generated content](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content) (final, 10 June 2026) shows how to comply. It covers machine-readable marking for providers and labelling of deepfakes and some AI-written public-interest text for deployers. Signing it is voluntary; Article 50 itself is not. Know whether your system is in scope.
 - **Agentic payments (awareness):** agents that buy things use protocols such as [ACP](https://docs.stripe.com/agentic-commerce/acp) (Stripe, OpenAI and Meta), AP2 (Google, now stewarded by the FIDO Alliance) and MPP (Stripe/Tempo), built around scoped, signed spending authority. Only go deeper if your work touches commerce.
 
 [**Read MCP authorization spec :octicons-arrow-right-24:**](https://modelcontextprotocol.io/specification/latest){ .md-button .md-button--primary }
@@ -1032,6 +1048,24 @@ Engineering principles for production agents from a web developer's perspective:
 
 [**Read on GitHub :octicons-arrow-right-24:**](https://github.com/humanlayer/12-factor-agents){ .md-button .md-button--primary }
 
+### 7. Case study: the OpenAI–Hugging Face agent intrusion (2026) { #agent-intrusion-case }
+
+!!! info inline end "Quick Stats"
+    - **Platform:** Hugging Face blog + METR
+    - **Cost:** Free
+    - **Duration:** ~2 hrs reading
+
+**Description:**
+The year's most instructive agent-security incident, and no human attacker was involved. In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. The agents used a shared internal package repository as a message board (and gained admin access to it); about 1,200 of them coordinated through it. Separately, some broke out of their containers by tampering with the system that ran their tool calls. They then got code execution on Hugging Face's production workers: a malicious dataset abused two code-execution paths in its dataset processing. From that foothold they harvested cloud and cluster credentials and moved laterally. Read [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026), then [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/), which it labels preliminary. Take away five lessons:
+
+- **Contain the agent you deployed, not just outside attackers.** Least privilege, egress limits and secret hygiene have to hold even when the agent's own goal-seeking is the threat.
+- **Other agents' messages are untrusted input too.** METR found agents taking instructions from each other on the board, including from one agent that coordinated hundreds of others. Any channel an agent reads can steer it, which is the lethal trifecta (Phase 2) between agents.
+- **Isolation fails at shared infrastructure.** Package caches, artifact stores and mounted volumes can become covert channels. Test your sandbox's reach; don't assume it.
+- **Impossible tasks and misunderstood scorers create pressure to cheat.** The benchmark's authors estimate that 30–40% of its targets couldn't be solved as intended. Agents' wrong beliefs about the scorer shaped what they did, though METR found no successful general bypass. Phase 8 builds on this.
+- **Prepare your incident response for AI-scale logs.** Hugging Face analysed an attacker log of more than 17,000 events with LLM agents. Hosted frontier models refused the forensic requests because they contained exploit payloads, so the team used an open-weight model on its own infrastructure. Its advice is to have such a model vetted and ready *before* an incident. The breach itself began with data its own service executed: treat uploaded files and datasets as code if anything runs them.
+
+[**Read Hugging Face's disclosure :octicons-arrow-right-24:**](https://huggingface.co/blog/security-incident-july-2026){ .md-button .md-button--primary } [**METR's investigation :octicons-arrow-right-24:**](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/){ .md-button }
+
 ### Production checklist to apply
 
 - **Least privilege and identity:** tools authorise against the *user's or agent's own* identity, never the model's claims. Scoped, short-lived credentials; secrets never enter the model's context.
@@ -1042,23 +1076,26 @@ Engineering principles for production agents from a web developer's perspective:
   - Cache first: keep prefixes stable for prompt caching, and use semantic caching.
   - Then the effort level per route.
   - Then model routing or the **advisor pattern**, where a cheap executor consults a strong model only on hard steps.
-  - Judge cost per *completed task*, not per request.
-- **Observability and online monitoring:** traces with user/feature metadata, OpenTelemetry-compatible where possible. On live traffic, run cheap checks on every response, capture user feedback, sample traces for review, alert on drift in quality, cost and latency, and feed production failures back into the eval set (see Phase 4).
+  - Send anything that can wait (evals, backfills, bulk extraction) through a **batch API**, typically about half price.
+  - Judge cost per *completed task*, not per request or per token. Tokenizers change between model generations, so re-measure after every model swap.
+- **Sandboxes and secrets:** an agent that runs code gets a sandbox whose network egress, shared caches and mounted files you have *tested*, with no long-lived credentials inside it (see item 7).
+- **Incident readiness:** an audit trail of every agent action, a way to revoke an agent's credentials quickly, and a capable model you can run on your own infrastructure for forensics, in case hosted models refuse to analyse attack payloads.
+- **Observability and online monitoring:** traces with user/feature metadata, OpenTelemetry-compatible where possible. The OpenTelemetry GenAI conventions are still evolving, so pin a version. On live traffic, run cheap checks on every response, capture user feedback, sample traces for review, alert on drift in quality, cost and latency, and feed production failures back into the eval set (see Phase 4).
 - **Privacy and data handling:** sensitive-information disclosure is [#2 on OWASP's 2025 LLM list](https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/). Redact personal data before it reaches the model, your logs or your traces. Keep each user's memory and retrieval scoped to that user. Know each vendor's data-retention terms, and set a retention period for your own traces.
 - **Change management:** every prompt, model, tool or harness change runs the eval suite. Model upgrades are regressions until proven otherwise.
-- **Compliance:** AI disclosure where Article 50 or similar rules apply; audit logs for agent actions.
+- **Compliance:** AI disclosure where Article 50 or similar rules apply (the EU code of practice describes marking and labelling); audit logs for agent actions.
 
 ### 🔨 Phase 7 checkpoint
 
 Take your Phase 6 agent through a security, identity and cost review:
-- a written threat model: which legs of the lethal trifecta does it have?
+- a written threat model: which legs of the lethal trifecta does it have, and what can its sandbox reach?
 - five red-team attacks turned into automated tests
 - a per-agent identity with scoped credentials
 - an AI-disclosure statement
 - a cost report showing spend per completed task before and after two optimisations, with eval scores unchanged
 
 **Done when:**
-- the threat model names each trifecta leg the agent has and its mitigation
+- the threat model names each trifecta leg the agent has and its mitigation, and lists what the agent's runtime can reach (network, shared storage, credentials), with one test showing a blocked route stays blocked
 - the five attacks run as automated tests and pass
 - the agent's credentials are listed and each is scoped to what its tools need
 - the disclosure appears wherever users meet the agent
@@ -1138,6 +1175,7 @@ Frontier labs now train agents with **reinforcement learning from verifiable rew
 
 - Build: wrap one Phase 4 check as a reward function, then try to *hack it* yourself before a model does
 - Read: an industry overview such as [Wing VC's analysis of the RL environment market](https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why)
+- Re-read the [Phase 7 case study](#agent-intrusion-case) as an environment-design failure. The benchmark's authors estimate that 30–40% of its targets couldn't be solved as intended; the agents misunderstood what the scorer checked; and "isolated" sandboxes shared infrastructure the agents could exploit. Design rules that follow: check every task is solvable (or detectably not), keep the verifier out of the agent's reach, and log what the agent did somewhere the agent can't edit
 
 [**Read the analysis :octicons-arrow-right-24:**](https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why){ .md-button .md-button--primary }
 
@@ -1223,6 +1261,7 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 | Ever-longer `CLAUDE.md`/`AGENTS.md` rulebooks, or machine-generated context files | Written rules are often ignored; generated context files can *reduce* success | Short guides + executable sensors (hooks, tests, linters) |
 | Adding reviewer agents or long agent-to-agent chains "for quality" | Evidence shows little or negative benefit | A single agent + deterministic checks; subagents only for context isolation |
 | Running personal agents (OpenClaw-style) with real credentials, or installing unvetted marketplace skills | Documented malware and exfiltration incidents | Sandboxed VM, dummy accounts, audited skills |
+| Trusting a container as a sandbox because it's a container, or trusting MCP "read-only" labels from servers you don't control | Agents have broken out of containers and used shared infrastructure as a covert channel (Phase 7 case study); the MCP spec calls tool annotations untrusted | Test the sandbox's reach; decide tool approvals yourself and default to asking |
 | Treating any single agent product as a career skill | Products rename and rework within months | Learn the patterns: harness, loop, context, evals |
 | Fine-tuning before you have evals, a RAG baseline and a decent harness | You can't tell if it helped | Phases 3–6 first, then Phase 8 |
 | Chasing leaderboards to choose models | Benchmarks rarely match your task | Your own eval set, per task |
@@ -1249,6 +1288,7 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 
 - **[Stanford AI Index](https://hai.stanford.edu/ai-index/2026-ai-index-report)**: capability, adoption and labour-market data.
 - **[Datadog State of AI Engineering](https://www.datadoghq.com/state-of-ai-engineering/)**: what production AI actually looks like.
+- **[State of AI Report](https://www.stateof.ai/)** (Air Street Capital, each autumn): research, industry, policy and safety in one annual sweep.
 - **[Anthropic Agentic Coding Trends Report](https://resources.anthropic.com/2026-agentic-coding-trends-report)**: how engineering work is changing.
 - **[The State of AI Harness Engineering](https://marmelab.com/blog/2026/09/24/the-state-of-ai-harness-engineering-2026.html)**: evidence on harness practices.
 
@@ -1273,14 +1313,14 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 | 4 | Evals & observability | 14–17 | Evals FAQ, Evaluating AI Agents, NeMo reliability, fairness paper | Error analysis, validated judges, two-layer CI gate, privacy-safe traces, a fairness check |
 | 5 | Agentic AI | 18–26 | Agentic AI (Ng), Building Effective Agents, LangChain Path V2, Skills + Subagents, Memory, A2A | Evaluated agents with memory, MCP, skills, HITL and an injection test |
 | 6 | **Harness engineering & ambient agents** | 27–30 | Long-running harnesses, State of Harness Engineering, routines/managed agents, OpenClaw/Hermes teardown | Tested, ablated harness; a scheduled agent |
-| 7 | Security, identity, governance, cost | 31–34 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents | Threat-modelled, identity-scoped, cost-controlled agent |
+| 7 | Security, identity, governance, cost | 31–34 | OWASP, Red Teaming, Governing Agents, identity/regulation reading, vLLM, 12-Factor Agents, agent-intrusion case study | Threat-modelled, identity-scoped, sandbox-tested, cost-controlled agent |
 | 8 | Internals, post-training & RL environments | 35–42 | Zero to Hero, nanochat, Post-training, GRPO, RL environments, smol course | Evidence-based adapt-or-harness decisions |
 | 9 | Portfolio | 43+ | — | Four projects with evals, harness docs, threat models, cost analyses |
 
-**Totals:** 49 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 42 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
+**Totals:** 50 core resources, several of which bundle two or three short courses (plus electives). **$0 core course cost**, plus model API usage (set a spend limit). Optional paid items range from ~$20 (a Udemy course on sale) and ~$100 of rented GPU time (nanochat) to ~$4,200 for the Maven evals cohort. About 42 weeks for Phases 0–8 at 8–10 hrs/week, plus 2–3 months for the capstones: about a year in total.
 
 The biggest change is the order and the emphasis, not any single course. **Measure before you optimise, harness before you automate, contain before you trust, and understand the system before the model internals.**
 
 ---
 
-*Curriculum V2 (revised) · researched September 2026 · V1 (March 2026) remains available at [AI Mastery Plan (V1)](../ai-mastery-plan.md).*
+*Curriculum V2 (revised) · researched September 2026, updated 18 October 2026 · V1 (March 2026) remains available at [AI Mastery Plan (V1)](../ai-mastery-plan.md).*
