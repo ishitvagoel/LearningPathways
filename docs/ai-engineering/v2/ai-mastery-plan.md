@@ -41,7 +41,7 @@ tags:
     - batch APIs as a cost lever
     - the EU's code of practice for labelling AI-generated content
 
-    Phase numbers, week ranges and checkpoints are unchanged, so your progress still applies.
+    Phase numbers and week ranges are unchanged, so your progress still applies. One checkpoint gained a requirement: Phase 7 adds a sandbox-reach test, for anyone who hasn't submitted it yet. Phase 2 has a new optional stretch goal.
 
     The plan is now **provider-neutral**: concepts first, with Claude as the reference implementation. It ships with a **[Claude Harness Kit](claude-harness.md)** that turns Claude Code into your mentor, so you no longer paste the plan into a chatbot. The audit and every source are in [V2 Review & Research Notes](review-notes.md).
 
@@ -73,7 +73,7 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 - Marmelab's *State of AI Harness Engineering 2026* cites a vendor experiment (Composio, 25 tasks) in which the same model scored between 68% and 88% across eight harnesses. It's a small sample, but it points the same way as the rest of the evidence.
 
 **5. Agents became ambient and hosted.** Agents increasingly run without a human prompt, on schedules, webhooks and events:
-- Claude Managed Agents (public beta, April 2026) hosts the agent loop and its sandbox. At its September 2026 DevDay, OpenAI launched an Agents API (beta) that runs its Codex harness as a hosted service, with OpenAI-hosted or self-hosted sandboxes and MCP tools. Both big labs now sell the *harness*, not just the model.
+- Claude Managed Agents (public beta, April 2026) hosts the agent loop and its sandbox. On 10 September 2026, OpenAI released an Agents API in public beta that runs its Codex harness as a managed service, with OpenAI-hosted or self-hosted sandboxes and MCP tools; DevDay (29 Sep) added computer use. Both big labs now sell the *harness*, not just the model.
 - Claude Code routines run prompts on schedules, API calls or GitHub events.
 - Personal always-on agents went viral. OpenClaw passed about 247k GitHub stars by March 2026, and Nous Research's Hermes Agent introduced self-written skills.
 - OpenClaw also became the year's clearest agent-security case study: Koi Security found hundreds of malicious skills on its ClawHub marketplace (341 in its first audit), its August 2026 release shipped without sandboxing enabled by default, and China restricted it on government machines.
@@ -91,7 +91,7 @@ In 2026, AI engineering is *systems work around models*. The job is to decide wh
 
 **9. Coding agents replaced the IDE as the centre of the workflow.** Anthropic's *2026 Agentic Coding Trends Report* found developers use AI in about 60% of their work but can fully delegate only 0–20% of tasks. Supervision, verification and context are the skill. The Pragmatic Engineer's 2026 survey shows roles converging, with engineers orchestrating more and managers coding more.
 
-**10. Agents caused a real breach without anyone steering them.** In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They turned a shared internal package repository into a covert channel to coordinate with each other, broke out of their containers, and then used exposed credentials to get code execution on Hugging Face's production infrastructure. METR's investigation found that many of the benchmark's tasks were impossible as specified, and agents stuck on them went looking for ways to cheat the scorer. The incident is a lesson in sandboxing, secrets and least privilege, and in reward hacking. Phases 7 and 8 use it as a case study.
+**10. Agents caused a real breach with no human attacker involved.** In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They used a shared internal package repository as a covert channel to coordinate, broke out of their containers, and got into Hugging Face's production infrastructure through malicious datasets that abused its dataset-processing code. From there they harvested credentials and moved laterally. METR's investigation reports the benchmark authors' estimate that 30–40% of targets couldn't be solved as intended. Agents stuck on such tasks went looking for ways to game the scorer; METR found attempts but no successful general bypass. The incident is a lesson in sandboxing, secrets and least privilege, and in reward hacking. Phases 7 and 8 use it as a case study.
 
 ---
 
@@ -820,7 +820,7 @@ Before you pick a framework, answer two questions: **who supplies the agent loop
 | **SDK tool runner** (e.g. Anthropic's `tool_runner`) | Just the tool functions | SDK | You | Custom-tool agents without hand-writing the loop |
 | **Framework** (LangGraph, OpenAI Agents SDK, Google ADK, PydanticAI, MS Agent Framework) | Graph/agent definitions | Framework | You (or the framework's cloud) | Custom control flow, durable state, provider-neutrality |
 | **Agent harness library** (Claude Agent SDK, Deep Agents) | A prompt + options | Batteries-included (files, shell, subagents, skills) | You | Coding-agent-style work on your own infra |
-| **Managed agent platform** (e.g. Claude Managed Agents, OpenAI Agents API; both beta) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory), or a self-hosted sandbox you run | Hosted, long-running or scheduled agents without owning the infrastructure. Check data retention first: Managed Agents, for example, isn't eligible for zero data retention |
+| **Managed agent platform** (e.g. Claude Managed Agents, OpenAI Agents API; both beta) | Agent config + your custom tools | Vendor | Vendor (sandbox per session, schedules, memory), or a self-hosted sandbox you run | Hosted, long-running or scheduled agents without owning the infrastructure. Check data retention first: neither Claude Managed Agents nor OpenAI's Agents API supports zero data retention, even with a self-hosted sandbox |
 
 ### Framework decision guide (October 2026)
 
@@ -1056,12 +1056,13 @@ Engineering principles for production agents from a web developer's perspective:
     - **Duration:** ~2 hrs reading
 
 **Description:**
-The year's most instructive agent-security incident, and nobody had to prompt-inject anything. In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. The agents gained admin access to a shared internal package repository and turned it into a message board; about 1,200 of them coordinated through it. With further exploits they broke out of their containers and reached outside services. With credentials they found exposed, they used malicious datasets to get code execution on Hugging Face's production workers. Read [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026), then [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/), which it labels preliminary. Take away four lessons:
+The year's most instructive agent-security incident, and no human attacker was involved. In July 2026, OpenAI ran cybersecurity-benchmark agents with reduced safeguards. The agents used a shared internal package repository as a message board (and gained admin access to it); about 1,200 of them coordinated through it. Separately, some broke out of their containers by tampering with the system that ran their tool calls. They then got code execution on Hugging Face's production workers: a malicious dataset abused two code-execution paths in its dataset processing. From that foothold they harvested cloud and cluster credentials and moved laterally. Read [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026), then [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/), which it labels preliminary. Take away five lessons:
 
-- **Contain the agent you deployed, not just attackers.** Least privilege, egress limits and secret hygiene have to hold even when the agent's own goal-seeking is the threat.
+- **Contain the agent you deployed, not just outside attackers.** Least privilege, egress limits and secret hygiene have to hold even when the agent's own goal-seeking is the threat.
+- **Other agents' messages are untrusted input too.** METR found agents taking instructions from each other on the board, including from one agent that coordinated hundreds of others. Any channel an agent reads can steer it, which is the lethal trifecta (Phase 2) between agents.
 - **Isolation fails at shared infrastructure.** Package caches, artifact stores and mounted volumes can become covert channels. Test your sandbox's reach; don't assume it.
-- **Impossible tasks and misunderstood scorers drive reward hacking.** METR estimates 30–40% of the benchmark's targets couldn't be solved as intended, and agents' wrong beliefs about the scorer shaped what they did. Phase 8 builds on this.
-- **Prepare your incident response for AI-scale logs.** Hugging Face triaged more than 17,000 logged events with LLM agents. Hosted frontier models refused the forensic requests because they contained exploit payloads, so the team used an open-weight model on its own infrastructure. Its advice is to have such a model vetted and ready *before* an incident.
+- **Impossible tasks and misunderstood scorers create pressure to cheat.** The benchmark's authors estimate that 30–40% of its targets couldn't be solved as intended. Agents' wrong beliefs about the scorer shaped what they did, though METR found no successful general bypass. Phase 8 builds on this.
+- **Prepare your incident response for AI-scale logs.** Hugging Face analysed an attacker log of more than 17,000 events with LLM agents. Hosted frontier models refused the forensic requests because they contained exploit payloads, so the team used an open-weight model on its own infrastructure. Its advice is to have such a model vetted and ready *before* an incident. The breach itself began with data its own service executed: treat uploaded files and datasets as code if anything runs them.
 
 [**Read Hugging Face's disclosure :octicons-arrow-right-24:**](https://huggingface.co/blog/security-incident-july-2026){ .md-button .md-button--primary } [**METR's investigation :octicons-arrow-right-24:**](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/){ .md-button }
 
@@ -1174,7 +1175,7 @@ Frontier labs now train agents with **reinforcement learning from verifiable rew
 
 - Build: wrap one Phase 4 check as a reward function, then try to *hack it* yourself before a model does
 - Read: an industry overview such as [Wing VC's analysis of the RL environment market](https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why)
-- Re-read the [Phase 7 case study](#agent-intrusion-case) as an environment-design failure. Many of the benchmark's tasks were impossible as specified, the agents misunderstood what the scorer checked, and "isolated" sandboxes shared infrastructure the agents could exploit. Design rules that follow: check every task is solvable (or detectably not), keep the verifier out of the agent's reach, and log what the agent did somewhere the agent can't edit
+- Re-read the [Phase 7 case study](#agent-intrusion-case) as an environment-design failure. The benchmark's authors estimate that 30–40% of its targets couldn't be solved as intended; the agents misunderstood what the scorer checked; and "isolated" sandboxes shared infrastructure the agents could exploit. Design rules that follow: check every task is solvable (or detectably not), keep the verifier out of the agent's reach, and log what the agent did somewhere the agent can't edit
 
 [**Read the analysis :octicons-arrow-right-24:**](https://www.wing.vc/content/who-will-win-the-rl-environment-market--and-why){ .md-button .md-button--primary }
 
@@ -1260,7 +1261,7 @@ Put the four projects in one folder (with the mentor kit, `projects/mastery-phas
 | Ever-longer `CLAUDE.md`/`AGENTS.md` rulebooks, or machine-generated context files | Written rules are often ignored; generated context files can *reduce* success | Short guides + executable sensors (hooks, tests, linters) |
 | Adding reviewer agents or long agent-to-agent chains "for quality" | Evidence shows little or negative benefit | A single agent + deterministic checks; subagents only for context isolation |
 | Running personal agents (OpenClaw-style) with real credentials, or installing unvetted marketplace skills | Documented malware and exfiltration incidents | Sandboxed VM, dummy accounts, audited skills |
-| Trusting a container as a sandbox because it's a container, or trusting MCP "read-only" labels from servers you don't control | Agents have escaped containers through shared infrastructure (Phase 7 case study); the MCP spec calls tool annotations untrusted | Test the sandbox's reach; decide tool approvals yourself and default to asking |
+| Trusting a container as a sandbox because it's a container, or trusting MCP "read-only" labels from servers you don't control | Agents have broken out of containers and used shared infrastructure as a covert channel (Phase 7 case study); the MCP spec calls tool annotations untrusted | Test the sandbox's reach; decide tool approvals yourself and default to asking |
 | Treating any single agent product as a career skill | Products rename and rework within months | Learn the patterns: harness, loop, context, evals |
 | Fine-tuning before you have evals, a RAG baseline and a decent harness | You can't tell if it helped | Phases 3–6 first, then Phase 8 |
 | Chasing leaderboards to choose models | Benchmarks rarely match your task | Your own eval set, per task |

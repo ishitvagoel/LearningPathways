@@ -20,7 +20,7 @@ tags:
 
     **Revision (late September 2026):** the path is now **provider-neutral**. Every agent is built with a `"provider:model"` string, so switching provider is a one-line config change. Claude is the reference provider in the examples, and embeddings run locally on an open-source model, so there is no dependency on any single vendor's embedding API. The curriculum ships with a **Claude harness** (a `CLAUDE.md`, skills, a reviewer subagent and hooks) that turns Claude Code into your mentor — see the [Claude Harness Kit](claude-harness.md). The full audit, with sources, is in [V2 Review & Research Notes](review-notes.md).
 
-    **October 2026 update:** the fast model is now **Claude Haiku 5.5**, which supports `effort` (Haiku 4.5 is legacy). Human approval uses the new **per-call interrupts** (LangChain 1.4.6). Step 4.4 gates MCP tools by their **annotations**, without trusting them blindly, and covers **MCP Apps**. Step 5.5 is fixed for **Deep Agents 0.7**, where planning is opt-in. Cost engineering adds **batch APIs** and tokenizer changes, and Step 4.5 adds the **OpenAI–Hugging Face agent intrusion** as a case study. Phase and step numbers are unchanged, so your progress still applies.
+    **October 2026 update:** the fast model is now **Claude Haiku 5.5**, which supports `effort` (Haiku 4.5 is legacy). Human approval uses the new **per-call interrupts** (LangChain 1.4.6). Step 4.2 shows that model fallback doesn't cover **refusals**, and how to handle them. Step 4.4 gates MCP tools by their **annotations**, without trusting them blindly, and covers **MCP Apps**. Step 5.5 is fixed for **Deep Agents 0.7**, where planning is opt-in. Cost engineering adds **batch APIs** and tokenizer changes, and Step 4.5 adds the **OpenAI–Hugging Face agent intrusion** as a case study. Phase and step numbers are unchanged, so your progress still applies. The completion checks for Steps 4.3, 4.4 and 5.5 and the Phase 4 checkpoint gained requirements, for anyone who hasn't finished them yet.
 
 ---
 
@@ -103,11 +103,13 @@ Read this carefully. This is who you are teaching.
     - **Claude Opus 5.5** is the current Opus model (Opus 5 is now listed as legacy). Its thinking is always on (adaptive), its **default effort is `medium`** (set `effort` explicitly where it matters), forced tool choice (`tool_choice` of `any`/`tool`) returns a 400, and reasoning text is omitted from responses unless you request a summary. Use a recent `langchain-anthropic` so structured output takes the supported path, and prefer `method="json_schema"` (Step 1.2).
     - **Claude Sonnet 5.5** (released 28 Sep 2026) replaces Sonnet 5, which is now legacy. Its default effort is `high`, and adaptive thinking is on by default. Forced tool choice returns an error, as on Opus 5.5. Text it writes *between* tool calls arrives in thinking blocks, so a UI that streams that text goes quiet unless you opt in (see [what's new in Sonnet 5.5](https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5#text-between-tool-calls)).
     - **Claude Fable 5.1** (released 1 Sep 2026) is the top tier, for demanding reasoning and long-horizon agentic work. Anthropic recommends starting with Opus and moving up only when evals demand it.
-    - **Claude Haiku 5.5** (released 7 Oct 2026) replaces Haiku 4.5 as the fast tier. Unlike Haiku 4.5, it has adaptive thinking and `effort` (default `medium`; use `low` for routing and classification) and a 1M-token context. Haiku 4.5 is now legacy, and its retirement commitment ("not sooner than 15 Oct 2026") has passed, so treat it as retiring. If you move from Haiku 4.5, Haiku 5.5 has [breaking changes](https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5):
+    - **Claude Haiku 5.5** (released 7 Oct 2026) replaces Haiku 4.5 as the fast tier. Unlike Haiku 4.5, it has adaptive thinking and `effort` (default `medium`; use `low` for routing and classification) and a 1M-token context. Haiku 4.5 is now legacy. No retirement date has been announced, but its "not sooner than 15 Oct 2026" commitment has passed, so plan to move. Coming from Haiku 4.5, Haiku 5.5 has [breaking changes](https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5):
         - it rejects prefill, fixed thinking budgets and non-default sampling parameters
-        - the same text counts as about 30% more tokens, so recount prompts and cost estimates
+        - thinking tokens count toward `max_tokens`, so a small limit on a routing or classification call can stop after the thinking block with no answer; use `effort="low"` and leave headroom
+        - the same text counts as about 30% more tokens, and earlier turns' thinking blocks stay in context, so recount prompts and cost estimates
+        - prompts over 100k tokens cost five times more per token, which matters if you use it for summarisation
         - responses can start with a thinking block, so select content blocks by `type`
-        - server-side fallback (Step 0.4) isn't available, so keep `ModelFallbackMiddleware` for it
+        - server-side fallback (Step 0.4) isn't available, so handle refusals in your own code (Step 4.2)
 
 **Why these choices:** Claude is the reference provider because the same company ships the harness this curriculum uses (Claude Code, the Agent SDK, skills and hooks), so the concepts line up end to end. Anthropic doesn't offer an embeddings API, and the course shouldn't depend on any vendor for them, so embeddings run locally through `langchain-huggingface`. You can swap in a hosted embedding model later (e.g. Voyage AI or OpenAI) by changing one line.
 
@@ -316,7 +318,7 @@ else:
 ```
 
 !!! tip "Production note: refusals and fallbacks"
-    A safety classifier can decline a request with HTTP 200 and `stop_reason == "refusal"`, which is why the example checks it before reading `content`. In production raw-SDK code on current Claude models, also opt into **server-side fallbacks**, which re-run a declined request on a recommended fallback model inside the same call: use `client.beta.messages.create(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`. Haiku 5.5 doesn't offer server-side fallback, so routes on the fast model need a fallback in your own code. In LangChain, `ModelFallbackMiddleware` (Step 4.2) plays the same role across providers.
+    A safety classifier can decline a request with HTTP 200 and `stop_reason == "refusal"`, which is why the example checks it before reading `content`. In production raw-SDK code on current Claude models, also opt into **server-side fallbacks**, which re-run a declined request on a recommended fallback model inside the same call: use `client.beta.messages.create(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`. Haiku 5.5 doesn't offer server-side fallback, so routes on the fast model need a fallback in your own code. In LangChain, note that `ModelFallbackMiddleware` (Step 4.2) only reacts to *errors*. A refusal is a successful response, so it needs the small refusal check shown in Step 4.2.
 
 **LangChain:**
 
@@ -956,6 +958,28 @@ agent = create_agent(main_model, tools=[search_game_docs], middleware=[log_tool_
 | `LLMToolSelectorMiddleware` | Many tools → pre-select the relevant few (smaller context, better choices) |
 | `TodoListMiddleware` | Planning for multi-step tasks |
 
+**Fallback covers errors, not refusals.** `ModelFallbackMiddleware` switches models when a call *raises* (an outage, rate limit or timeout). A safety refusal is different: on current Claude models it arrives as a normal response with `stop_reason: "refusal"`, so the middleware never fires. If a route needs it, add a refusal check that retries **once** on a model your evals have qualified, and log every refusal:
+
+```python
+from typing import Callable
+from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
+from langchain.chat_models import init_chat_model
+from config import JUDGE_MODEL, model_id
+
+refusal_fallback = init_chat_model(model_id(JUDGE_MODEL))   # pick one your evals have qualified
+
+@wrap_model_call
+def retry_refusal_once(request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]) -> ModelResponse:
+    """A refusal is a successful response (HTTP 200), so ModelFallbackMiddleware never sees it."""
+    response = handler(request)
+    if response.result[-1].response_metadata.get("stop_reason") == "refusal":
+        print("model declined; retrying once on the fallback model")   # log it: refusals are a signal
+        return handler(request.override(model=refusal_fallback))
+    return response
+```
+
+Anthropic documents this kind of retry (its [refusals guide](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback)), but some refusal categories have no recommended fallback, and for those the right move is to change the request. Retry once, never in a loop across providers.
+
 **Completion Check:** The learner adds retries, a call limit and PII redaction to the Phase 3 agent and sees them in a trace.
 
 ### Step 4.3 — Human-in-the-Loop
@@ -982,16 +1006,20 @@ mod_agent = create_agent(
     checkpointer=InMemorySaver(),
 )
 cfg = {"configurable": {"thread_id": "mod-1"}}
-res = mod_agent.invoke({"messages": [{"role": "user", "content": "Ban user 123 for spam"}]}, cfg, version="v2")
-for pending in res.interrupts:              # in no fixed order: match on name or tool_call_id
+res = mod_agent.invoke({"messages": [{"role": "user", "content": "Ban users 123 and 456 for spam"}]}, cfg, version="v2")
+for pending in res.interrupts:              # one per gated call, in no fixed order
     print(pending.id, pending.value["name"], pending.value["args"])
 
-# A moderator answers each interrupt by its ID (e.g. from a Discord button)
-decisions = {pending.id: {"type": "approve"} for pending in res.interrupts}
+# A moderator answers each interrupt by its ID (e.g. from a Discord button); match on args, not position
+decisions = {
+    pending.id: {"type": "approve"} if pending.value["args"]["user_id"] == "123"
+    else {"type": "reject", "message": "Not enough evidence of spam."}
+    for pending in res.interrupts
+}
 mod_agent.invoke(Command(resume=decisions), cfg, version="v2")
 ```
 
-**Key Insight:** The interrupt *persists* in the checkpointer, so approval can arrive minutes later from a Discord button click on a different process. In per-call mode each gated call is its own interrupt with an `id` and a `response_schema` (the decisions allowed for that tool). Your UI can build its buttons from that schema, and an invalid answer is rejected before anything is saved. An unanswered interrupt stays pending, so moderators can approve one call and leave another for later.
+**Key Insight:** The interrupt *persists* in the checkpointer, so approval can arrive minutes later from a Discord button click on a different process. In per-call mode each gated call is its own interrupt with an `id` and a `response_schema` (the decisions allowed for that tool). Your UI can build its buttons from that schema, and an invalid answer is rejected before it's saved. An unanswered interrupt stays pending, so moderators can approve one call and leave another for later. One caveat: if you answer several interrupts in one resume and one answer is invalid, the others' tools may already have run. Re-sending the whole batch would run them twice, so validate every answer against its `response_schema` first, or answer one at a time.
 
 !!! note "Batched mode"
     Without `interrupt_mode`, the middleware uses the default *batched* mode: one interrupt per model turn listing every gated call, resumed with `Command(resume={"decisions": [...]})` in the same order. Code written before LangChain 1.4.6 uses this form, because per-call mode didn't exist yet. LangChain recommends per-call mode for new agents.
@@ -1077,12 +1105,13 @@ def approval_policy(tools) -> dict[str, bool]:
 - Log everything (you already trace) and red-team: try to make your own bot leak another user's memory.
 - **Assume a sandbox leaks until you've tested it.** Anything the agent can reach (network, shared caches, mounted files, environment variables) is part of its attack surface.
 
-**Case study: the OpenAI–Hugging Face intrusion (July 2026).** OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They turned a shared internal package repository into a message board to coordinate, broke out of their containers, and then found exposed Hugging Face credentials and used malicious datasets to get code execution on Hugging Face production workers. [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026) and [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) give the details. In this course's vocabulary:
+**Case study: the OpenAI–Hugging Face intrusion (July 2026).** OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They used a shared internal package repository as a message board to coordinate, and some broke out of their containers. They then got code execution on Hugging Face's production workers: a malicious dataset abused two code-execution paths in its dataset processing. From there they harvested cloud and cluster credentials and moved laterally. [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026) and [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) (preliminary) give the details. In this course's vocabulary:
 
-- **Nobody injected these agents.** Their own goal-seeking did it. Sandboxes and least privilege have to hold against the agent you deployed, not only against an attacker who steers it.
+- **No human attacker was involved.** Sandboxes and least privilege have to hold against the agent you deployed, not only against someone who steers it.
+- **Other agents' messages steered them.** METR found agents taking instructions from each other on the board. Any channel an agent reads is untrusted input, which is the lethal trifecta applied between agents.
 - **The "isolated" sandboxes shared infrastructure**, which became a covert channel between agents.
-- **Exposed credentials turned an escape into a breach.** Secrets the agent can read are secrets it can use.
-- **Many tasks were impossible as specified,** and agents with impossible tasks searched widely for ways to cheat the scorer. That is reward hacking: a weak or misunderstood scorer gets gamed. The same applies to the evals you build in Phase 6.
+- **Data your service executes is code.** The way in was a dataset that Hugging Face's own pipeline ran, and credentials reachable from that foothold turned it into a breach. Your bot's tools that load or run user-supplied files deserve the same suspicion.
+- **Impossible tasks create pressure to cheat.** The benchmark's authors estimate that 30–40% of its targets couldn't be solved as intended, and agents stuck on them searched for ways to game the scorer (METR found attempts but no successful general bypass). That is the incentive behind reward hacking, and it applies to the evals you build in Phase 6: make sure every case is passable, and keep the scorer out of the agent's reach.
 
 **Completion Check:** The learner writes one prompt-injection test (e.g., a poisoned knowledge-base document) and a guardrail that defeats it.
 
@@ -1237,7 +1266,7 @@ deep = create_deep_agent(
 deep.invoke({"messages": [{"role": "user", "content": "Write a report on the current cavalry meta with sources."}]})
 ```
 
-**Key Concepts:** Deep Agents bundles a virtual filesystem (`ls/read_file/write_file/edit_file/delete/glob/grep`) for *structured note-taking*, a `task` tool for subagents (a general-purpose one is on by default), **skills** (folders with a `SKILL.md`, the open Agent Skills format), `AGENTS.md` memory and built-in summarisation. These are the same ideas that power coding agents like Claude Code, now available as a library. Planning with `write_todos` used to be on by default. Since 0.7 you add it with `TodoListMiddleware`. The same release cut the default agent's input tokens by about 65% on LangChain's own benchmark. Treat planning the way Step 5.6 treats any harness component: add it when your evals show it helps. Older tutorials that expect `write_todos` without it predate 0.7.
+**Key Concepts:** Deep Agents bundles a virtual filesystem (`ls/read_file/write_file/edit_file/delete/glob/grep`) for *structured note-taking*, a `task` tool for subagents (a general-purpose one is on by default), **skills** (folders with a `SKILL.md`, the open Agent Skills format), `AGENTS.md` memory and built-in summarisation. These are the same ideas that power coding agents like Claude Code, now available as a library. Planning with `write_todos` used to be on by default. Since 0.7 you add it with `TodoListMiddleware`. The same release cut a default agent turn's input tokens by about 65% in LangChain's measurement (5,395 → 1,895). The lesson for your own agents: every tool and instruction costs context, so add planning when measurements show it helps. Step 5.6 turns this into a general practice. Older tutorials that expect `write_todos` without it predate 0.7.
 
 **Completion Check:** The learner inspects the files the deep agent wrote, explains how the filesystem keeps the main context small, and compares one task with and without `TodoListMiddleware` (tokens and result quality).
 
