@@ -41,6 +41,8 @@ DEPRECATED_IN_CODE = {
     r"interrupt_before=": "use interrupt() + Command(resume=...)",
     r"gemini-(1\.5|2\.0)": "retired model ID",
     r"text-embedding-004": "retired embedding model ID",
+    r"claude-3-": "retired Claude model ID",
+    r"claude-(haiku|sonnet)-4-5|claude-(opus|sonnet)-5(?![-\d])": "legacy or retiring Claude model ID; use the current lineup",
     r"budget_tokens": "fixed thinking budgets are rejected on current Claude models; use adaptive thinking + effort",
     r"\btemperature\s*=": "current reasoning models reject or discourage sampling params; use effort",
 }

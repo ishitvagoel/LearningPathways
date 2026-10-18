@@ -10,7 +10,7 @@ tags:
 
 # Claude Harness Kit
 
-**Curriculum V2 (revised) · September 2026**
+**Curriculum V2 (revised) · September 2026, updated October 2026**
 
 The earlier editions said "paste this page into your AI assistant". This edition ships **harness files** instead: configuration that makes Claude Code behave as a disciplined mentor, and that keeps this repository's content honest. They are also the curriculum's first worked example of **harness engineering**: *agent = model + harness*, and the harness is everything around the model (instructions, tools, checks, permissions, memory).
 

@@ -1,6 +1,6 @@
 ---
 title: V2 Review & Research Notes
-description: The audit of the V1 curricula, the September 2026 industry research behind V2, and every source used.
+description: The audit of the V1 curricula, the September 2026 industry research behind V2, its October 2026 update, and every source used.
 icon: material/clipboard-search
 tags:
   - AI
@@ -9,11 +9,79 @@ tags:
 
 # V2 Review & Research Notes
 
-**Reviewed and researched: September 2026**
+**Reviewed and researched: September 2026 · updated 18 October 2026**
 
 This page explains *why* V2 exists: what the review of V1 found, what the industry research showed, and which decisions follow from it. V1 files are untouched and remain in the site under **AI Engineering → V1 (March 2026)**.
 
-Sections 1–5 record the original V2 research. **Section 0** records the late-September revision: a second research pass, the switch to a provider-neutral curriculum, and the Claude harness files.
+Sections 1–5 record the original V2 research. **Section 0** records the late-September revision: a second research pass, the switch to a provider-neutral curriculum, and the Claude harness files. **The October 2026 update** (directly below) records a deep review three weeks after publication.
+
+---
+
+## October 2026 update (18 October 2026)
+
+### What prompted it
+
+The owner asked for a deep review of both V2 paths for industry relevance and recent developments. V2 was published in late September, so this pass asked three questions:
+
+1. What has changed in the three weeks since then?
+2. Does every code sample still run against today's packages?
+3. Which industry-relevant topics are still missing?
+
+### How it was checked
+
+- **Primary sources:** Anthropic's models overview, model deprecations and per-model pages, the LangChain changelog and docs, the Deep Agents docs, the MCP specification and extensions pages, OpenAI's developer docs, the AAIF proposal tracker, the European Commission, Hugging Face's incident disclosure and METR's investigation.
+- **Package versions on PyPI (18 Oct 2026):** `langchain` 1.4.6, `langchain-core` 1.6.12, `langgraph` 1.2.16, `langchain-anthropic` 1.7.6, `deepagents` 0.7.28, `fastmcp` 4.1.1, `mcp` 2.3.0, `anthropic` 1.15.0. LangChain and LangGraph have no newer minor release in Python, so the pinned "1.4 / 1.2" baseline still holds.
+- **Code:** every import in the LangChain Path was run against those versions, and all resolve. The new and changed samples were run end to end with a scripted fake model and an in-process FastMCP server: the MCP approval policy, per-call approval with a rejected call that never runs, and Deep Agents with and without planning. So were the samples whose behaviour the pages depend on (the Step 6.4 unit test, the Step 5.6 citation sensor, the Step 5.7 idempotency guard, Step 3.7 memory and Step 2.6 runtime context). Six tests, all passing. One suspected bug proved to be fine: `ChatAnthropic` has no `effort` field, but `ChatAnthropic(effort="low")` is translated into `output_config.effort` in the request, so Step 0.6 is correct.
+- **Links:** `scripts/check_links.py` over the V2 pages (see the link check below).
+
+### Findings and changes
+
+| Finding (evidence) | Old text | Change |
+|---|---|---|
+| **Claude Haiku 5.5** (`claude-haiku-5-5`) was released on 7 Oct 2026, with adaptive thinking, `effort` (default `medium`) and a 1M context. Haiku 4.5 is now legacy, and its retirement commitment ("not sooner than 15 Oct 2026") has passed | `FAST_MODEL = "claude-haiku-4-5"`; "Haiku 4.5 doesn't support `effort`" | `FAST_MODEL` is `claude-haiku-5-5` in both `config.py` files. The cheat-sheet, model notes, Phase 1 tiers and Phase 1 checkpoint now cover Haiku 5.5's breaking changes: no prefill, budgets or sampling parameters; about 30% more tokens than Haiku 4.5; responses can start with thinking blocks; no server-side fallback |
+| **Deep Agents 0.7** (July 2026) made planning opt-in: `TodoListMiddleware` is no longer a default, so `write_todos` isn't available unless added (verified against 0.7.28) | Step 5.5: "Deep Agents bundles planning (`write_todos`)…" with a bare `create_deep_agent(...)` | The code adds `middleware=[TodoListMiddleware()]` and pins `deepagents>=0.7`. The concepts now list the 0.7 tool set (including `delete`), and the completion check compares runs with and without planning |
+| **LangChain 1.4.6** (14 Oct 2026) added `HumanInTheLoopMiddleware(interrupt_mode="per_call")`: one interrupt per gated call, a `response_schema`, and answers keyed by interrupt ID. LangChain recommends it for new agents | Step 4.3 used batched mode only | Step 4.3 teaches per-call mode, with a note on batched mode for older code. The install pin is now `langchain[mcp]>=1.4.6` |
+| `langchain.mcp` exposes MCP tool annotations (`read_only_hint`, `destructive_hint`) in each tool's metadata. The MCP spec says annotations are untrusted unless the server is trusted | Not covered | Step 4.4 adds an approval policy that **fails closed**: approval is skipped only for a tool that a trusted server marks read-only. The snippet is the tested one. The Phase 4 checkpoint now requires it, and the Mastery Plan's threat-modelling item and "what not to spend time on" table mention it |
+| **MCP Apps** is an official MCP extension: tools return interactive HTML that hosts (Claude, VS Code GitHub Copilot, Microsoft 365 Copilot and others) render in a sandboxed iframe | Not covered | Mastery Phase 2 (item 5 and an optional checkpoint stretch), the generative-UI elective, LangChain Step 4.4 and the resources table. Chosen because it maps a web developer's skills directly onto agent UI |
+| **OpenAI's Agents API** (DevDay, 29 Sep 2026) runs the Codex harness as a hosted API, with OpenAI-hosted or self-hosted environments and MCP. Its endpoints sit under a `beta` namespace, so "beta" is inferred | The managed-platform row named only Claude Managed Agents | Evidence point 5, the harness table (now noting both are beta, and Managed Agents' zero-data-retention exclusion), the framework guide and LangChain Step 5.7 |
+| **The OpenAI–Hugging Face agent intrusion** (July 2026): benchmark agents with reduced safeguards turned a shared package repository into a message board, broke out of their containers, and used exposed credentials to reach Hugging Face production workers. METR (preliminary) estimates 30–40% of the benchmark's targets were impossible as intended, and found agents' mistaken beliefs about the scorer drove the cheating | Not covered (the incident predates V2, but the reports were missed) | New Mastery Phase 7 item 7 (resource count 49 → 50), evidence point 10, production-checklist items on sandboxes, secrets and incident readiness, a sandbox-reach requirement in the Phase 7 checkpoint, a Phase 8 environment-design note, and a LangChain Step 4.5 case study. The framing deliberately avoids the lethal trifecta: no one injected these agents, and that is the lesson |
+| **Agent Skills:** the AAIF Technical Committee approved the proposal on 1 Oct 2026; the Governing Board vote is pending (issue still open on 18 Oct) | "vote pending" | Updated in evidence point 6 and Phase 5 item 4 |
+| **EU:** the final Code of Practice on transparency of AI-generated content was published on 10 June 2026. It is voluntary, but Article 50 is a legal obligation | Article 50 only | Phase 7 item 4 and the compliance checklist item |
+| **Batch APIs** are a standard cost lever (Claude: 50% off; most batches finish in under an hour) and weren't mentioned | — | LangChain Step 6.5, the production checklist, and the Phase 4 checkpoint's nightly-eval layer |
+| **Tokenizers change between generations** (Haiku 5.5 counts the same text as about 30% more tokens than Haiku 4.5) | — | "Cost per task, not price per token" in Step 6.5 and the checklist |
+| **OpenTelemetry's GenAI conventions** moved to a dedicated repository and are still evolving | "OpenTelemetry-compatible where possible" | Pin a version and expect renames (Step 6.1 and the checklist) |
+| Smaller items: 1M context is now on every current Claude model; the Anthropic Python SDK 1.0 (Aug 2026) removed `temperature`/`top_p`/`top_k`; reasoning responses can begin with thinking blocks | Step 1.6 said Opus/Sonnet only | Corrected; new "what not to teach" row on reading `content[0]` |
+| **Sensor:** nothing stopped a legacy model ID from returning to runnable code | — | `scripts/check_docs.py` now flags `claude-3-*`, `claude-haiku-4-5`, `claude-sonnet-4-5`, `claude-opus-5` and `claude-sonnet-5` in Python blocks, with a negative test. The current `-5-5` IDs pass |
+
+### Design decision: update V2 in place
+
+`AGENTS.md` freezes only V1 and says to fix problems in the newest version. Section 4 below said that "published versions are frozen". These changes are corrections plus additive material, and they don't renumber any phase or step, change week ranges, or remove a checkpoint requirement. So they were applied to V2 in place, and learners' progress files and mentor-kit reviews stay valid. The new checkpoint requirements (Phase 4 MCP gating in the LangChain Path, the sandbox-reach test in Mastery Phase 7) apply to checkpoints not yet reviewed. A restructure (new phases, renumbering, a changed learning order) would still go into `v3/`. Section 4's wording is updated to match.
+
+### Claims deliberately not repeated
+
+- The **State of AI Report 2026** cites a study in which changing the harness around GLM-5.1 raised SWE-bench Verified from 52.5% to 65.5%. It would support the harness thesis, but no primary source with those figures was found, so it isn't used.
+- Secondary reports name the specific OpenAI models in the incident inconsistently. The pages name none.
+- New DeepLearning.ai courses: *Building Reliable AI Agent Evaluations* was still in beta testing (a community post dated 13 Oct 2026), so it isn't listed. Re-check at the next update.
+- The *Evals for AI Engineers* publication date couldn't be confirmed on O'Reilly's site (bot-blocked), so "scheduled late 2026" stays.
+- OpenAI's DevDay models (GPT-6.1 Sol and others) aren't named. The pages stay provider-neutral and don't track other vendors' model IDs.
+
+### Link check (18 October 2026)
+
+Before the update, the V2 pages had 154 external links: one transient failure (`agentskills.io`, which resolved on retry) and nine bot-blocked pages (GitHub, OpenAI, Karpathy's blog, Udemy, YouTube, VentureBeat), all confirmed in the September check. The re-run after editing is recorded below.
+
+### Sources (October update)
+
+- Claude models overview — <https://platform.claude.com/docs/en/about-claude/models/overview>; model deprecations — <https://platform.claude.com/docs/en/about-claude/model-deprecations>
+- Claude Haiku 5.5 overview — <https://platform.claude.com/docs/en/models/haiku-5-5/overview>; what's new — <https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5>
+- Claude batch processing — <https://platform.claude.com/docs/en/build-with-claude/batch-processing>; task budgets — <https://platform.claude.com/docs/en/build-with-claude/task-budgets>; Managed Agents overview — <https://platform.claude.com/docs/en/managed-agents/overview>
+- LangChain changelog (1.4.6, Deep Agents 0.7) — <https://docs.langchain.com/oss/python/releases/changelog>; human-in-the-loop — <https://docs.langchain.com/oss/python/langchain/human-in-the-loop>; MCP — <https://docs.langchain.com/oss/python/langchain/mcp>; Deep Agents — <https://docs.langchain.com/oss/python/deepagents/overview>
+- PyPI release data for the packages listed above — <https://pypi.org/>
+- MCP specification (2026-07-28) — <https://modelcontextprotocol.io/specification/latest>; MCP Apps — <https://modelcontextprotocol.io/extensions/apps/overview>
+- OpenAI Agents API — <https://developers.openai.com/api/docs/guides/agents-api/overview>; InfoQ DevDay 2026 recap — <https://www.infoq.com/news/2026/10/openai-devday-2026/>
+- AAIF Agent Skills proposal — <https://github.com/aaif/project-proposals/issues/47>
+- Hugging Face, July 2026 security incident — <https://huggingface.co/blog/security-incident-july-2026>; METR, incident investigation (26 Aug 2026) — <https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/>; State of AI Report 2026 — <https://www.stateof.ai/>
+- European Commission, Code of Practice on transparency of AI-generated content — <https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content>
+- OpenTelemetry GenAI semantic conventions — <https://github.com/open-telemetry/semantic-conventions-genai>
 
 ---
 
@@ -207,7 +275,7 @@ A last correctness and completeness pass over the Mastery Plan. The structural c
 
 ## 4. Design decisions in V2
 
-- **Keep V1 intact**; V2 lives in `docs/ai-engineering/v2/` and is the default in the navigation. (Because V2 had not yet been published when the late-September revision was made, the revision was applied to V2 in place; from now on published versions are frozen.)
+- **Keep V1 intact**; V2 lives in `docs/ai-engineering/v2/` and is the default in the navigation. (Because V2 had not yet been published when the late-September revision was made, the revision was applied to V2 in place. Since publication, V2 takes in-place corrections and additions that don't renumber phases or steps, recorded on this page. Restructures go to a new version folder; see the October 2026 update.)
 - **Order by dependency and by what's hired for:** agentic engineering → build → retrieve/context → **evaluate** → agents → **harness & ambient agents** → **secure/operate** → internals/post-training.
 - **Every phase ends in a checkpoint project**, and from Phase 4 on, every project ships with evals.
 - **Volatile facts are isolated** (model IDs in config; "check the docs" rules for the teaching model) so the next refresh is cheaper.

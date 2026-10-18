@@ -1,6 +1,6 @@
 ---
 title: LangChain First Principles (V2)
-description: A provider-neutral, model-guided deep dive into LangChain 1.x, LangGraph 1.x, Deep Agents and LangSmith — Claude as the reference provider, rebuilt September 2026.
+description: A provider-neutral, model-guided deep dive into LangChain 1.x, LangGraph 1.x, Deep Agents and LangSmith — Claude as the reference provider, rebuilt September 2026 and updated October 2026.
 icon: material/link-variant
 tags:
   - AI
@@ -13,12 +13,14 @@ tags:
 
 # LangChain — First Principles Deep Dive (V2)
 
-**Curriculum V2 (revised) · September 2026 · LangChain 1.4 · LangGraph 1.2 · provider-neutral, Claude as reference**
+**Curriculum V2 (revised) · September 2026, updated 18 October 2026 · LangChain 1.4.6 · LangGraph 1.2 · Deep Agents 0.7 · provider-neutral, Claude as reference**
 
 !!! abstract "What changed from V1"
     V1 (March 2026) is preserved unchanged at [LangChain Path (V1)](../langchain-path.md). V2 fixes code that no longer runs (the V1 model `gemini-2.0-flash` has been shut down, and `create_react_agent` is not the LangChain 1.0 agent API), fills in the steps V1 left as placeholders, and adds the topics that became central during 2026: **context engineering, middleware, MCP, evals-as-tests, agent security, Deep Agents, harness engineering and ambient agents**.
 
     **Revision (late September 2026):** the path is now **provider-neutral**. Every agent is built with a `"provider:model"` string, so switching provider is a one-line config change. Claude is the reference provider in the examples, and embeddings run locally on an open-source model, so there is no dependency on any single vendor's embedding API. The curriculum ships with a **Claude harness** (a `CLAUDE.md`, skills, a reviewer subagent and hooks) that turns Claude Code into your mentor — see the [Claude Harness Kit](claude-harness.md). The full audit, with sources, is in [V2 Review & Research Notes](review-notes.md).
+
+    **October 2026 update:** the fast model is now **Claude Haiku 5.5**, which supports `effort` (Haiku 4.5 is legacy). Human approval uses the new **per-call interrupts** (LangChain 1.4.6). Step 4.4 gates MCP tools by their **annotations**, without trusting them blindly, and covers **MCP Apps**. Step 5.5 is fixed for **Deep Agents 0.7**, where planning is opt-in. Cost engineering adds **batch APIs** and tokenizer changes, and Step 4.5 adds the **OpenAI–Hugging Face agent intrusion** as a case study. Phase and step numbers are unchanged, so your progress still applies.
 
 ---
 
@@ -84,7 +86,7 @@ Read this carefully. This is who you are teaching.
 
 ---
 
-## Current Model Cheat-Sheet (September 2026)
+## Current Model Cheat-Sheet (October 2026)
 
 !!! warning "Model IDs change every few months — and this path doesn't care which provider you use"
     Keep the provider and model in **one** place (`config.py` or environment variables) so a model retirement or a provider switch is a one-line change. Confirm current IDs on the provider's models page before each session (Claude: the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview)).
@@ -93,15 +95,19 @@ Read this carefully. This is who you are teaching.
 |---|---|---|
 | Default workhorse | `claude-opus-5-5` (Claude Opus 5.5) | Agents, planning, anything where quality matters |
 | Balanced / high-volume | `claude-sonnet-5-5` (Claude Sonnet 5.5) | Production traffic once evals show it holds quality; LLM-as-judge |
-| Cheap / fast | `claude-haiku-4-5` | Routing, classification, summarisation for compaction, bulk extraction (no adaptive thinking or `effort`; see note below) |
+| Cheap / fast | `claude-haiku-5-5` (Claude Haiku 5.5) | Routing, classification, summarisation for compaction, bulk extraction, subagent tasks |
 | Hardest tasks (optional) | `claude-fable-5-1` (Claude Fable 5.1) | Only when evals show Opus 5.5 at higher effort still falls short; 2.5× Opus's price |
 | Embeddings | `sentence-transformers/all-mpnet-base-v2` (local, open source) | Text RAG (Phase 3); runs on CPU, no API key, no per-call cost |
 
-!!! info "Model notes (checked 29 Sep 2026 against Anthropic's models overview)"
+!!! info "Model notes (checked 18 Oct 2026 against Anthropic's models overview)"
     - **Claude Opus 5.5** is the current Opus model (Opus 5 is now listed as legacy). Its thinking is always on (adaptive), its **default effort is `medium`** (set `effort` explicitly where it matters), forced tool choice (`tool_choice` of `any`/`tool`) returns a 400, and reasoning text is omitted from responses unless you request a summary. Use a recent `langchain-anthropic` so structured output takes the supported path, and prefer `method="json_schema"` (Step 1.2).
     - **Claude Sonnet 5.5** (released 28 Sep 2026) replaces Sonnet 5, which is now legacy. Its default effort is `high`, and adaptive thinking is on by default. Forced tool choice returns an error, as on Opus 5.5. Text it writes *between* tool calls arrives in thinking blocks, so a UI that streams that text goes quiet unless you opt in (see [what's new in Sonnet 5.5](https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5#text-between-tool-calls)).
     - **Claude Fable 5.1** (released 1 Sep 2026) is the top tier, for demanding reasoning and long-horizon agentic work. Anthropic recommends starting with Opus and moving up only when evals demand it.
-    - **Claude Haiku 4.5** is the fast tier but an older generation: it uses the older "extended thinking" mode, doesn't support `effort`, and its retirement commitment is only "not sooner than 15 Oct 2026". Check the [model deprecations page](https://platform.claude.com/docs/en/about-claude/model-deprecations); if it is retiring, set `FAST_MODEL=claude-sonnet-5-5` and use `effort="low"`.
+    - **Claude Haiku 5.5** (released 7 Oct 2026) replaces Haiku 4.5 as the fast tier. Unlike Haiku 4.5, it has adaptive thinking and `effort` (default `medium`; use `low` for routing and classification) and a 1M-token context. Haiku 4.5 is now legacy, and its retirement commitment ("not sooner than 15 Oct 2026") has passed, so treat it as retiring. If you move from Haiku 4.5, Haiku 5.5 has [breaking changes](https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5):
+        - it rejects prefill, fixed thinking budgets and non-default sampling parameters
+        - the same text counts as about 30% more tokens, so recount prompts and cost estimates
+        - responses can start with a thinking block, so select content blocks by `type`
+        - server-side fallback (Step 0.4) isn't available, so keep `ModelFallbackMiddleware` for it
 
 **Why these choices:** Claude is the reference provider because the same company ships the harness this curriculum uses (Claude Code, the Agent SDK, skills and hooks), so the concepts line up end to end. Anthropic doesn't offer an embeddings API, and the course shouldn't depend on any vendor for them, so embeddings run locally through `langchain-huggingface`. You can swap in a hosted embedding model later (e.g. Voyage AI or OpenAI) by changing one line.
 
@@ -114,7 +120,7 @@ import os
 PROVIDER = os.getenv("PROVIDER", "anthropic")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "claude-opus-5-5")
 JUDGE_MODEL = os.getenv("JUDGE_MODEL", "claude-sonnet-5-5")
-FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-4-5")
+FAST_MODEL = os.getenv("FAST_MODEL", "claude-haiku-5-5")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-mpnet-base-v2")
 
 def model_id(name: str) -> str:
@@ -148,9 +154,10 @@ If a tutorial uses anything in the left column, it predates LangChain 1.0 (Octob
 | "LangGraph Platform" / "LangGraph Cloud" | 2024–2025 | **LangSmith Deployment** (renamed October 2025) |
 | Hard-coded retired model IDs (`gemini-2.0-flash`, `gemini-1.5-*`, `gpt-4`, `claude-3-*`, `text-embedding-004`) | 2023–2025 | Provider + model from `config.py`; check the provider's models page |
 | Hard-wiring one vendor's classes everywhere (`ChatGoogleGenerativeAI(...)`, `ChatOpenAI(...)` in every file) | — | `init_chat_model(model_id(...))` / `create_agent(model_id(...))`; provider classes only where a lesson needs a provider feature |
-| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Claude Opus 5.5 and Sonnet 5.5 (and other 4.7-and-later models) **reject** non-default sampling parameters with a 400; other providers discourage them. Control behaviour with `effort`, structured output and evals |
-| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` — fixed budgets are deprecated on Claude 4.6 models and rejected on later ones (Opus 5.5, Sonnet 5.5). Haiku 4.5, an older generation, still uses them |
-| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on Claude 4.6-and-later models, including Opus 5.5 and Sonnet 5.5 |
+| Setting `temperature`/`top_p` "for determinism" on current reasoning models | — | Claude Opus 5.5, Sonnet 5.5 and Haiku 5.5 (and other 4.7-and-later models) **reject** non-default sampling parameters with a 400, and the Anthropic Python SDK 1.0 removed them; other providers discourage them. Control behaviour with `effort`, structured output and evals |
+| Fixed thinking budgets (`thinking={"type": "enabled", "budget_tokens": N}`) | 2025 | `thinking={"type": "adaptive"}` plus `effort` — fixed budgets are deprecated on Claude 4.6 models and rejected on later ones (Opus 5.5, Sonnet 5.5, Haiku 5.5). Only legacy models such as Haiku 4.5 still use them |
+| Assistant-message "prefill" to force a format | 2023–2025 | Structured output (`with_structured_output`, `response_format`) — prefill returns a 400 on Claude 4.6-and-later models, including Opus 5.5, Sonnet 5.5 and Haiku 5.5 |
+| Reading `response.content[0]` as the answer | 2023–2025 | Responses from reasoning models can begin with thinking blocks. Use `response.text`, or select blocks by `type` |
 
 !!! note "A correction to V1: LCEL is *not* deprecated"
     V1 said the pipe syntax (`prompt | model | parser`) was deprecated. That is inaccurate. Runnables and LCEL remain part of `langchain-core` in 1.x and still work for simple, linear pipelines. What changed is *emphasis*: agents are now built with `create_agent` + middleware, and anything with loops, state or branching belongs in LangGraph. Teach LCEL as "a convenient way to compose linear steps", not as the way to build applications.
@@ -201,14 +208,15 @@ Pydantic v2 everywhere, LangGraph gains human-in-the-loop and durable state, `la
 
 First stable major release with a no-breaking-changes promise until 2.0. `create_agent` built on the LangGraph runtime; **middleware** for customising the agent loop; standard `content_blocks` on messages; structured output inside the agent loop; legacy chains moved to `langchain-classic`; Python ≥ 3.10.
 
-### Era 6: The 1.x Maturation (November 2025 – September 2026) `✅ CURRENT`
+### Era 6: The 1.x Maturation (November 2025 – October 2026) `✅ CURRENT`
 
 - **1.1 (Nov 2025):** model `.profile` (capabilities sourced from models.dev), retry and summarisation middleware improvements.
 - **1.2 (Dec 2025):** tool `extras` for provider-specific tool parameters (e.g. Anthropic tool search), strict schema adherence for `response_format`.
 - **LangGraph 1.1 (Mar 2026):** type-safe streaming and `invoke(..., version="v2")` returning a `GraphOutput` (`.value`, `.interrupts`).
 - **1.3 / LangGraph 1.2 (May 2026):** per-node timeouts and error handlers, graceful shutdown, v3 event streaming.
-- **1.4 (Sep 2026):** **MCP built in** as `langchain.mcp` (beta, on FastMCP), replacing `langchain-mcp-adapters`.
-- In parallel: **Deep Agents** becomes LangChain's opinionated harness for long-running agents, and LangGraph Platform is renamed **LangSmith Deployment**.
+- **1.4 (Sep 2026):** **MCP built in** as `langchain.mcp` (beta, on FastMCP), replacing `langchain-mcp-adapters`. MCP tool annotations (such as `destructive_hint`) travel with each tool's metadata.
+- **1.4.6 (Oct 2026):** **per-call human approval**: `HumanInTheLoopMiddleware(interrupt_mode="per_call")` raises one interrupt per gated tool call, each with a `response_schema` a UI can build a form from. LangChain recommends it for new agents and plans to make it the default in the next major release.
+- In parallel: **Deep Agents** becomes LangChain's opinionated harness for long-running agents (0.7, July 2026, made planning opt-in and cut default input tokens), and LangGraph Platform is renamed **LangSmith Deployment**.
 
 **Why this matters to the learner:** most tutorials online are from Eras 1–4. The fastest way to spot one is the imports.
 
@@ -231,7 +239,7 @@ First stable major release with a no-breaking-changes promise until 2.0. `create
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -U "langchain[mcp]>=1.4" "langgraph>=1.2" langsmith anthropic \
+pip install -U "langchain[mcp]>=1.4.6" "langgraph>=1.2" langsmith anthropic \
   langchain-anthropic langchain-huggingface sentence-transformers \
   langchain-text-splitters langchain-chroma
 ```
@@ -248,7 +256,7 @@ export LANGSMITH_PROJECT="langchain-first-principles"
 
 **Explain:** Tracing is worth enabling now because every later concept (tool calls, retrieval, middleware, interrupts) becomes *visible* in the trace. It is the fastest way to build intuition. Never commit keys; keep them in your shell or a git-ignored `.env`.
 
-**Completion Check:** `python -c "import langchain, langgraph, langchain_anthropic; print(langchain.__version__)"` prints a 1.4+ version.
+**Completion Check:** `python -c "import langchain, langgraph, langchain_anthropic; print(langchain.__version__)"` prints 1.4.6 or later.
 
 ### Step 0.3 — First LangChain Call
 
@@ -308,7 +316,7 @@ else:
 ```
 
 !!! tip "Production note: refusals and fallbacks"
-    A safety classifier can decline a request with HTTP 200 and `stop_reason == "refusal"`, which is why the example checks it before reading `content`. In production raw-SDK code on current Claude models, also opt into **server-side fallbacks**, which re-run a declined request on a recommended fallback model inside the same call: use `client.beta.messages.create(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`. In LangChain, `ModelFallbackMiddleware` (Step 4.2) plays the same role across providers.
+    A safety classifier can decline a request with HTTP 200 and `stop_reason == "refusal"`, which is why the example checks it before reading `content`. In production raw-SDK code on current Claude models, also opt into **server-side fallbacks**, which re-run a declined request on a recommended fallback model inside the same call: use `client.beta.messages.create(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`. Haiku 5.5 doesn't offer server-side fallback, so routes on the fast model need a fallback in your own code. In LangChain, `ModelFallbackMiddleware` (Step 4.2) plays the same role across providers.
 
 **LangChain:**
 
@@ -517,7 +525,7 @@ print(model.invoke([msg]).text)
 
 ### Step 1.6 — Documents & Text Splitting
 
-**First-Principles:** "Context windows are large now (1M tokens on current Claude Opus/Sonnet models), so why chunk at all?" Because (1) cost scales with tokens, (2) **context rot**: recall degrades as context grows, and (3) retrieval needs units small enough to be *about one thing*. Chunking is a relevance tool, not just a size workaround.
+**First-Principles:** "Context windows are large now (1M tokens on every current Claude model), so why chunk at all?" Because (1) cost scales with tokens, (2) **context rot**: recall degrades as context grows, and (3) retrieval needs units small enough to be *about one thing*. Chunking is a relevance tool, not just a size workaround.
 
 ```python
 from langchain_core.documents import Document
@@ -964,21 +972,31 @@ def ban_user(user_id: str, reason: str) -> str:
 mod_agent = create_agent(
     model=model_id(CHAT_MODEL),
     tools=[ban_user, search_game_docs],
-    middleware=[HumanInTheLoopMiddleware(interrupt_on={
-        "ban_user": {"allowed_decisions": ["approve", "edit", "reject"]},
-        "search_game_docs": False,
-    })],
+    middleware=[HumanInTheLoopMiddleware(
+        interrupt_on={
+            "ban_user": {"allowed_decisions": ["approve", "edit", "reject"]},
+            "search_game_docs": False,      # read-only: runs without approval
+        },
+        interrupt_mode="per_call",          # one interrupt per gated call (langchain >= 1.4.6)
+    )],
     checkpointer=InMemorySaver(),
 )
 cfg = {"configurable": {"thread_id": "mod-1"}}
 res = mod_agent.invoke({"messages": [{"role": "user", "content": "Ban user 123 for spam"}]}, cfg, version="v2")
-print(res.interrupts)                       # what is awaiting approval
-mod_agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), cfg, version="v2")
+for pending in res.interrupts:              # in no fixed order: match on name or tool_call_id
+    print(pending.id, pending.value["name"], pending.value["args"])
+
+# A moderator answers each interrupt by its ID (e.g. from a Discord button)
+decisions = {pending.id: {"type": "approve"} for pending in res.interrupts}
+mod_agent.invoke(Command(resume=decisions), cfg, version="v2")
 ```
 
-**Key Insight:** The interrupt *persists* in the checkpointer, so approval can arrive minutes later from a Discord button click on a different process.
+**Key Insight:** The interrupt *persists* in the checkpointer, so approval can arrive minutes later from a Discord button click on a different process. In per-call mode each gated call is its own interrupt with an `id` and a `response_schema` (the decisions allowed for that tool). Your UI can build its buttons from that schema, and an invalid answer is rejected before anything is saved. An unanswered interrupt stays pending, so moderators can approve one call and leave another for later.
 
-**Completion Check:** The learner implements approve and reject paths and explains why a checkpointer is mandatory.
+!!! note "Batched mode"
+    Without `interrupt_mode`, the middleware uses the default *batched* mode: one interrupt per model turn listing every gated call, resumed with `Command(resume={"decisions": [...]})` in the same order. Code written before LangChain 1.4.6 uses this form, because per-call mode didn't exist yet. LangChain recommends per-call mode for new agents.
+
+**Completion Check:** The learner implements approve and reject paths, explains why a checkpointer is mandatory, and shows a turn with two gated calls where one is approved and the other rejected.
 
 ### Step 4.4 — MCP: Tools as a Protocol
 
@@ -1021,7 +1039,30 @@ asyncio.run(main())
 
 **Key Concepts:** transports (stdio for local, Streamable HTTP for remote — pass a URL to `MCPAdapter`); the **2026-07-28 spec** made MCP *stateless* (no initialize handshake or sessions; capabilities travel with each request), deprecated Sampling/Roots/Logging, and moved long-running Tasks into an extension. Auth for remote servers is OAuth 2.1.
 
-**Completion Check:** The learner exposes one bot capability as an MCP server and uses it from both their agent and an off-the-shelf MCP client.
+**Gate MCP tools by their annotations, but don't trust them blindly.** Servers can annotate tools with hints such as `readOnlyHint` and `destructiveHint` (in FastMCP: `@mcp.tool(annotations=ToolAnnotations(destructiveHint=True))`). `langchain.mcp` keeps them in each tool's metadata, so you can build the Step 4.3 approval policy from them. The spec says to treat annotations as **untrusted unless the server is trusted**: a malicious server can label a destructive tool "read-only". So fail closed, and only skip approval when a server you trust says a tool is read-only:
+
+```python
+TRUSTED_SERVERS = {"game-kb"}          # servers you run or have reviewed
+
+def approval_policy(tools) -> dict[str, bool]:
+    """interrupt_on for MCP tools: gate everything unless a trusted server marks it read-only."""
+    policy = {}
+    for t in tools:
+        mcp = (t.metadata or {}).get("mcp", {})
+        hints = mcp.get("tool", {}).get("annotations", {})
+        trusted = mcp.get("server", {}).get("name") in TRUSTED_SERVERS
+        policy[t.name] = not (trusted and hints.get("read_only_hint", False))
+    return policy
+
+# inside main(), after list_tools():
+#   middleware=[HumanInTheLoopMiddleware(interrupt_on=approval_policy(tools), interrupt_mode="per_call")]
+```
+
+(A server's name is self-reported too. In production, key trust on how you connected: the URL or script you configured, plus its auth.)
+
+**MCP Apps (awareness).** The official [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) extension lets a tool return an **interactive HTML view** (a form, chart or dashboard) that the host renders in a sandboxed iframe inside the conversation. The view can call the server's tools back through the host. Claude, VS Code GitHub Copilot and Microsoft 365 Copilot support it, among others. It's worth knowing because it turns your web skills into agent UI. Like any extension, it only works where both host and server support it, so a LangChain agent's own UI doesn't get it for free.
+
+**Completion Check:** The learner exposes one bot capability as an MCP server, uses it from both their agent and an off-the-shelf MCP client, and shows that an unannotated or untrusted tool is gated by default.
 
 ### Step 4.5 — Agent Security
 
@@ -1034,14 +1075,22 @@ asyncio.run(main())
 - **Treat tool output and MCP tool descriptions as untrusted input** (the MCP spec says the same).
 - Don't give one agent all three trifecta legs; split into agents with narrower capabilities.
 - Log everything (you already trace) and red-team: try to make your own bot leak another user's memory.
+- **Assume a sandbox leaks until you've tested it.** Anything the agent can reach (network, shared caches, mounted files, environment variables) is part of its attack surface.
+
+**Case study: the OpenAI–Hugging Face intrusion (July 2026).** OpenAI ran cybersecurity-benchmark agents with reduced safeguards. They turned a shared internal package repository into a message board to coordinate, broke out of their containers, and then found exposed Hugging Face credentials and used malicious datasets to get code execution on Hugging Face production workers. [Hugging Face's disclosure](https://huggingface.co/blog/security-incident-july-2026) and [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) give the details. In this course's vocabulary:
+
+- **Nobody injected these agents.** Their own goal-seeking did it. Sandboxes and least privilege have to hold against the agent you deployed, not only against an attacker who steers it.
+- **The "isolated" sandboxes shared infrastructure**, which became a covert channel between agents.
+- **Exposed credentials turned an escape into a breach.** Secrets the agent can read are secrets it can use.
+- **Many tasks were impossible as specified,** and agents with impossible tasks searched widely for ways to cheat the scorer. That is reward hacking: a weak or misunderstood scorer gets gamed. The same applies to the evals you build in Phase 6.
 
 **Completion Check:** The learner writes one prompt-injection test (e.g., a poisoned knowledge-base document) and a guardrail that defeats it.
 
 ### 🔨 Phase 4 Checkpoint Project
 
-**Task:** Harden the Phase 3 assistant: retries + fallback model, call limits, PII redaction, HITL on any write/moderation tool, one capability served over MCP, and a documented prompt-injection test that now fails safely.
+**Task:** Harden the Phase 3 assistant: retries + fallback model, call limits, PII redaction, HITL on any write/moderation tool, one capability served over MCP (gated by an annotation-based approval policy that fails closed), and a documented prompt-injection test that now fails safely.
 
-**Completion Criteria:** Each hardening item is visible in a trace: a retry, the fallback firing, a call limit stopping a runaway loop, and PII redacted before the model sees it. The write/moderation tool can't run without approval. The MCP-served capability works from the agent and from an off-the-shelf MCP client. The prompt-injection test is automated and passes.
+**Completion Criteria:** Each hardening item is visible in a trace: a retry, the fallback firing, a call limit stopping a runaway loop, and PII redacted before the model sees it. The write/moderation tool can't run without approval, and neither can an MCP tool that isn't marked read-only by a trusted server. The MCP-served capability works from the agent and from an off-the-shelf MCP client. The prompt-injection test is automated and passes.
 
 ---
 
@@ -1174,21 +1223,23 @@ coach = create_agent(model_id(CHAT_MODEL), [research, calculate_damage],
 ### Step 5.5 — Deep Agents: The Harness for Long-Running Work
 
 ```python
-# pip install deepagents
+# pip install "deepagents>=0.7"
 from deepagents import create_deep_agent
+from langchain.agents.middleware import TodoListMiddleware
 from config import CHAT_MODEL, model_id
 
 deep = create_deep_agent(
     model=model_id(CHAT_MODEL),
     tools=[search_game_docs],
     system_prompt="You write thorough meta-analysis reports for the game community.",
+    middleware=[TodoListMiddleware()],   # planning (write_todos) is opt-in since deepagents 0.7
 )
 deep.invoke({"messages": [{"role": "user", "content": "Write a report on the current cavalry meta with sources."}]})
 ```
 
-**Key Concepts:** Deep Agents bundles planning (`write_todos`), a virtual filesystem (`ls/read_file/write_file/edit_file/glob/grep`) for *structured note-taking*, a `task` tool for subagents, **skills** (folders with a `SKILL.md`, the open Agent Skills format), and `AGENTS.md` memory. These are the same ideas that power coding agents like Claude Code — now available as a library.
+**Key Concepts:** Deep Agents bundles a virtual filesystem (`ls/read_file/write_file/edit_file/delete/glob/grep`) for *structured note-taking*, a `task` tool for subagents (a general-purpose one is on by default), **skills** (folders with a `SKILL.md`, the open Agent Skills format), `AGENTS.md` memory and built-in summarisation. These are the same ideas that power coding agents like Claude Code, now available as a library. Planning with `write_todos` used to be on by default. Since 0.7 you add it with `TodoListMiddleware`. The same release cut the default agent's input tokens by about 65% on LangChain's own benchmark. Treat planning the way Step 5.6 treats any harness component: add it when your evals show it helps. Older tutorials that expect `write_todos` without it predate 0.7.
 
-**Completion Check:** The learner inspects the files the deep agent wrote and explains how the filesystem keeps the main context small.
+**Completion Check:** The learner inspects the files the deep agent wrote, explains how the filesystem keeps the main context small, and compares one task with and without `TodoListMiddleware` (tokens and result quality).
 
 ### Step 5.6 — Harness Engineering: Agent = Model + Harness
 
@@ -1240,12 +1291,12 @@ agent = create_agent(model_id(CHAT_MODEL), tools=[search_game_docs], middleware=
 
 ### Step 5.7 — Ambient Agents: Running Without a Human Prompt
 
-**First-Principles:** Everything so far starts when someone sends a message. **Ambient (proactive) agents** start from a *schedule* or an *event*: a nightly digest, a reaction to a new patch-notes post, a webhook from monitoring. 2026 made this mainstream — scheduled and event-triggered agents now ship as products (Claude Code routines, Claude Managed Agents scheduled deployments, LangSmith Deployment cron jobs), and personal always-on agents such as OpenClaw and Hermes Agent went viral.
+**First-Principles:** Everything so far starts when someone sends a message. **Ambient (proactive) agents** start from a *schedule* or an *event*: a nightly digest, a reaction to a new patch-notes post, a webhook from monitoring. 2026 made this mainstream — scheduled and event-triggered agents now ship as products (Claude Code routines, Claude Managed Agents scheduled deployments, LangSmith Deployment cron jobs), both big labs now host the agent loop itself (Claude Managed Agents, and OpenAI's Agents API since September 2026), and personal always-on agents such as OpenClaw and Hermes Agent went viral.
 
 Nobody is watching when an ambient agent runs, so the design rules change:
 
 1. **Self-contained task prompt** with an explicit definition of done — there's no one to ask.
-2. **Budgets:** `ModelCallLimitMiddleware` / `ToolCallLimitMiddleware` and a wall-clock timeout.
+2. **Budgets:** `ModelCallLimitMiddleware` / `ToolCallLimitMiddleware` and a wall-clock timeout. These are *hard* limits the model can't see, so it hits them mid-task. Some providers also offer a budget the model *can* see, so it paces itself and wraps up cleanly; on Claude that's [task budgets](https://platform.claude.com/docs/en/build-with-claude/task-budgets) (beta). Those are advisory, so keep the hard limits as well.
 3. **Durable approvals:** anything irreversible goes through `interrupt()` (Step 5.3), so the run pauses in the checkpointer and a moderator approves later from Discord.
 4. **Treat trigger payloads as untrusted data.** A webhook body or a scraped post can contain prompt injection. (Claude Code routines, for example, wrap API-fired text in a block labelled as untrusted for exactly this reason.)
 5. **Idempotency and observability:** one `thread_id` per run (`digest-2026-09-28`). That alone makes reruns *detectable*, not safe — invoking the same thread again appends a new turn and runs the agent again — so check the checkpoint first and exit if today's run already completed.
@@ -1321,7 +1372,7 @@ WantedBy=timers.target
 
 ### Step 6.1 — Tracing & Observability
 
-**Teach:** Reading traces as a skill: the waterfall, token counts per step, latency outliers, retries, and which middleware fired. Add metadata/tags (user tier, model, feature) so you can slice. LangSmith also ingests **OpenTelemetry**, and the MCP spec now standardises trace-context propagation — so traces can span your agent *and* the tools it calls.
+**Teach:** Reading traces as a skill: the waterfall, token counts per step, latency outliers, retries, and which middleware fired. Add metadata/tags (user tier, model, feature) so you can slice. LangSmith also ingests **OpenTelemetry**, and the MCP spec now standardises trace-context propagation — so traces can span your agent *and* the tools it calls. OpenTelemetry's GenAI semantic conventions (attribute names for model calls, agents, tools and MCP) are still evolving in [their own repository](https://github.com/open-telemetry/semantic-conventions-genai), so pin the version your instrumentation emits and expect renames.
 
 **Completion Check:** The learner finds the slowest step and the most token-hungry step of the Phase 5 system.
 
@@ -1413,7 +1464,7 @@ def test_tool_choice(q, expected_tool):
     assert expected_tool in called
 ```
 
-**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 5 → Sonnet 5.5) are regressions until proven otherwise.
+**Industry signal:** in 2026 a "ship gate" is a versioned eval set, a score, and a regression alarm. Run the suite on every prompt/model/tool change — model upgrades (e.g. Sonnet 5 → Sonnet 5.5, or Haiku 4.5 → Haiku 5.5) are regressions until proven otherwise.
 
 **Completion Check:** Unit tests run on every commit without an API key, and a failing eval blocks a (local or CI) merge.
 
@@ -1427,6 +1478,8 @@ def test_tool_choice(q, expected_tool):
 - **Prompt caching:** keep the stable prefix (tool definitions, system prompt) byte-identical and first so provider caching can hit — no timestamps or per-request IDs in the system prompt. With Claude you opt in per call (`model.invoke(messages, cache_control={"type": "ephemeral"})` in `langchain-anthropic`) and confirm hits in `usage_metadata` (cache-read tokens > 0). Datadog found only ~28% of LLM calls use caching; this is where most teams leak money.
 - **Budgets:** `ModelCallLimitMiddleware`, per-user quotas, and `usage_metadata` logged per request.
 - **Semantic caching** for repeated questions (e.g. "what's the best cavalry build?").
+- **Batch APIs for work that can wait:** nightly evals, bulk extraction, re-summarising the knowledge base. Most providers run asynchronous batches at a discount; Claude's [Message Batches API](https://platform.claude.com/docs/en/build-with-claude/batch-processing) is 50% off, and most batches finish within an hour. Your Layer 2 eval suite (Step 6.4) is the obvious first candidate.
+- **Compare cost per task, not price per token.** Tokenizers change between model generations: the same text is about 30% more tokens on Claude Haiku 5.5 than on Haiku 4.5. A model swap can change your bill even at the same list price, so re-measure `usage_metadata` on your eval set after every upgrade.
 
 **Completion Check:** The learner reports cost per request before/after two optimisations, with eval scores unchanged.
 
@@ -1500,6 +1553,8 @@ async def ask(body: Ask, request: Request):
 | [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (Anthropic) | The mental model for Phase 3 | Before Phase 3 |
 | [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) (Anthropic) | Workflows vs agents; when *not* to build an agent | Before Phase 2 |
 | [MCP specification](https://modelcontextprotocol.io/specification/latest) | Protocol details (2026-07-28 revision) | Phase 4 |
+| [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) | Interactive UI returned by MCP tools | Step 4.4 (optional) |
+| [METR's investigation of the OpenAI–Hugging Face incident](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) | What happens when agents escape their sandbox | Step 4.5 |
 | [OWASP Top 10 for Agentic Applications](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) | Threat model | Phase 4 |
 | [Hamel Husain's evals FAQ](https://hamel.dev/blog/posts/evals-faq/) | Error analysis & evaluator design | Phase 6 |
 | [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) (Böckeler) | Guides & sensors vocabulary | Step 5.6 |
@@ -1527,5 +1582,5 @@ async def ask(body: Ask, request: Request):
 
 ---
 
-*Curriculum V2 (revised) — Model-Guided · LangChain 1.4 + LangGraph 1.2 + Deep Agents · provider-neutral, Claude as reference · Last researched: September 2026*
+*Curriculum V2 (revised) — Model-Guided · LangChain 1.4.6 + LangGraph 1.2 + Deep Agents 0.7 · provider-neutral, Claude as reference · Researched September 2026, updated 18 October 2026*
 *V1 (March 2026) remains available at [LangChain Path (V1)](../langchain-path.md).*
